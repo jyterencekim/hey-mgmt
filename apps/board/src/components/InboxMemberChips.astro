@@ -1,0 +1,71 @@
+---
+import { getCurrentMember, listCoreTeam, loadAllInbox } from "@/lib/workspace"
+
+interface Props {
+  active: string
+}
+
+const { active } = Astro.props
+// Core team only; a member opened by URL keeps its chip so the page shows
+// whose inbox it is.
+const members = [...new Set([...listCoreTeam(getCurrentMember()), active])]
+const allInbox = loadAllInbox()
+
+// Sort: active first (highlighted as current), then members with open items,
+// then everyone else. Each chip shows its open-count for quick scanning.
+type Entry = { name: string; open: number }
+const entries: Entry[] = members.map((name) => {
+  const items = allInbox.get(name) ?? []
+  return { name, open: items.filter((i) => i.status === "open").length }
+})
+entries.sort((a, b) => {
+  if (a.name === active) return -1
+  if (b.name === active) return 1
+  if (a.open !== b.open) return b.open - a.open
+  return a.name.localeCompare(b.name)
+})
+
+const ACTOR_COLORS = [
+  "bg-emerald-600",
+  "bg-sky-600",
+  "bg-violet-600",
+  "bg-rose-600",
+  "bg-amber-600",
+  "bg-teal-600",
+  "bg-indigo-600",
+  "bg-orange-600",
+]
+function actorBg(name: string): string {
+  let h = 0
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) | 0
+  return ACTOR_COLORS[Math.abs(h) % ACTOR_COLORS.length]
+}
+---
+
+<div class="mb-5 flex flex-wrap items-center gap-1.5">
+  {
+    entries.map((e) => {
+      const isActive = e.name === active
+      return (
+        <a
+          href={`/inbox/${e.name}/`}
+          class={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
+            isActive
+              ? "border-foreground bg-foreground text-background"
+              : "border-border text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <span
+            class={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white ${actorBg(e.name)}`}
+          >
+            {e.name.charAt(0).toUpperCase()}
+          </span>
+          <span>{e.name}</span>
+          {e.open > 0 && (
+            <span class="font-mono opacity-70">{e.open}</span>
+          )}
+        </a>
+      )
+    })
+  }
+</div>

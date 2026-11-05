@@ -1,0 +1,2 @@
+{"id":"kn_1","source":"slack","object_type":"slack-message","title":"hello","classification":"match","status":"indexed","linked_artifact":"task_one","url":"https://x/1","date":"2026-09-01","changed_at":"2026-09-01T00:00:00Z"}
+{"id":"kn_2","source":"slack","object_type":"slack-message","title":"noise","classification":"skip","status":"indexed","linked_artifact":null}

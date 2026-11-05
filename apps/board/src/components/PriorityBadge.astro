@@ -1,0 +1,26 @@
+---
+type Priority = "do" | "plan" | "routine" | "drop" | null | undefined;
+
+interface Props {
+  priority: Priority;
+}
+
+const { priority } = Astro.props;
+
+const colorMap: Record<string, string> = {
+  do: "bg-red-100 text-red-800",
+  plan: "bg-blue-100 text-blue-800",
+  routine: "bg-amber-100 text-amber-800",
+  drop: "bg-muted text-muted-foreground",
+};
+
+const classes = priority
+  ? (colorMap[priority] ?? "bg-background text-muted-foreground")
+  : "bg-background text-muted-foreground";
+
+const label = priority ?? "—";
+---
+
+<span class={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${classes}`}>
+  {label}
+</span>

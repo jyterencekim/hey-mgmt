@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/main.astro"
+import WeeklyViewer from "@/components/WeeklyViewer.astro"
+import { latestWeeklyEdition, listWeeklyEditions } from "@/lib/weekly"
+
+const editions = listWeeklyEditions()
+---
+
+<Layout title="Weekly">
+  <WeeklyViewer editions={editions} current={latestWeeklyEdition(editions)} />
+</Layout>

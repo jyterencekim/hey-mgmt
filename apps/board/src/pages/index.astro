@@ -1,0 +1,290 @@
+---
+import Layout from "@/layouts/main.astro"
+import InboxItem from "@/components/InboxItem.astro"
+import PriorityBadge from "@/components/PriorityBadge.astro"
+import StatusSelect from "@/components/islands/StatusSelect"
+import TaskTitleCell from "@/components/TaskTitleCell.astro"
+import InboxActions from "@/components/islands/InboxActions"
+import { loadTasks } from "@/lib/manifest"
+import { getCurrentMember, loadInboxFor } from "@/lib/workspace"
+import { getCurrentIteration } from "@/lib/iterations"
+
+const tasks = loadTasks()
+const member = getCurrentMember()
+const currentIteration = getCurrentIteration()
+const inactiveStatuses = new Set(["done", "archived", "cancelled"])
+
+const iterationTasks = tasks.filter((t) => t.iteration === currentIteration)
+const openIterationTasks = iterationTasks.filter(
+  (t) => !inactiveStatuses.has(t.status ?? "")
+)
+const byOwner: Record<string, typeof iterationTasks> = {}
+for (const t of openIterationTasks) {
+  const o = t.owner ?? "unassigned"
+  byOwner[o] = byOwner[o] ?? []
+  byOwner[o].push(t)
+}
+
+const myTasks = tasks.filter(
+  (t) => t.owner === member && !inactiveStatuses.has(t.status ?? "")
+)
+const myIterationTasks = myTasks.filter((t) => t.iteration === currentIteration)
+const myDoTasks = myTasks.filter((t) => t.priority === "do")
+const todayMs = new Date().setHours(0, 0, 0, 0)
+const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+const myDueSoonTasks = myTasks.filter((t) => {
+  if (!t.due_date) return false
+  const dueMs = new Date(`${t.due_date}T00:00:00`).getTime()
+  return Number.isFinite(dueMs) && dueMs - todayMs <= sevenDaysMs
+})
+const openInboxItems = loadInboxFor(member).filter((i) => i.status === "open")
+
+const PRIORITY_ORDER: Record<string, number> = {
+  do: 0,
+  plan: 1,
+  routine: 2,
+  drop: 3,
+}
+
+function dueRank(dueDate: string | null): number {
+  if (!dueDate) return Infinity
+  const dueMs = new Date(`${dueDate}T00:00:00`).getTime()
+  return Number.isFinite(dueMs) ? dueMs : Infinity
+}
+
+function sortTasks(arr: typeof iterationTasks) {
+  return [...arr].sort((a, b) => {
+    const pa = a.priority ? (PRIORITY_ORDER[a.priority] ?? 99) : 99
+    const pb = b.priority ? (PRIORITY_ORDER[b.priority] ?? 99) : 99
+    if (pa !== pb) return pa - pb
+    return dueRank(a.due_date) - dueRank(b.due_date)
+  })
+}
+
+const attentionCandidates = sortTasks([
+  ...new Map(
+    [...myDoTasks, ...myDueSoonTasks, ...myIterationTasks].map((task) => [
+      task.id,
+      task,
+    ])
+  ).values(),
+])
+const myAttentionTasks = (
+  attentionCandidates.length > 0 ? attentionCandidates : sortTasks(myTasks)
+).slice(0, 8)
+const hiddenMyTaskCount = Math.max(myTasks.length - myAttentionTasks.length, 0)
+---
+
+<Layout title="Dashboard">
+  <div class="mb-6">
+    <h1 class="text-xl font-semibold text-foreground">Dashboard</h1>
+    <p class="mt-1 text-sm text-muted-foreground">
+      {member} · {currentIteration}
+    </p>
+  </div>
+
+  <section class="mb-8">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <h2 class="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+        Inbox
+      </h2>
+      <a
+        href={`/me/${member}/?view=inbox`}
+        class="text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
+        {openInboxItems.length} open
+      </a>
+    </div>
+    {
+      openInboxItems.length === 0 ? (
+        <p class="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+          No open inbox items.
+        </p>
+      ) : (
+        <div class="space-y-3">
+          {openInboxItems.slice(0, 5).map((item) => (
+            <InboxItem item={item}>
+              <InboxActions
+                client:load
+                workspace={member}
+                itemId={item.id}
+                status={item.status}
+              />
+            </InboxItem>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  <section class="mb-8">
+    <div class="mb-3 flex items-center justify-between gap-3">
+      <div>
+        <h2 class="text-sm font-medium tracking-wide text-muted-foreground uppercase">
+          My work
+        </h2>
+        <p class="mt-1 text-xs text-muted-foreground">
+          {myAttentionTasks.length} shown · {myTasks.length} open
+        </p>
+      </div>
+      <div class="flex gap-3 text-sm font-medium">
+        <a
+          href={`/me/${member}/`}
+          class="text-muted-foreground hover:text-foreground"
+        >
+          Open Me
+        </a>
+        <a
+          href="/tasks/?preset=mine"
+          class="text-muted-foreground hover:text-foreground"
+        >
+          All mine
+        </a>
+      </div>
+    </div>
+    {
+      myAttentionTasks.length === 0 ? (
+        <p class="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+          No open tasks need attention.
+        </p>
+      ) : (
+        <div class="overflow-x-auto rounded-lg border border-border">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-border bg-background">
+                <th class="w-[52%] px-4 py-2 text-left font-medium text-muted-foreground">
+                  Title
+                </th>
+                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                  Priority
+                </th>
+                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                  Status
+                </th>
+                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                  Due
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {myAttentionTasks.map((task) => (
+                <tr class="border-b border-border hover:bg-muted">
+                  <TaskTitleCell
+                    id={task.id}
+                    title={task.title}
+                    path={task.path}
+                    class="py-2"
+                  />
+                  <td class="px-4 py-2">
+                    <PriorityBadge priority={task.priority} />
+                  </td>
+                  <td class="px-4 py-2">
+                    <StatusSelect client:load taskId={task.id} status={task.status} />
+                  </td>
+                  <td class="px-4 py-2 text-muted-foreground">
+                    {task.due_date ?? "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {hiddenMyTaskCount > 0 && (
+            <div class="border-t border-border bg-card px-4 py-2 text-sm text-muted-foreground">
+              <a
+                href="/tasks/?preset=mine"
+                class="font-medium hover:text-foreground"
+              >
+                View {hiddenMyTaskCount} more open task
+                {hiddenMyTaskCount === 1 ? "" : "s"}
+              </a>
+            </div>
+          )}
+        </div>
+      )
+    }
+  </section>
+
+  <section class="mb-8">
+    <h2
+      class="mb-1 text-sm font-medium tracking-wide text-muted-foreground uppercase"
+    >
+      Current iteration
+    </h2>
+    <div class="mb-4 flex flex-wrap items-baseline justify-between gap-3">
+      <p class="text-base font-semibold text-foreground">{currentIteration}</p>
+      <a
+        href={`/tasks/?preset=current_iteration`}
+        class="text-sm font-medium text-muted-foreground hover:text-foreground"
+      >
+        {openIterationTasks.length} open task
+        {openIterationTasks.length === 1 ? "" : "s"} · view all
+      </a>
+    </div>
+    {
+      openIterationTasks.length === 0 ? (
+        <p class="text-sm text-muted-foreground">
+          No open tasks assigned to this iteration.
+        </p>
+      ) : (
+        <div class="space-y-6">
+          {Object.entries(byOwner)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([ownerName, ownerTasks]) => (
+              <div>
+                <h3 class="mb-2 text-sm font-medium text-muted-foreground">
+                  {ownerName}
+                </h3>
+                <div class="overflow-x-auto rounded-lg border border-border">
+                  <table class="w-full text-sm">
+                    <thead>
+                      <tr class="border-b border-border bg-background">
+                        <th class="w-[50%] px-4 py-2 text-left font-medium text-muted-foreground">
+                          Title
+                        </th>
+                        <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                          Priority
+                        </th>
+                        <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                          Status
+                        </th>
+                        <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                          Due
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortTasks(ownerTasks).map((task) => (
+                        <tr class="border-b border-border hover:bg-muted">
+                          <TaskTitleCell
+                            id={task.id}
+                            title={task.title}
+                            path={task.path}
+                            class="py-2"
+                          />
+                          <td class="px-4 py-2">
+                            <PriorityBadge priority={task.priority} />
+                          </td>
+                          <td class="px-4 py-2">
+                            <StatusSelect client:load taskId={task.id} status={task.status} />
+                          </td>
+                          <td class="px-4 py-2 text-muted-foreground">
+                            {task.due_date ?? "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))}
+        </div>
+      )
+    }
+  </section>
+
+  <script>
+    window.addEventListener("board:action-complete", () => {
+      window.location.reload()
+    })
+  </script>
+</Layout>

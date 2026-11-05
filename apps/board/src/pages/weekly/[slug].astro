@@ -1,0 +1,19 @@
+---
+import Layout from "@/layouts/main.astro"
+import WeeklyViewer from "@/components/WeeklyViewer.astro"
+import { listWeeklyEditions, type WeeklyEdition } from "@/lib/weekly"
+
+export function getStaticPaths() {
+  return listWeeklyEditions().map((edition) => ({ params: { slug: edition.slug }, props: { edition } }))
+}
+
+interface Props {
+  edition: WeeklyEdition
+}
+
+const { edition } = Astro.props
+---
+
+<Layout title={`Weekly ${edition.date}`}>
+  <WeeklyViewer editions={listWeeklyEditions()} current={edition} />
+</Layout>

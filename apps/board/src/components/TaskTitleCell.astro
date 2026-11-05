@@ -1,0 +1,27 @@
+---
+interface Props {
+  id: string
+  title: string
+  path: string
+  /** Kept for callers; the id/VS Code row is no longer shown. */
+  vscodeHref?: string
+  class?: string
+  /** Force a full-document navigation so browser Back restores the caller's
+      view (e.g. the Goals timeline/table). Off by default for SPA speed. */
+  reload?: boolean
+}
+
+const { id, title, path, class: className, reload } = Astro.props
+const cellClass = className ?? "py-3"
+---
+
+<td class:list={["max-w-[420px] px-4", cellClass]}>
+  <a
+    href={`/tasks/${id}/`}
+    data-astro-reload={reload}
+    class="block leading-snug font-medium text-foreground hover:underline"
+    title={path}
+  >
+    {title}
+  </a>
+</td>

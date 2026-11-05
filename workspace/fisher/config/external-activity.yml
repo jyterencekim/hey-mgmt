@@ -1,0 +1,39 @@
+repo:
+  branch: main
+  auto_pull: true
+  auto_push: true
+
+members:
+  alice:
+    slack_user_ids: []
+    slack_handles: [alice]
+    atlassian_account_ids: []
+    emails: [alice@example.com]
+    github_logins: [alice]
+  bob:
+    slack_user_ids: []
+    slack_handles: [bob]
+    atlassian_account_ids: []
+    emails: [bob@example.com]
+    github_logins: [bob]
+
+sources:
+  slack:
+    enabled: false
+    channels: []
+    include_bot_dms: true
+    allow_all_user_dms: true
+    dm_user_allowlist: []
+  confluence:
+    enabled: false
+    cql: 'type = page order by lastmodified desc'
+    limit: 25
+  drive:
+    enabled: false
+    page_size: 50
+    shared_drive_ids: []
+    folder_ids: []
+  github:
+    enabled: false
+    repos: []
+    events: [pull_request, issues, release]

@@ -1,0 +1,318 @@
+---
+import Layout from "@/layouts/main.astro"
+import PriorityBadge from "@/components/PriorityBadge.astro"
+import { loadTasks } from "@/lib/manifest"
+import { listIterations } from "@/lib/iterations"
+import { getCurrentMember } from "@/lib/workspace"
+
+export async function getStaticPaths() {
+  const tasks = loadTasks()
+  const iterations = listIterations(tasks)
+  return iterations.map((week) => ({ params: { week } }))
+}
+
+const { week } = Astro.params
+
+// Astro pages with getStaticPaths are pre-rendered to static HTML and do NOT
+// re-render based on Astro.url.searchParams. The owner filter therefore has
+// to be applied CLIENT-SIDE — every card carries a data-card-owner attribute
+// and the inline script at the bottom of this file reads ?owner= from the URL
+// and toggles each card's `hidden` attribute.
+const tasks = loadTasks()
+const iterTasks = tasks.filter((t) => t.iteration === week)
+const currentMember = getCurrentMember()
+
+const ownersInIter = [
+  ...new Set(iterTasks.map((t) => t.owner).filter((o): o is string => !!o)),
+].sort()
+const countByOwner = new Map<string, number>()
+for (const o of ownersInIter) countByOwner.set(o, 0)
+for (const t of iterTasks) {
+  if (t.owner) countByOwner.set(t.owner, (countByOwner.get(t.owner) ?? 0) + 1)
+}
+
+const ACTOR_COLORS_BG = [
+  "bg-emerald-600",
+  "bg-sky-600",
+  "bg-violet-600",
+  "bg-rose-600",
+  "bg-amber-600",
+  "bg-teal-600",
+  "bg-indigo-600",
+  "bg-orange-600",
+]
+function actorBg(name: string): string {
+  let h = 0
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) | 0
+  return ACTOR_COLORS_BG[Math.abs(h) % ACTOR_COLORS_BG.length]
+}
+
+// ── Kanban grouping ──────────────────────────────────────────────
+type Status = "plan" | "ready" | "doing" | "blocked" | "done"
+const COLUMNS: { status: Status; label: string }[] = [
+  { status: "plan", label: "Backlog" },
+  { status: "ready", label: "Ready" },
+  { status: "doing", label: "Doing" },
+  { status: "blocked", label: "Blocked" },
+  { status: "done", label: "Done" },
+]
+
+const PRIORITY_ORDER: Record<string, number> = {
+  do: 0,
+  plan: 1,
+  routine: 2,
+  drop: 3,
+}
+
+function sortPriorityThenDue(arr: typeof iterTasks) {
+  return [...arr].sort((a, b) => {
+    const pa = a.priority ? (PRIORITY_ORDER[a.priority] ?? 99) : 99
+    const pb = b.priority ? (PRIORITY_ORDER[b.priority] ?? 99) : 99
+    if (pa !== pb) return pa - pb
+    const da = a.due_date ?? "9999-12-31"
+    const db = b.due_date ?? "9999-12-31"
+    return da.localeCompare(db)
+  })
+}
+
+const byStatus = new Map<Status, typeof iterTasks>()
+for (const col of COLUMNS) byStatus.set(col.status, [])
+for (const t of iterTasks) {
+  const s = (t.status ?? "plan") as Status
+  if (byStatus.has(s)) byStatus.get(s)!.push(t)
+}
+
+const todayIso = new Date().toISOString().slice(0, 10)
+function dueTone(due: string | null): string {
+  if (!due) return ""
+  if (due < todayIso) return "text-red-500"
+  const d = new Date(due).getTime() - Date.now()
+  if (d < 3 * 24 * 60 * 60 * 1000) return "text-amber-500"
+  return "text-muted-foreground"
+}
+---
+
+<Layout title={`Iteration ${week}`}>
+  <div class="mb-2">
+    <a
+      href="/iterations/"
+      class="text-sm text-muted-foreground hover:text-foreground">← Iterations</a
+    >
+  </div>
+  <h1 class="mb-4 text-xl font-semibold text-foreground">{week}</h1>
+
+  {
+    ownersInIter.length > 0 && (
+      <div id="owner-filter" class="mb-5 flex flex-wrap items-center gap-1.5">
+        <a
+          href={`/iterations/${week}/`}
+          data-owner-chip=""
+          class="owner-chip inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-medium transition-colors text-muted-foreground hover:text-foreground"
+        >
+          All
+          <span class="font-mono opacity-60">{iterTasks.length}</span>
+        </a>
+        <a
+          href={`/iterations/${week}/?owner=${currentMember}`}
+          data-owner-chip={`only:${currentMember}`}
+          class="owner-chip inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs font-medium transition-colors text-muted-foreground hover:text-foreground"
+        >
+          Mine
+          <span class="font-mono opacity-60">{countByOwner.get(currentMember) ?? 0}</span>
+        </a>
+        <span class="mx-1 h-4 w-px bg-border" aria-hidden="true" />
+        {ownersInIter.map((o) => (
+          <a
+            href={`/iterations/${week}/?owner=${o}`}
+            data-owner-chip={o}
+            class="owner-chip inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium transition-colors text-muted-foreground hover:text-foreground"
+          >
+            <span
+              class={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white ${actorBg(o)}`}
+            >
+              {o.charAt(0).toUpperCase()}
+            </span>
+            <span>{o}</span>
+            <span class="font-mono opacity-60">{countByOwner.get(o) ?? 0}</span>
+          </a>
+        ))}
+      </div>
+    )
+  }
+
+  {
+    iterTasks.length === 0 ? (
+      <p class="text-sm text-muted-foreground">No tasks in this iteration.</p>
+    ) : (
+      <div class="-mx-2 overflow-x-auto px-2 pb-3">
+        <div class="grid grid-cols-[repeat(5,minmax(224px,1fr))] gap-2">
+          {COLUMNS.map((col) => {
+            const items = sortPriorityThenDue(byStatus.get(col.status) ?? [])
+            return (
+              <div
+                data-kanban-column={col.status}
+                class="flex min-w-0 flex-col rounded-lg border border-border bg-card"
+              >
+                <header class="flex items-center justify-between border-b border-border px-3 py-2">
+                  <span class="text-sm font-medium text-foreground">
+                    {col.label}
+                  </span>
+                  <span
+                    data-column-count
+                    class="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground"
+                  >
+                    {items.length}
+                  </span>
+                </header>
+                <div class="flex max-h-[70vh] flex-col gap-1.5 overflow-y-auto p-2">
+                  {items.length === 0 ? (
+                    <div
+                      data-empty-marker
+                      class="px-2 py-4 text-center text-xs text-muted-foreground/60"
+                    >
+                      —
+                    </div>
+                  ) : (
+                    items.map((t) => (
+                      <a
+                        href={`/tasks/${t.id}/`}
+                        data-card-owner={t.owner ?? ""}
+                        class="group flex flex-col gap-2 rounded border border-border bg-background p-2.5 text-sm transition-colors hover:border-primary/40"
+                      >
+                        <span class="line-clamp-3 text-foreground">{t.title}</span>
+                        <div class="flex items-center gap-2">
+                          <PriorityBadge priority={t.priority} />
+                          {t.owner && (
+                            <span
+                              class={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white ${actorBg(t.owner)}`}
+                              title={t.owner}
+                            >
+                              {t.owner.charAt(0).toUpperCase()}
+                            </span>
+                          )}
+                          {t.due_date && (
+                            <span class={`ml-auto font-mono text-[11px] ${dueTone(t.due_date)}`}>
+                              {t.due_date}
+                            </span>
+                          )}
+                        </div>
+                      </a>
+                    ))
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  <script>
+    // Client-side owner filter. Parses ?owner=a,b,c from the URL and toggles
+    // [data-card-owner] cards' `hidden` attribute accordingly. Also updates
+    // chip active states and per-column counts. Chip clicks update the URL
+    // via history.pushState (multi-select toggle: click again to remove).
+    // Re-applies on astro:page-load + popstate so the filter survives nav.
+    (function () {
+      const ACTIVE_CLASSES = ["bg-foreground", "text-background", "border-foreground"]
+      const INACTIVE_CLASSES = ["text-muted-foreground", "hover:text-foreground"]
+
+      function readOwners() {
+        const params = new URLSearchParams(location.search)
+        const raw = params.get("owner") ?? ""
+        return new Set(
+          raw
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        )
+      }
+
+      function setOwners(owners: Set<string>) {
+        const params = new URLSearchParams(location.search)
+        if (owners.size === 0) params.delete("owner")
+        else params.set("owner", [...owners].join(","))
+        const qs = params.toString()
+        const url = location.pathname + (qs ? "?" + qs : "")
+        history.pushState({}, "", url)
+        apply()
+      }
+
+      function apply() {
+        const owners = readOwners()
+        // Toggle cards
+        document.querySelectorAll<HTMLElement>("[data-card-owner]").forEach((el) => {
+          const o = el.dataset.cardOwner ?? ""
+          el.hidden = owners.size > 0 && !owners.has(o)
+        })
+        // Recompute column counts from visible cards
+        document.querySelectorAll<HTMLElement>("[data-kanban-column]").forEach((col) => {
+          const visible = col.querySelectorAll<HTMLElement>(
+            "[data-card-owner]:not([hidden])"
+          ).length
+          const total = col.querySelectorAll<HTMLElement>("[data-card-owner]").length
+          const counter = col.querySelector<HTMLElement>("[data-column-count]")
+          if (counter) {
+            counter.textContent = owners.size > 0 ? `${visible}/${total}` : String(total)
+          }
+          const empty = col.querySelector<HTMLElement>("[data-empty-marker]")
+          if (empty) empty.hidden = visible > 0 || total === 0
+          // If filter hides ALL cards in a column and there's no static empty marker,
+          // we don't need to inject one — the column just shows nothing.
+        })
+        // Toggle chip active state
+        document
+          .querySelectorAll<HTMLAnchorElement>("[data-owner-chip]")
+          .forEach((chip) => {
+            const key = chip.dataset.ownerChip ?? ""
+            let active = false
+            if (key === "") {
+              active = owners.size === 0
+            } else if (key.startsWith("only:")) {
+              const only = key.slice("only:".length)
+              active = owners.size === 1 && owners.has(only)
+            } else {
+              active = owners.has(key)
+            }
+            ACTIVE_CLASSES.forEach((c) => chip.classList.toggle(c, active))
+            INACTIVE_CLASSES.forEach((c) => chip.classList.toggle(c, !active))
+          })
+      }
+
+      function onChipClick(e: MouseEvent) {
+        const chip = (e.target as HTMLElement | null)?.closest<HTMLAnchorElement>(
+          "[data-owner-chip]"
+        )
+        if (!chip) return
+        e.preventDefault()
+        const key = chip.dataset.ownerChip ?? ""
+        const owners = readOwners()
+        if (key === "") {
+          owners.clear()
+        } else if (key.startsWith("only:")) {
+          const only = key.slice("only:".length)
+          owners.clear()
+          owners.add(only)
+        } else {
+          if (owners.has(key)) owners.delete(key)
+          else owners.add(key)
+        }
+        setOwners(owners)
+      }
+
+      function wire() {
+        const root = document.getElementById("owner-filter")
+        if (!root) return
+        // Listener is added by class name so the SPA swap that replaces
+        // <main>'s innerHTML drops it cleanly; we re-attach on page-load.
+        root.addEventListener("click", onChipClick)
+        apply()
+      }
+
+      wire()
+      window.addEventListener("popstate", apply)
+      document.addEventListener("astro:page-load", wire)
+    })()
+  </script>
+</Layout>

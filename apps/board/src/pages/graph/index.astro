@@ -1,0 +1,15 @@
+---
+import Layout from "@/layouts/main.astro"
+import TaskGraph from "@/components/islands/TaskGraph"
+---
+
+<Layout title="Graph">
+  <div class="mb-4 flex items-baseline justify-between">
+    <h1 class="text-xl font-semibold text-foreground">Graph</h1>
+    <p class="text-sm text-muted-foreground">
+      Tasks and initiatives, connected by their <code class="font-mono text-xs">relations_out</code>.
+    </p>
+  </div>
+
+  <TaskGraph client:only="react" />
+</Layout>

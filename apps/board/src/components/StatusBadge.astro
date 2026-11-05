@@ -1,0 +1,37 @@
+---
+interface Props {
+  status: string | null | undefined;
+}
+
+const { status } = Astro.props;
+
+const colorMap: Record<string, string> = {
+  active: "bg-emerald-100 text-emerald-800",
+  in_progress: "bg-sky-100 text-sky-800",
+  plan: "bg-violet-100 text-violet-800",
+  blocked: "bg-red-100 text-red-800",
+  done: "bg-muted text-muted-foreground",
+  archived: "bg-background text-muted-foreground",
+  cancelled: "bg-background text-muted-foreground line-through",
+};
+
+const labelMap: Record<string, string> = {
+  plan: "Planned",
+  active: "Ready",
+  in_progress: "In progress",
+  blocked: "Blocked",
+  done: "Done",
+  archived: "Archived",
+  cancelled: "Cancelled",
+};
+
+const classes = status
+  ? (colorMap[status] ?? "bg-muted text-muted-foreground")
+  : "bg-background text-muted-foreground";
+
+const label = status ? (labelMap[status] ?? status) : "—";
+---
+
+<span class={`inline-flex items-center rounded px-2 py-0.5 text-xs font-medium ${classes}`}>
+  {label}
+</span>

@@ -1,0 +1,50 @@
+version: 1
+
+defaults:
+  default_owner: alice
+  default_area: Team
+  default_tags:
+    - Operations
+  summary_Wait_minutes: 30
+  max_candidates_per_run: 25
+
+sources:
+  gmail:
+    enabled: false
+    label: MeetingNotes
+    query: 'from:gemini-notes@google.com newer_than:14d'
+    summary_sender_allowlist:
+      - gemini-notes@google.com
+    include_calendar_invites: true
+    calendar_sender_allowlist:
+      - calendar-notification@google.com
+
+  notion:
+    enabled: false
+    search_queries:
+      - meeting
+      - sync
+      - weekly
+    page_ids: []
+    parent_page_ids: []
+    lookback_days: 14
+
+matching:
+  require_summary_signal: true
+  auto_promote_high_confidence: true
+  review_confidence_threshold: 0.55
+  auto_confidence_threshold: 0.7
+  title_similarity_threshold: 0.45
+  time_window_hours: 18
+
+members:
+  alice:
+    aliases:
+      - Alice
+    emails:
+      - alice@example.com
+  bob:
+    aliases:
+      - Bob
+    emails:
+      - bob@example.com

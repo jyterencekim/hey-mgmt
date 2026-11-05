@@ -1,0 +1,34 @@
+# Example repos file for scripts/repo-survey.sh
+#
+# WHAT THIS IS
+#   A per-member, per-machine list of local repo clone paths used by
+#   scripts/repo-survey.sh to survey cross-repo activity during
+#   /morning, /snap, /standup, and similar routines.
+#
+# WHERE IT LIVES
+#   Copy this file to workspace/<your-member-name>/repos.yml and replace
+#   the paths with your own local clone locations.
+#
+# WHY IT IS GITIGNORED
+#   Every machine has different clone paths. workspace/*/repos.yml is
+#   gitignored so each developer maintains their own version per workstation
+#   without polluting the repo.
+#
+# SCHEMA
+#   Top-level `repos:` key with a list of entries. Each entry needs:
+#     - path:  absolute filesystem path to the clone (required)
+#     - name:  human-readable label (optional, recommended)
+#   Paths may use `~` — the survey script expands it to $HOME.
+
+repos:
+  # Team management, knowledge base, and daily logs
+  - name: hey-mgmt
+    path: ~/workspace/hey-mgmt
+
+  # Example backend service
+  # - name: core-service
+  #   path: ~/workspace/core-service
+
+  # Example frontend app
+  # - name: app-frontend
+  #   path: ~/workspace/app-frontend

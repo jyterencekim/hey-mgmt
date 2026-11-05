@@ -1,0 +1,132 @@
+---
+import Layout from "@/layouts/main.astro"
+import InboxActions from "@/components/islands/InboxActions"
+import InboxBody from "@/components/islands/InboxBody"
+import { listMembers, loadInboxFor } from "@/lib/workspace"
+import type { InboxItem } from "@/lib/types"
+
+export async function getStaticPaths() {
+  return listMembers().flatMap((member) =>
+    loadInboxFor(member).map((item) => ({
+      params: { member, id: item.id },
+      props: { member, item },
+    }))
+  )
+}
+
+interface Props {
+  member: string
+  item: InboxItem
+}
+
+const { member, item } = Astro.props
+const metadata = JSON.stringify(item.metadata ?? {}, null, 2)
+---
+
+<Layout title={`Inbox — ${item.title}`}>
+  <div class="mb-4">
+    <a
+      href={`/inbox/${member}/`}
+      class="text-sm text-muted-foreground hover:text-muted-foreground">← Inbox</a
+    >
+  </div>
+
+  <header class="mb-6">
+    <div class="mb-3 flex flex-wrap items-center gap-2">
+      <span
+        class="rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
+      >
+        {item.status}
+      </span>
+      <span
+        class="rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground"
+      >
+        {item.kind}
+      </span>
+      <a
+        href={item.vscodeHref}
+        class="rounded bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+        title={item.path}
+      >
+        VS Code
+      </a>
+    </div>
+    <h1 class="max-w-4xl text-2xl leading-tight font-semibold text-foreground">
+      {item.title}
+    </h1>
+    <p class="mt-2 font-mono text-xs text-muted-foreground">{item.id}</p>
+  </header>
+
+  <section class="mb-8">
+    <InboxActions
+      client:load
+      workspace={member}
+      itemId={item.id}
+      status={item.status}
+      className="flex flex-wrap gap-2"
+    />
+  </section>
+
+  <section class="mb-8">
+    <h2
+      class="mb-3 text-sm font-medium tracking-wide text-muted-foreground uppercase"
+    >
+      Details
+    </h2>
+    <div class="overflow-x-auto rounded-lg border border-border bg-card">
+      <table class="w-full text-sm">
+        <tbody>
+          <tr class="border-b border-border">
+            <th class="w-36 px-4 py-2 text-left font-medium text-muted-foreground">
+              Workspace
+            </th>
+            <td class="px-4 py-2 text-foreground">{member}</td>
+          </tr>
+          <tr class="border-b border-border">
+            <th class="w-36 px-4 py-2 text-left font-medium text-muted-foreground">
+              Source
+            </th>
+            <td class="px-4 py-2 text-foreground">{item.source ?? "—"}</td>
+          </tr>
+          <tr class="border-b border-border">
+            <th class="w-36 px-4 py-2 text-left font-medium text-muted-foreground">
+              Captured
+            </th>
+            <td class="px-4 py-2 text-foreground">{item.captured_at}</td>
+          </tr>
+          <tr>
+            <th class="w-36 px-4 py-2 text-left font-medium text-muted-foreground">
+              Updated
+            </th>
+            <td class="px-4 py-2 text-foreground">{item.updated_at}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mb-8">
+    <h2
+      class="mb-3 text-sm font-medium tracking-wide text-muted-foreground uppercase"
+    >
+      Body
+    </h2>
+    <InboxBody client:load body={item.body ?? ""} />
+  </section>
+
+  <section>
+    <h2
+      class="mb-3 text-sm font-medium tracking-wide text-muted-foreground uppercase"
+    >
+      Metadata
+    </h2>
+    <pre
+      class="overflow-x-auto rounded-lg border border-border bg-card p-4 text-sm leading-6 whitespace-pre-wrap text-foreground">{metadata}</pre>
+  </section>
+
+  <script>
+    window.addEventListener("board:action-complete", () => {
+      window.location.reload()
+    })
+  </script>
+</Layout>

@@ -1,0 +1,17 @@
+# Valid values for interaction_preference: concise | balanced | coaching
+# Overridden by HEY_TONE in .env when set. See playbook_interaction-tone.
+interaction_preference_default: balanced
+
+members:
+  - name: alice
+    role: product-and-engineering-lead
+    interaction_preference: balanced
+  - name: bob
+    role: full-stack-engineer
+    interaction_preference: balanced
+  - name: team
+    role: shared
+  - name: fisher
+    role: agent-runtime
+  - name: agent
+    role: automation

@@ -1,0 +1,6 @@
+version: 1
+sources_policy:
+  decision:
+    min_refs: 2
+  note:
+    min_refs: 0

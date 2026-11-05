@@ -1,0 +1,35 @@
+---
+import Layout from "@/layouts/main.astro"
+import EmptyState from "@/components/EmptyState.astro"
+import GoalTimeline from "@/components/islands/GoalTimeline"
+import { serializedRoadmap } from "@/lib/timeline"
+
+// Roadmap by priority: one Eisenhower quadrant at a time (?priority=, default
+// do), laid out under the goal each initiative contributes to. Initiatives
+// unfold into their open tasks in that quadrant.
+const serialized = serializedRoadmap()
+const today = new Date().toISOString().slice(0, 10)
+const language = process.env.LANGUAGE || "en"
+---
+
+<Layout title="Roadmap">
+  <div class="mb-4">
+    <h1 class="text-xl font-semibold text-foreground">Roadmap</h1>
+    <p class="mt-1 text-sm text-muted-foreground">
+      One priority at a time, under the goal it serves. Pick a quadrant to
+      see the initiatives and open tasks in it, from start date to target.
+    </p>
+  </div>
+  {serialized ? (
+    <GoalTimeline
+      client:only="react"
+      data={serialized}
+      today={today}
+      language={language}
+      groupBy="goal"
+      priorityTabs
+    />
+  ) : (
+    <EmptyState message="No initiatives to chart yet." />
+  )}
+</Layout>

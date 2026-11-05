@@ -1,0 +1,48 @@
+---
+import Layout from "@/layouts/main.astro"
+import TaskFilter from "@/components/islands/TaskFilter"
+import { loadTasks, taskInitiatives } from "@/lib/manifest"
+import { getCurrentMember, toSerializedTask } from "@/lib/workspace"
+import { listIterations } from "@/lib/iterations"
+import { getCurrentIteration } from "@/lib/iterations"
+
+const tasks = loadTasks()
+const initiativeOf = taskInitiatives()
+const initialTasks = tasks.map((t) => ({
+  ...toSerializedTask(t),
+  initiative: initiativeOf.get(t.id) ?? null,
+}))
+const owners = [
+  ...new Set(tasks.map((t) => t.owner).filter((o): o is string => !!o)),
+].sort()
+const iterations = listIterations(tasks)
+const areas = [
+  ...new Set(tasks.map((t) => t.area).filter((a): a is string => !!a)),
+].sort()
+const currentMember = getCurrentMember()
+const currentIteration = getCurrentIteration()
+const initialFilters = {
+  owner: Astro.url.searchParams.get("owner") ?? "",
+  status: Astro.url.searchParams.get("status") ?? "",
+  priority: Astro.url.searchParams.get("priority") ?? "",
+  iteration: Astro.url.searchParams.get("iteration") ?? "",
+  area: Astro.url.searchParams.get("area") ?? "",
+  q: Astro.url.searchParams.get("q") ?? "",
+  preset: Astro.url.searchParams.get("preset") ?? "",
+  sort: Astro.url.searchParams.get("sort") ?? "",
+}
+---
+
+<Layout title="Tasks">
+  <h1 class="mb-6 text-xl font-semibold text-foreground">Tasks</h1>
+  <TaskFilter
+    client:only="react"
+    owners={owners}
+    iterations={iterations}
+    areas={areas}
+    currentMember={currentMember}
+    currentIteration={currentIteration}
+    initialTasks={initialTasks}
+    initialFilters={initialFilters}
+  />
+</Layout>

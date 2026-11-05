@@ -1,0 +1,12 @@
+# Normalize line endings across OSes
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.pdf binary
+*.sqlite binary
+
+# Generated index files — minimize merge noise
+index/*.json linguist-generated=true merge=ours
+index/*.jsonl linguist-generated=true merge=ours

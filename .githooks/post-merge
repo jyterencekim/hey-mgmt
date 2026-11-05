@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Git post-merge hook — runs after git pull / git merge
+# Activate via: git config core.hooksPath .githooks
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+if [ -x "$REPO_ROOT/.claude/hooks/inbox-check.sh" ]; then
+  "$REPO_ROOT/.claude/hooks/inbox-check.sh"
+fi

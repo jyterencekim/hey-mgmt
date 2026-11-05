@@ -1,0 +1,61 @@
+---
+import Layout from "@/layouts/main.astro"
+import { getCurrentMember, listMembers } from "@/lib/workspace"
+import { getCurrentIteration } from "@/lib/iterations"
+
+const member = getCurrentMember()
+const members = listMembers()
+const iteration = getCurrentIteration()
+---
+
+<Layout title="Settings">
+  <div class="mb-6">
+    <h1 class="text-xl font-semibold text-foreground">Settings</h1>
+    <p class="mt-1 text-sm text-muted-foreground">
+      Workspace configuration and member list.
+    </p>
+  </div>
+
+  <section class="mb-6 rounded-lg border border-border bg-card">
+    <header class="border-b border-border px-4 py-3">
+      <h2 class="text-sm font-semibold text-foreground">General</h2>
+    </header>
+    <dl class="divide-y divide-border text-sm">
+      <div class="flex items-center justify-between px-4 py-3">
+        <dt class="text-muted-foreground">Current member</dt>
+        <dd class="font-medium text-foreground">{member}</dd>
+      </div>
+      <div class="flex items-center justify-between px-4 py-3">
+        <dt class="text-muted-foreground">Current iteration</dt>
+        <dd class="font-medium text-foreground">{iteration}</dd>
+      </div>
+      <div class="flex items-center justify-between px-4 py-3">
+        <dt class="text-muted-foreground">Theme</dt>
+        <dd class="text-muted-foreground">Toggle from the sidebar header</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="rounded-lg border border-border bg-card">
+    <header class="border-b border-border px-4 py-3">
+      <h2 class="text-sm font-semibold text-foreground">Members</h2>
+    </header>
+    <ul class="divide-y divide-border text-sm">
+      {
+        members.map((m) => (
+          <li class="flex items-center justify-between px-4 py-3">
+            <span class="flex items-center gap-2">
+              <span class="flex h-5 w-5 items-center justify-center rounded bg-emerald-600 text-[10px] font-bold text-white">
+                {m.charAt(0).toUpperCase()}
+              </span>
+              <span class="font-medium text-foreground">{m}</span>
+            </span>
+            {m === member && (
+              <span class="text-xs text-muted-foreground">you</span>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Layout>

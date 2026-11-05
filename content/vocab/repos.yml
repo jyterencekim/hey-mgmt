@@ -1,0 +1,10 @@
+repos:
+  - name: hey-mgmt
+    role: management-and-knowledge-base
+    description: Markdown-first team OS, tasks, decisions, initiatives, goals, and playbooks
+  - name: core-service
+    role: backend-api
+    description: Primary backend service and domain API (example — replace with your repos)
+  - name: app-frontend
+    role: frontend-web
+    description: Primary user-facing web application (example — replace with your repos)

@@ -1,0 +1,263 @@
+---
+import Layout from "@/layouts/main.astro"
+import DocTreeNode from "@/components/DocTreeNode.astro"
+import { loadAll } from "@/lib/manifest"
+import {
+  buildDocsTree,
+  childPages,
+  indexDocsTree,
+  type DocFolder,
+} from "@/lib/docs-tree"
+
+// Astro pages are pre-rendered to static HTML — query params don't reach
+// SSR. We render EVERY doc and every folder header with data attributes and
+// let the inline script at the bottom pick what to show from ?folder=.
+const entries = loadAll()
+const tree = buildDocsTree(entries)
+const folders = [...indexDocsTree(tree).entries()]
+
+const folderOf = new Map<string, string>()
+const walk = (f: DocFolder) => {
+  f.docs.forEach((d) => folderOf.set(d.id, f.key))
+  f.children.forEach(walk)
+}
+tree.forEach(walk)
+
+const docs = entries
+  .filter((e) => folderOf.has(e.id))
+  .sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""))
+
+// Goals and initiatives carry child pages (initiatives, tasks); show the count.
+const childCount = new Map<string, number>()
+for (const d of docs) {
+  if (d.type === "goal" || d.type === "initiative") {
+    childCount.set(d.id, childPages(d.id, entries).length)
+  }
+}
+
+function latest(f: DocFolder): string {
+  const all = (x: DocFolder): string[] => [
+    ...x.docs.map((d) => d.updated_at ?? ""),
+    ...x.children.flatMap(all),
+  ]
+  return all(f).sort().at(-1)?.slice(0, 10) ?? ""
+}
+---
+
+<Layout title="Docs">
+  <div class="mb-5">
+    <h1 class="text-xl font-semibold text-foreground">Docs</h1>
+    <p class="mt-1 text-sm text-muted-foreground">
+      Laid out like the Space mirror: section, then subject or period, then
+      the page. Goals and initiatives list their child pages.
+    </p>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-[260px_minmax(0,1fr)]">
+    <nav
+      id="doc-tree"
+      aria-label="Docs tree"
+      class="max-h-72 overflow-y-auto rounded-lg border border-border bg-card p-1.5 md:sticky md:top-0 md:max-h-[calc(100vh-8rem)] md:self-start"
+    >
+      <a
+        href="/docs/"
+        data-tree-link=""
+        class="doc-tree-link mb-1 flex items-center gap-1.5 rounded px-2 py-1 text-[13px] font-medium hover:bg-muted"
+      >
+        <span class="flex-1">All docs</span>
+        <span class="font-mono text-[10px] text-muted-foreground">{docs.length}</span>
+      </a>
+      {tree.map((root) => <DocTreeNode folder={root} depth={0} />)}
+    </nav>
+
+    <section class="min-w-0">
+      <div data-folder-head="">
+        <h2 class="mb-3 text-sm font-semibold text-foreground">All docs</h2>
+        <div class="mb-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {
+            tree.map((root) => (
+              <a
+                href={`/docs/?folder=${encodeURIComponent(root.key)}`}
+                data-tree-link={root.key}
+                class="rounded-lg border border-border bg-card px-3 py-2.5 transition-colors hover:bg-muted"
+              >
+                <div class="flex items-baseline justify-between gap-2">
+                  <span class="text-sm font-medium text-foreground">{root.label}</span>
+                  <span class="font-mono text-xs text-muted-foreground">{root.total}</span>
+                </div>
+                <div class="mt-0.5 text-xs text-muted-foreground">
+                  {root.children.length > 0
+                    ? `${root.children.length} subfolders · updated ${latest(root)}`
+                    : `updated ${latest(root)}`}
+                </div>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      {
+        folders.map(([key, chain]) => {
+          const folder = chain[chain.length - 1]
+          return (
+            <div data-folder-head={key} data-has-children={folder.children.length > 0 ? "1" : undefined} hidden>
+              <nav aria-label="Breadcrumb" class="mb-2 flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+                <a href="/docs/" data-tree-link="" class="hover:text-foreground">Docs</a>
+                {chain.slice(0, -1).map((f) => (
+                  <>
+                    <span>/</span>
+                    <a href={`/docs/?folder=${encodeURIComponent(f.key)}`} data-tree-link={f.key} class="hover:text-foreground">
+                      {f.label}
+                    </a>
+                  </>
+                ))}
+              </nav>
+              <h2 class="mb-3 text-lg font-semibold text-foreground">
+                {folder.label}
+                <span class="ml-2 font-mono text-xs font-normal text-muted-foreground">{folder.total}</span>
+              </h2>
+              {folder.children.length > 0 && (
+                <div class="mb-5">
+                  <h3 class="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    Child pages
+                  </h3>
+                  <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {folder.children.map((child) => (
+                      <a
+                        href={`/docs/?folder=${encodeURIComponent(child.key)}`}
+                        data-tree-link={child.key}
+                        class="rounded-lg border border-border bg-card px-3 py-2.5 transition-colors hover:bg-muted"
+                      >
+                        <div class="flex items-baseline justify-between gap-2">
+                          <span class="truncate text-sm font-medium text-foreground">{child.label}</span>
+                          <span class="font-mono text-xs text-muted-foreground">{child.total}</span>
+                        </div>
+                        <div class="mt-0.5 text-xs text-muted-foreground">
+                          {child.children.length > 0 ? `${child.children.length} subfolders · ` : ""}
+                          updated {latest(child)}
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {folder.docs.length > 0 && folder.children.length > 0 && (
+                <h3 class="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                  Pages
+                </h3>
+              )}
+            </div>
+          )
+        })
+      }
+
+      <ul id="doc-list" class="divide-y divide-border rounded-lg border border-border bg-card">
+        {
+          docs.map((d) => (
+            <li data-doc-folder={folderOf.get(d.id)}>
+              <a
+                href={`/artifacts/${d.id}/`}
+                class="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2.5 transition-colors hover:bg-muted"
+              >
+                <span class="rounded bg-muted px-1.5 py-0.5 font-mono text-[10px] tracking-wider text-muted-foreground uppercase">
+                  {d.type}
+                </span>
+                <span class="min-w-[14rem] flex-1 text-sm leading-snug font-medium break-words text-foreground">
+                  {d.title}
+                </span>
+                {(childCount.get(d.id) ?? 0) > 0 && (
+                  <span class="text-xs text-muted-foreground">
+                    {childCount.get(d.id)} child pages
+                  </span>
+                )}
+                {d.status && d.type !== "note" && d.type !== "meeting" && (
+                  <span class="text-xs text-muted-foreground">{d.status}</span>
+                )}
+                <span class="font-mono text-xs text-muted-foreground">
+                  {(d.updated_at ?? "").slice(0, 10)}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p data-doc-empty hidden class="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+        No pages in this folder.
+      </p>
+      <p class="mt-3 text-xs text-muted-foreground">
+        <span data-doc-count-visible>{docs.length}</span> pages · sorted by last update
+      </p>
+    </section>
+  </div>
+
+  <script>
+    // Client-side ?folder= view — see comment at the top of the frontmatter.
+    // Old ?type=decision links map onto the matching section.
+    (function () {
+      const ACTIVE = ["bg-muted", "text-foreground"]
+      function readFolder(): string {
+        const p = new URLSearchParams(location.search)
+        return p.get("folder") ?? p.get("type") ?? ""
+      }
+      function setFolder(key: string) {
+        const qs = key ? "?folder=" + encodeURIComponent(key) : ""
+        history.pushState({}, "", location.pathname + qs)
+        apply()
+        document.querySelector("main")?.scrollTo({ top: 0 })
+      }
+      function apply() {
+        let want = readFolder()
+        if (want && !document.querySelector(`[data-folder-head="${CSS.escape(want)}"]`)) want = ""
+        document.querySelectorAll<HTMLElement>("[data-folder-head]").forEach((el) => {
+          el.hidden = el.dataset.folderHead !== want
+        })
+        let visible = 0
+        document.querySelectorAll<HTMLElement>("[data-doc-folder]").forEach((el) => {
+          const show = !want || el.dataset.docFolder === want
+          el.hidden = !show
+          if (show) visible++
+        })
+        const list = document.getElementById("doc-list")
+        if (list) list.hidden = visible === 0
+        const empty = document.querySelector<HTMLElement>("[data-doc-empty]")
+        const head = document.querySelector<HTMLElement>(`[data-folder-head="${CSS.escape(want)}"]`)
+        if (empty) empty.hidden = visible > 0 || head?.dataset.hasChildren === "1"
+        const counter = document.querySelector<HTMLElement>("[data-doc-count-visible]")
+        if (counter) counter.textContent = String(visible)
+
+        // Open the tree down to the selected folder and mark it.
+        const parts = want ? want.split("/") : []
+        const chain = parts.map((_, i) => parts.slice(0, i + 1).join("/"))
+        document.querySelectorAll<HTMLDetailsElement>("[data-tree-node]").forEach((d) => {
+          if (chain.includes(d.dataset.treeNode ?? "")) d.open = true
+        })
+        document.querySelectorAll<HTMLElement>("#doc-tree .doc-tree-link").forEach((a) => {
+          const on = (a.dataset.treeLink ?? "") === want
+          const row = a.closest("summary") ?? a
+          ACTIVE.forEach((c) => row.classList.toggle(c, on))
+        })
+      }
+      function wire() {
+        // <main> survives SPA navigation (only its innerHTML is swapped), so
+        // the click handler is attached once and the view re-applied per visit.
+        const root = document.querySelector<HTMLElement>("main")
+        if (!root || !document.getElementById("doc-tree")) return
+        if (root.dataset.docsWired !== "1") {
+          root.dataset.docsWired = "1"
+          root.addEventListener("click", (e) => {
+            const link = (e.target as HTMLElement | null)?.closest<HTMLAnchorElement>("[data-tree-link]")
+            if (!link || e.metaKey || e.ctrlKey || e.shiftKey) return
+            e.preventDefault()
+            setFolder(link.dataset.treeLink ?? "")
+          })
+        }
+        apply()
+      }
+      wire()
+      window.addEventListener("popstate", () => {
+        if (document.getElementById("doc-tree")) apply()
+      })
+      document.addEventListener("astro:page-load", wire)
+    })()
+  </script>
+</Layout>

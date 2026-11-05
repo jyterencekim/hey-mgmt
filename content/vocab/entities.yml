@@ -1,0 +1,16 @@
+# Controlled entity registry — canonical names and aliases
+# Used by index build to normalize entity references across artifacts.
+# Add your team's products, services, external partners, and systems here.
+entities:
+  - canonical: HeyMgmt
+    aliases: ["hey-mgmt", "hey", "TeamOS"]
+    type: system
+  - canonical: Board
+    aliases: ["management-board", "apps/board"]
+    type: system
+  - canonical: KnowledgeGraph
+    aliases: ["KG", "graph.sqlite"]
+    type: system
+  - canonical: Hermes
+    aliases: ["hermes-agent", "Fisher"]
+    type: system

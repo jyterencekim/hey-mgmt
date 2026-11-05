@@ -1,0 +1,96 @@
+---
+import "@/styles/global.css"
+import { ClientRouter } from "astro:transitions"
+import Sidebar from "@/components/Sidebar.astro"
+import RightPane from "@/components/islands/RightPane"
+import SearchPalette from "@/components/islands/SearchPalette"
+import NoIndexBanner from "@/components/NoIndexBanner.astro"
+import { getManifestStatus } from "@/lib/manifest"
+import { getCurrentMember } from "@/lib/workspace"
+
+interface Props {
+  title?: string
+}
+
+const { title = "Board" } = Astro.props
+const manifest = getManifestStatus()
+const member = getCurrentMember()
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      // No-flash theme application. Runs before paint.
+      // Default: dark (matches PoC). Override via localStorage `hey-theme`.
+      (function () {
+        try {
+          var stored = localStorage.getItem("hey-theme");
+          var theme = stored === "light" || stored === "dark" ? stored : "dark";
+          if (theme === "dark") document.documentElement.classList.add("dark");
+        } catch (_) {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+    <script is:inline>
+      // SPA-style swap: replace only <main> and the sidebar contents.
+      // Astro's default swap re-parents persisted elements, which forces
+      // browsers to reload any iframe inside. By writing our own swap
+      // that NEVER touches the right pane / search-palette aside elements,
+      // the terminal iframe stays in place and its websocket stays alive.
+      document.addEventListener("astro:before-swap", function (event) {
+        var newDoc = event.newDocument;
+        event.swap = function () {
+          // <title> + any other <head> updates we care about.
+          document.title = newDoc.title;
+          // Sidebar — swap inner HTML so the active-link state updates.
+          var oldSide = document.querySelector("aside.bg-sidebar");
+          var newSide = newDoc.querySelector("aside.bg-sidebar");
+          if (oldSide && newSide) oldSide.innerHTML = newSide.innerHTML;
+          // Main column — swap inner HTML; React islands inside re-hydrate
+          // via their own <astro-island> custom-element lifecycle.
+          var oldMain = document.querySelector("main");
+          var newMain = newDoc.querySelector("main");
+          if (oldMain && newMain) {
+            oldMain.innerHTML = newMain.innerHTML;
+            oldMain.scrollTop = 0;
+          }
+          // Right pane (terminal) + search palette: NOT TOUCHED. Their
+          // existing DOM nodes (and the iframe inside) survive the nav.
+        };
+      });
+    </script>
+    <ClientRouter />
+  </head>
+  <body class="min-h-screen bg-background text-foreground" transition:animate="none">
+    <div class="grid h-screen grid-cols-[232px_1fr_auto] overflow-hidden">
+      <Sidebar />
+      <main class="overflow-y-auto">
+        <div class="mx-auto max-w-7xl px-6 py-6">
+          {
+            manifest.exists ? (
+              <slot />
+            ) : (
+              <NoIndexBanner manifestPath={manifest.path} />
+            )
+          }
+        </div>
+      </main>
+      {/* transition:persist preserves the right-pane React state across
+          navigation (drag width, settings, collapsed flag). The iframe
+          itself unavoidably reloads — the HTML spec requires iframes to
+          reload when re-parented, and Astro's ClientRouter has to re-parent
+          persisted elements during the swap. Mitigations in place:
+            - canvas renderer (more robust than WebGL after reflow)
+            - tmux preserves the claude session, so reattach restores content
+            - HTTP caching on ttyd's HTML/JS (see proxy.ts) makes the
+              reload near-instant. */}
+      <RightPane member={member} client:load transition:persist="right-pane" />
+    </div>
+    <SearchPalette client:load transition:persist="search-palette" />
+  </body>
+</html>

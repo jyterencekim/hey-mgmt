@@ -1,0 +1,39 @@
+---
+import Layout from "@/layouts/main.astro"
+import PulseFeed from "@/components/islands/PulseFeed"
+import { CORE_TEAM, getCurrentMember, loadInboxFor } from "@/lib/workspace"
+
+// Pulse shows what people changed; the inbox stays the place to act on
+// items. Here we only point at it: open items, and how many arrived today.
+const member = getCurrentMember()
+const open = loadInboxFor(member).filter((i) => i.status === "open")
+const dayAgo = Date.now() - 24 * 60 * 60 * 1000
+const fresh = open.filter((i) => new Date(i.captured_at).getTime() >= dayAgo).length
+const coreTeam = [...CORE_TEAM].sort()
+---
+
+<Layout title="Pulse">
+  <div class="mb-5 flex flex-wrap items-start gap-4">
+    <div class="min-w-0 flex-1">
+      <h1 class="text-xl font-semibold text-foreground">Pulse</h1>
+      <p class="mt-1 text-sm text-muted-foreground">
+        What each person changed in the last 24 hours, updated live. Automated
+        commits are folded at the bottom.
+      </p>
+    </div>
+    <a
+      href={`/inbox/${member}/`}
+      class="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors hover:bg-muted"
+    >
+      <span class="text-muted-foreground">Your inbox</span>
+      <span class="font-medium text-foreground">{open.length} open</span>
+      {fresh > 0 && (
+        <span class="rounded bg-sky-100 px-1.5 py-0.5 text-xs font-medium text-sky-800 dark:bg-sky-500/15 dark:text-sky-300">
+          {fresh} new today
+        </span>
+      )}
+    </a>
+  </div>
+
+  <PulseFeed client:load coreTeam={coreTeam} currentMember={member} />
+</Layout>

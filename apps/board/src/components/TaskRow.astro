@@ -1,0 +1,30 @@
+---
+import PriorityBadge from "./PriorityBadge.astro"
+import StatusBadge from "./StatusBadge.astro"
+import TaskTitleCell from "./TaskTitleCell.astro"
+import type { SerializedTask } from "@/lib/types"
+
+interface Props {
+  task: SerializedTask
+}
+
+const { task } = Astro.props
+---
+
+<tr class="border-b border-border hover:bg-muted">
+  <TaskTitleCell
+    id={task.id}
+    title={task.title}
+    path={task.path}
+    vscodeHref={task.vscodeHref}
+  />
+  <td class="px-4 py-3">
+    <PriorityBadge priority={task.priority} />
+  </td>
+  <td class="px-4 py-3">
+    <StatusBadge status={task.status} />
+  </td>
+  <td class="px-4 py-3 text-sm text-muted-foreground">{task.owner ?? "—"}</td>
+  <td class="px-4 py-3 text-sm text-muted-foreground">{task.iteration ?? "—"}</td>
+  <td class="px-4 py-3 text-sm text-muted-foreground">{task.due_date ?? "—"}</td>
+</tr>

@@ -1,0 +1,278 @@
+---
+import Layout from "@/layouts/main.astro"
+import PriorityBadge from "@/components/PriorityBadge.astro"
+import StatusBadge from "@/components/StatusBadge.astro"
+import TaskTitleCell from "@/components/TaskTitleCell.astro"
+import EmptyState from "@/components/EmptyState.astro"
+import GoalTimeline from "@/components/islands/GoalTimeline"
+import { goalRollups } from "@/lib/manifest"
+import { serializedRoadmap } from "@/lib/timeline"
+import { toArtifactHref } from "@/lib/repo"
+
+const rollups = goalRollups()
+
+// View toggle: ?view=table (default) | timeline. Server-rendered switch so it
+// stays SSG-friendly — each tab is a plain link, no client JS needed to flip.
+const view = Astro.url.searchParams.get("view") === "timeline" ? "timeline" : "table"
+const today = new Date().toISOString().slice(0, 10)
+const language = process.env.LANGUAGE || "en"
+
+// Always build both projections: static output can't switch on a server-read
+// query param, so we render both views and toggle client-side (see script below).
+const serialized = serializedRoadmap()
+
+// Goal status uses its own vocabulary (active | hit | missed | archived),
+// distinct from task/artifact status. StatusBadge doesn't know these, so
+// render a small dedicated badge here.
+const GOAL_STATUS_CLASS: Record<string, string> = {
+  active: "bg-sky-100 text-sky-800",
+  hit: "bg-emerald-100 text-emerald-800",
+  missed: "bg-red-100 text-red-800",
+  archived: "bg-background text-muted-foreground",
+}
+function goalStatusClass(status: string | null): string {
+  return status
+    ? (GOAL_STATUS_CLASS[status] ?? "bg-muted text-muted-foreground")
+    : "bg-background text-muted-foreground"
+}
+---
+
+<Layout title="Goals">
+  <div class="mb-6 flex items-center justify-between gap-3">
+    <h1 class="text-xl font-semibold text-foreground">Goals</h1>
+    <div
+      class="inline-flex items-center rounded-lg border border-border bg-card p-0.5 text-sm"
+      role="tablist"
+      aria-label="Goals view"
+    >
+      <a
+        href="?view=table"
+        data-goals-tab="table"
+        role="tab"
+        aria-selected={view === "table"}
+        class={`rounded-md px-3 py-1 font-medium transition-colors ${
+          view === "table"
+            ? "bg-muted text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        Table
+      </a>
+      <a
+        href="?view=timeline"
+        data-goals-tab="timeline"
+        role="tab"
+        aria-selected={view === "timeline"}
+        class={`rounded-md px-3 py-1 font-medium transition-colors ${
+          view === "timeline"
+            ? "bg-muted text-foreground"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        Timeline
+      </a>
+    </div>
+  </div>
+
+  <div data-goals-view="table">
+  {
+    rollups.length === 0 ? (
+      <EmptyState message="No goals yet. Create a goal artifact to roll up initiatives and their tasks here." />
+    ) : (
+      <div class="space-y-6">
+        {rollups.map(({ goal, detail, initiatives }) => (
+          <section class="rounded-lg border border-border bg-card">
+            <header class="border-b border-border px-4 py-3">
+              <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                  <a
+                    href={toArtifactHref(goal.id)}
+                    data-astro-reload
+                    class="block truncate text-base font-semibold text-foreground hover:underline"
+                    title={goal.title}
+                  >
+                    {goal.title}
+                  </a>
+                  <div class="mt-0.5 truncate font-mono text-xs text-muted-foreground">
+                    {goal.id}
+                  </div>
+                </div>
+                <span
+                  class={`inline-flex shrink-0 items-center rounded px-2 py-0.5 text-xs font-medium ${goalStatusClass(goal.status)}`}
+                >
+                  {goal.status ?? "—"}
+                </span>
+              </div>
+
+              <dl class="mt-3 grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-4">
+                <div>
+                  <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
+                    Metric
+                  </dt>
+                  <dd class="text-foreground">{detail.metric ?? "—"}</dd>
+                </div>
+                <div>
+                  <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
+                    Target
+                  </dt>
+                  <dd class="text-foreground">{detail.target ?? "—"}</dd>
+                </div>
+                <div>
+                  <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
+                    Current
+                  </dt>
+                  <dd class="text-foreground">{detail.current ?? "—"}</dd>
+                </div>
+                <div>
+                  <dt class="text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
+                    Target date
+                  </dt>
+                  <dd class="text-foreground">{detail.target_date ?? "—"}</dd>
+                </div>
+              </dl>
+            </header>
+
+            <div class="px-4 py-3">
+              {initiatives.length === 0 ? (
+                <p class="text-sm text-muted-foreground">
+                  No contributing initiatives yet.
+                </p>
+              ) : (
+                <div class="space-y-3">
+                  {initiatives.map(({ initiative, tasks }) => (
+                    <details class="group rounded-lg border border-border">
+                      <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 py-2.5 text-sm">
+                        <span class="flex min-w-0 items-center gap-2">
+                          <span class="text-muted-foreground/60 transition-transform group-open:rotate-90">
+                            ▸
+                          </span>
+                          <a
+                            href={toArtifactHref(initiative.id)}
+                            data-astro-reload
+                            class="truncate font-medium text-foreground hover:underline"
+                            title={initiative.title}
+                          >
+                            {initiative.title}
+                          </a>
+                          <StatusBadge status={initiative.status} />
+                        </span>
+                        <span class="shrink-0 text-xs text-muted-foreground">
+                          {tasks.length} {tasks.length === 1 ? "task" : "tasks"}
+                        </span>
+                      </summary>
+
+                      {tasks.length > 0 && (
+                        <div class="overflow-x-auto border-t border-border">
+                          <table class="w-full text-sm">
+                            <thead>
+                              <tr class="border-b border-border bg-background">
+                                <th class="w-[50%] px-4 py-2 text-left font-medium text-muted-foreground">
+                                  Title
+                                </th>
+                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                                  Priority
+                                </th>
+                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                                  Status
+                                </th>
+                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                                  Owner
+                                </th>
+                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                                  Due
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {tasks.map((task) => (
+                                <tr class="border-b border-border last:border-b-0 hover:bg-muted">
+                                  <TaskTitleCell
+                                    id={task.id}
+                                    title={task.title}
+                                    path={task.path}
+                                    class="py-2"
+                                    reload
+                                  />
+                                  <td class="px-4 py-2">
+                                    <PriorityBadge priority={task.priority} />
+                                  </td>
+                                  <td class="px-4 py-2">
+                                    <StatusBadge status={task.status} />
+                                  </td>
+                                  <td class="px-4 py-2 text-muted-foreground">
+                                    {task.owner ?? "—"}
+                                  </td>
+                                  <td class="px-4 py-2 text-muted-foreground">
+                                    {task.due_date ?? "—"}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </details>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        ))}
+      </div>
+    )
+  }
+  </div>
+
+  <div data-goals-view="timeline" hidden>
+    {serialized ? (
+      <GoalTimeline
+        client:only="react"
+        data={serialized}
+        today={today}
+        language={language}
+      />
+    ) : (
+      <EmptyState message="No goals to chart yet." />
+    )}
+  </div>
+
+  <script is:inline>
+    (function () {
+      function apply() {
+        var v =
+          new URLSearchParams(location.search).get("view") === "timeline"
+            ? "timeline"
+            : "table"
+        document.querySelectorAll("[data-goals-view]").forEach(function (el) {
+          el.hidden = el.getAttribute("data-goals-view") !== v
+        })
+        document.querySelectorAll("[data-goals-tab]").forEach(function (a) {
+          var active = a.getAttribute("data-goals-tab") === v
+          a.classList.toggle("bg-muted", active)
+          a.classList.toggle("text-foreground", active)
+          a.classList.toggle("text-muted-foreground", !active)
+          a.setAttribute("aria-selected", String(active))
+        })
+      }
+      function init() {
+        document.querySelectorAll("[data-goals-tab]").forEach(function (a) {
+          if (a.dataset.goalsBound) return
+          a.dataset.goalsBound = "1"
+          a.addEventListener("click", function (e) {
+            e.preventDefault()
+            var p = new URLSearchParams(location.search)
+            p.set("view", a.getAttribute("data-goals-tab"))
+            history.replaceState({}, "", location.pathname + "?" + p.toString())
+            apply()
+          })
+        })
+        apply()
+      }
+      if (!window.__goalsViewBound) {
+        window.__goalsViewBound = true
+        document.addEventListener("astro:page-load", init)
+      }
+      init()
+    })()
+  </script>
+</Layout>

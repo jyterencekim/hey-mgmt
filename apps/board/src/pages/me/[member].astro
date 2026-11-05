@@ -1,0 +1,351 @@
+---
+import Layout from "@/layouts/main.astro"
+import PriorityBadge from "@/components/PriorityBadge.astro"
+import StatusSelect from "@/components/islands/StatusSelect"
+import InboxItem from "@/components/InboxItem.astro"
+import TaskTitleCell from "@/components/TaskTitleCell.astro"
+import InboxActions from "@/components/islands/InboxActions"
+import { listMembers, loadInboxFor } from "@/lib/workspace"
+import { loadTasks, taskInitiatives } from "@/lib/manifest"
+import { getCurrentIteration } from "@/lib/iterations"
+import { listLogs } from "@/lib/logs"
+
+export async function getStaticPaths() {
+  const members = listMembers()
+  return members.map((member) => ({ params: { member } }))
+}
+
+const { member } = Astro.params
+const validViews = ["tasks", "iteration", "inbox", "logs"] as const
+const requestedView = Astro.url.searchParams.get("view")
+const initialView = validViews.includes(
+  requestedView as (typeof validViews)[number]
+)
+  ? requestedView
+  : "tasks"
+const memberLogs = listLogs(member)
+
+const allTasks = loadTasks()
+const myTasks = allTasks.filter(
+  (t) =>
+    t.owner === member &&
+    t.status !== "done" &&
+    t.status !== "archived" &&
+    t.status !== "cancelled"
+)
+const currentIteration = getCurrentIteration()
+const iterTasks = allTasks.filter(
+  (t) => t.owner === member && t.iteration === currentIteration
+)
+const inboxItems = loadInboxFor(member)
+const openInbox = inboxItems.filter((i) => i.status === "open")
+
+const PRIORITY_ORDER: Record<string, number> = {
+  do: 0,
+  plan: 1,
+  routine: 2,
+  drop: 3,
+}
+const PRIORITY_KEYS = ["do", "plan", "routine", "drop"] as const
+
+// My tasks, grouped under their initiative. Groups holding the most urgent
+// work come first (best priority, then size); tasks inside run do → plan →
+// routine → drop → unset, then by due date. Loose tasks go last.
+const rank = (p: string | null) => (p ? (PRIORITY_ORDER[p] ?? 9) : 9)
+const initiativeOf = taskInitiatives()
+const taskGroups = [
+  ...myTasks
+    .reduce((acc, t) => {
+      const init = initiativeOf.get(t.id) ?? null
+      const key = init?.id ?? ""
+      if (!acc.has(key)) acc.set(key, { initiative: init, tasks: [] as typeof myTasks })
+      acc.get(key)!.tasks.push(t)
+      return acc
+    }, new Map<string, { initiative: { id: string; title: string } | null; tasks: typeof myTasks }>())
+    .values(),
+]
+  .map((g) => ({
+    ...g,
+    tasks: g.tasks.sort(
+      (a, b) =>
+        rank(a.priority) - rank(b.priority) ||
+        (a.due_date ?? "9999").localeCompare(b.due_date ?? "9999") ||
+        a.title.localeCompare(b.title)
+    ),
+  }))
+  .sort((a, b) => {
+    if (!a.initiative !== !b.initiative) return a.initiative ? -1 : 1
+    return (
+      rank(a.tasks[0].priority) - rank(b.tasks[0].priority) ||
+      b.tasks.length - a.tasks.length ||
+      (a.initiative?.title ?? "").localeCompare(b.initiative?.title ?? "")
+    )
+  })
+const prioritySummary = (tasks: typeof myTasks) =>
+  [...PRIORITY_KEYS, "none"]
+    .map((p) => [p, tasks.filter((t) => (t.priority ?? "none") === p).length] as const)
+    .filter(([, n]) => n > 0)
+    .map(([p, n]) => `${n} ${p === "none" ? "unset" : p}`)
+    .join(" · ")
+
+const navLinks = [
+  { view: "tasks", label: "My Tasks" },
+  { view: "iteration", label: `Iteration (${currentIteration})` },
+  { view: "inbox", label: `Inbox (${openInbox.length})` },
+  { view: "logs", label: `Logs (${memberLogs.length})` },
+]
+
+const activeNavClass =
+  "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors border-foreground bg-foreground text-background"
+const inactiveNavClass =
+  "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors border-border bg-card text-muted-foreground hover:bg-muted"
+---
+
+<Layout title={`Me — ${member}`}>
+  <h1 class="mb-4 text-xl font-semibold text-foreground">{member}</h1>
+
+  <nav class="mb-6 flex gap-2">
+    {
+      navLinks.map(({ view: v, label }) => (
+        <a
+          data-view-link={v}
+          href={`/me/${member}/?view=${v}`}
+          class={initialView === v ? activeNavClass : inactiveNavClass}
+          aria-current={initialView === v ? "page" : undefined}
+        >
+          {label}
+        </a>
+      ))
+    }
+  </nav>
+
+  <section data-view-section="tasks" hidden={initialView !== "tasks"}>
+    {
+      myTasks.length === 0 ? (
+        <p class="text-sm text-muted-foreground">No open tasks.</p>
+      ) : (
+        <div class="space-y-4">
+          <p class="text-sm text-muted-foreground">
+            {myTasks.length} open tasks in {taskGroups.length} groups · by initiative, highest priority first
+          </p>
+          {taskGroups.map((g) => (
+            <details open class="group/init rounded-lg border border-border">
+              <summary class="flex cursor-pointer list-none flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-t-lg bg-muted/50 px-4 py-2.5 [&::-webkit-details-marker]:hidden">
+                <span class="w-3 shrink-0 text-muted-foreground transition-transform group-open/init:rotate-90">▸</span>
+                {g.initiative ? (
+                  <a href={`/artifacts/${g.initiative.id}/`} class="text-sm font-semibold text-foreground hover:underline">
+                    {g.initiative.title}
+                  </a>
+                ) : (
+                  <span class="text-sm font-semibold text-muted-foreground italic">No initiative</span>
+                )}
+                <span class="text-xs text-muted-foreground">
+                  {g.tasks.length} {g.tasks.length === 1 ? "task" : "tasks"} · {prioritySummary(g.tasks)}
+                </span>
+              </summary>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="border-y border-border bg-background">
+                      <th class="w-[50%] min-w-[16rem] px-4 py-2 text-left font-medium text-muted-foreground">Title</th>
+                      <th class="px-4 py-2 text-left font-medium text-muted-foreground">Priority</th>
+                      <th class="px-4 py-2 text-left font-medium text-muted-foreground">Status</th>
+                      <th class="px-4 py-2 text-left font-medium text-muted-foreground">Iteration</th>
+                      <th class="px-4 py-2 text-left font-medium text-muted-foreground">Due</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {g.tasks.map((task) => (
+                      <tr class="border-b border-border last:border-b-0 hover:bg-muted">
+                        <TaskTitleCell id={task.id} title={task.title} path={task.path} class="py-2" />
+                        <td class="px-4 py-2">
+                          <PriorityBadge priority={task.priority} />
+                        </td>
+                        <td class="px-4 py-2">
+                          <StatusSelect client:load taskId={task.id} status={task.status} />
+                        </td>
+                        <td class="px-4 py-2 whitespace-nowrap text-muted-foreground">{task.iteration ?? "—"}</td>
+                        <td class="px-4 py-2 whitespace-nowrap text-muted-foreground">{task.due_date ?? "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </details>
+          ))}
+        </div>
+      )
+    }
+  </section>
+
+  <section data-view-section="iteration" hidden={initialView !== "iteration"}>
+    <div>
+      <h2 class="mb-4 text-sm font-semibold text-foreground">
+        {currentIteration} workload
+      </h2>
+      {
+        iterTasks.length === 0 ? (
+          <p class="text-sm text-muted-foreground">No tasks in this iteration.</p>
+        ) : (
+          <div class="overflow-x-auto rounded-lg border border-border">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border bg-background">
+                  <th class="w-[50%] px-4 py-2 text-left font-medium text-muted-foreground">
+                    Title
+                  </th>
+                  <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                    Priority
+                  </th>
+                  <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                    Status
+                  </th>
+                  <th class="px-4 py-2 text-left font-medium text-muted-foreground">
+                    Due
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {iterTasks
+                  .sort((a, b) => {
+                    const pa = a.priority
+                      ? (PRIORITY_ORDER[a.priority] ?? 99)
+                      : 99
+                    const pb = b.priority
+                      ? (PRIORITY_ORDER[b.priority] ?? 99)
+                      : 99
+                    return pa - pb
+                  })
+                  .map((task) => (
+                    <tr class="border-b border-border hover:bg-muted">
+                      <TaskTitleCell
+                        id={task.id}
+                        title={task.title}
+                        path={task.path}
+                        class="py-2"
+                      />
+                      <td class="px-4 py-2">
+                        <PriorityBadge priority={task.priority} />
+                      </td>
+                      <td class="px-4 py-2">
+                        <StatusSelect client:load taskId={task.id} status={task.status} />
+                      </td>
+                      <td class="px-4 py-2 text-muted-foreground">
+                        {task.due_date ?? "—"}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section data-view-section="inbox" hidden={initialView !== "inbox"}>
+    <div>
+      <h2 class="mb-4 text-sm font-semibold text-foreground">Open inbox</h2>
+      {
+        openInbox.length === 0 ? (
+          <p class="text-sm text-muted-foreground">No open inbox items.</p>
+        ) : (
+          <div class="space-y-3">
+            {openInbox.map((item) => (
+              <InboxItem item={item}>
+                <InboxActions
+                  client:load
+                  workspace={member}
+                  itemId={item.id}
+                  status={item.status}
+                />
+              </InboxItem>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section data-view-section="logs" hidden={initialView !== "logs"}>
+    <div>
+      <h2 class="mb-4 text-sm font-semibold text-foreground">
+        Daily logs — {memberLogs.length}
+      </h2>
+      {
+        memberLogs.length === 0 ? (
+          <p class="text-sm text-muted-foreground">
+            No daily logs for this member yet.
+          </p>
+        ) : (
+          <ul class="divide-y divide-border rounded-lg border border-border bg-card">
+            {memberLogs.map((log) => (
+              <li>
+                <a
+                  href={`/logs/${member}/${log.date}/`}
+                  class="flex items-baseline gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-accent/40"
+                >
+                  <span class="font-mono text-foreground">{log.date}</span>
+                  <span class="flex-1 truncate text-muted-foreground">
+                    {log.path}
+                  </span>
+                  <span class="font-mono text-xs text-muted-foreground/60">
+                    {(log.size / 1024).toFixed(1)} kB
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+
+  <script is:inline define:vars={{ activeNavClass, inactiveNavClass }}>
+    const validViews = new Set(["tasks", "iteration", "inbox", "logs"])
+
+    function readView() {
+      const view = new URLSearchParams(window.location.search).get("view")
+      return validViews.has(view) ? view : "tasks"
+    }
+
+    function applyView() {
+      const view = readView()
+      document.querySelectorAll("[data-view-section]").forEach((section) => {
+        section.hidden = section.getAttribute("data-view-section") !== view
+      })
+      document.querySelectorAll("[data-view-link]").forEach((link) => {
+        const isActive = link.getAttribute("data-view-link") === view
+        link.className = isActive ? activeNavClass : inactiveNavClass
+        if (isActive) {
+          link.setAttribute("aria-current", "page")
+        } else {
+          link.removeAttribute("aria-current")
+        }
+      })
+    }
+
+    document.addEventListener("click", (event) => {
+      const target =
+        event.target instanceof Element
+          ? event.target
+          : event.target?.parentElement
+      const link = target?.closest("[data-view-link]")
+      if (!link) return
+      const nextUrl = new URL(link.href)
+      if (nextUrl.pathname !== window.location.pathname) return
+      event.preventDefault()
+      window.history.pushState({}, "", `${nextUrl.pathname}${nextUrl.search}`)
+      applyView()
+    })
+
+    window.addEventListener("popstate", applyView)
+    applyView()
+  </script>
+
+  <script>
+    window.addEventListener("board:action-complete", () => {
+      window.location.reload()
+    })
+  </script>
+</Layout>

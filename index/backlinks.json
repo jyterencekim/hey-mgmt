@@ -1,0 +1,186 @@
+{
+  "decision_deflate-ontology": [
+    "decision_adr-goal-as-seventh-type",
+    "decision_adr-initiative-timeline-dates",
+    "decision_adr-kg-v2-operating-decisions",
+    "decision_adr-relocate-connectors-to-wor",
+    "decision_ideas-and-promote-workflow",
+    "decision_linear-ontology-adoption",
+    "decision_no-separate-kb-dir",
+    "decision_plans-as-tasks",
+    "decision_simplify-frontmatter",
+    "decision_slug-ids-and-letter-grades",
+    "playbook_golden-principles",
+    "playbook_operating-philosophy"
+  ],
+  "playbook_operating-philosophy": [
+    "decision_staged-prioritization",
+    "playbook_codex-agent-compliance-guide",
+    "playbook_delivery-practices",
+    "playbook_file-placement",
+    "playbook_golden-principles",
+    "playbook_governing-artifact-maintenance",
+    "playbook_operating-philosophy-ko",
+    "playbook_style-guide",
+    "playbook_style-guide-ko",
+    "playbook_task-status-lifecycle"
+  ],
+  "decision_plans-as-tasks": [
+    "decision_linear-ontology-adoption",
+    "decision_staged-prioritization"
+  ],
+  "decision_no-separate-kb-dir": [
+    "decision_adr-relocate-connectors-to-wor",
+    "decision_fisher-autonomous-collection",
+    "decision_ideas-and-promote-workflow",
+    "decision_workspace-log-compaction",
+    "playbook_file-placement"
+  ],
+  "note_external-activity-integration-plan": [
+    "decision_workspace-log-compaction",
+    "playbook_meeting-note-distillation"
+  ],
+  "playbook_golden-principles": [
+    "decision_adr-narrow-staleness-to-tasks",
+    "playbook_codex-agent-compliance-guide",
+    "playbook_file-placement",
+    "playbook_governing-artifact-maintenance",
+    "playbook_operating-philosophy",
+    "playbook_style-guide",
+    "playbook_style-guide-ko"
+  ],
+  "playbook_delivery-practices": [
+    "decision_adr-track-dev-task-phase-as-ex",
+    "playbook_calver-versioning-convention"
+  ],
+  "playbook_file-placement": [
+    "playbook_calver-versioning-convention",
+    "playbook_governing-artifact-maintenance",
+    "playbook_retrieval-protocol"
+  ],
+  "playbook_governing-artifact-maintenance": [
+    "playbook_codex-agent-compliance-guide",
+    "playbook_file-placement",
+    "playbook_golden-principles",
+    "playbook_operating-philosophy",
+    "playbook_task-status-lifecycle"
+  ],
+  "decision_staged-prioritization": [
+    "decision_adr-replace-p0-p3-priority-wit",
+    "playbook_delivery-practices"
+  ],
+  "playbook_style-guide": [
+    "playbook_codex-agent-compliance-guide",
+    "playbook_interaction-tone",
+    "playbook_meeting-note-distillation"
+  ],
+  "decision_simplify-frontmatter": [
+    "decision_adr-task-done-vs-archived-lif",
+    "decision_adr-track-dev-task-phase-as-ex",
+    "note_frontmatter-schema-change-contract"
+  ],
+  "decision_linear-ontology-adoption": [
+    "decision_adr-goal-as-seventh-type",
+    "decision_adr-initiative-timeline-dates",
+    "decision_adr-kg-v2-operating-decisions",
+    "decision_adr-track-dev-task-phase-as-ex",
+    "task_complete-team-onboarding"
+  ],
+  "decision_adr-track-dev-task-phase-as-ex": [
+    "decision_adr-task-done-vs-archived-lif",
+    "playbook_delivery-practices"
+  ],
+  "decision_adr-task-done-vs-archived-lif": [
+    "decision_adr-narrow-staleness-to-tasks",
+    "decision_adr-task-status-ready-doing",
+    "playbook_golden-principles",
+    "playbook_task-status-lifecycle"
+  ],
+  "playbook_task-status-lifecycle": [
+    "decision_adr-task-status-ready-doing"
+  ],
+  "decision_adr-replace-p0-p3-priority-wit": [
+    "decision_adr-loop-control-driver-surface",
+    "decision_adr-task-status-ready-doing",
+    "decision_adr-three-layer-task-timeline"
+  ],
+  "decision_adr-task-status-ready-doing": [
+    "playbook_task-status-lifecycle"
+  ],
+  "decision_adr-loop-control-driver-surface": [
+    "decision_adr-task-watchers-field",
+    "decision_adr-three-layer-task-timeline"
+  ],
+  "decision_adr-qmd-local-retrieval-backen": [
+    "decision_adr-kb-wide-change-contracts",
+    "decision_adr-repo-wide-capability-upgra"
+  ],
+  "playbook_codex-agent-compliance-guide": [
+    "playbook_retrieval-protocol"
+  ],
+  "decision_adr-display-task-titles-not-id": [
+    "decision_adr-initiative-timeline-dates"
+  ],
+  "decision_adr-qmd-local-retrieval-backend": [
+    "decision_adr-kb-wide-change-contracts"
+  ],
+  "decision_adr-retire-letter-grade-audit": [
+    "decision_adr-narrow-staleness-to-tasks",
+    "decision_slug-ids-and-letter-grades",
+    "playbook_golden-principles"
+  ],
+  "decision_slug-ids-and-letter-grades": [
+    "decision_adr-retire-letter-grade-audit"
+  ],
+  "decision_adr-narrow-staleness-to-tasks": [
+    "decision_adr-retire-letter-grade-audit",
+    "playbook_golden-principles"
+  ],
+  "decision_adr-loop-control-driver-surfac": [
+    "decision_adr-retire-letter-grade-audit",
+    "decision_adr-three-layer-task-timeline"
+  ],
+  "decision_adr-three-layer-task-timeline": [
+    "decision_adr-loop-control-driver-surface",
+    "decision_adr-product-initiative-kickoff",
+    "playbook_loop-control-usage-guide"
+  ],
+  "playbook_loop-control-usage-guide": [
+    "decision_adr-loop-control-driver-surface"
+  ],
+  "decision_ideas-and-promote-workflow": [
+    "decision_adr-kg-v2-operating-decisions",
+    "playbook_file-placement"
+  ],
+  "playbook_interaction-tone": [
+    "playbook_agent-session-conventions"
+  ],
+  "decision_adr-kg-v2-operating-decisions": [
+    "decision_adr-consolidate-intelligence-graph-into-mgmt"
+  ],
+  "playbook_style-guide-ko": [
+    "playbook_meeting-note-distillation"
+  ],
+  "decision_adr-initiative-timeline-dates": [
+    "decision_adr-product-initiative-kickoff"
+  ],
+  "playbook_product-initiative-kickoff": [
+    "decision_adr-product-initiative-kickoff"
+  ],
+  "decision_adr-product-initiative-kickoff": [
+    "playbook_product-initiative-kickoff"
+  ],
+  "initiative_team-workspace-onboarding": [
+    "goal_team-os-adoption",
+    "task_complete-team-onboarding"
+  ],
+  "goal_team-os-adoption": [
+    "initiative_team-workspace-onboarding"
+  ],
+  "task_complete-team-onboarding": [
+    "initiative_team-workspace-onboarding"
+  ],
+  "decision_adr-kb-wide-change-contracts": [
+    "note_frontmatter-schema-change-contract"
+  ]
+}

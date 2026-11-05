@@ -1,0 +1,11 @@
+areas:
+  - name: Product
+    description: Product strategy, roadmap, user research, and feature specs
+  - name: Core
+    description: Backend services, domain logic, APIs, and core libraries
+  - name: App
+    description: Frontend web/mobile applications and client SDKs
+  - name: Infra
+    description: Cloud infrastructure, CI/CD, observability, and security operations
+  - name: Team
+    description: Team operating system (hey-mgmt), workflows, playbooks, and ceremonies

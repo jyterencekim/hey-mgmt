@@ -1,0 +1,6 @@
+# Source repositories the projection reads. Paths are relative to hey-mgmt root.
+# Override with KG_MGMT_ROOT / KG_IMPORTS_DIR / KG_OUT / KG_DB.
+mgmt: .
+imports: ./scripts/lib/intelligence/imports # graph-exchange/v0 JSONL drops
+out: ./.kg                # graph.jsonl + report.json
+db: ./.kg/graph.sqlite

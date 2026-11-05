@@ -1,0 +1,73 @@
+---
+import Layout from "@/layouts/main.astro"
+import MarkdownBody from "@/components/MarkdownBody.astro"
+import { listMembers } from "@/lib/workspace"
+import { listLogs, readLog } from "@/lib/logs"
+import { toVsCodeHref } from "@/lib/repo"
+
+export async function getStaticPaths() {
+  const out: { params: { member: string; date: string } }[] = []
+  for (const member of listMembers()) {
+    for (const log of listLogs(member)) {
+      out.push({ params: { member, date: log.date } })
+    }
+  }
+  return out
+}
+
+const { member, date } = Astro.params
+const body = readLog(member, date) ?? ""
+const repoPath = `workspace/${member}/logs/${date}.md`
+
+// Prev / next log within this member.
+const logs = listLogs(member)
+const idx = logs.findIndex((l) => l.date === date)
+const newer = idx > 0 ? logs[idx - 1] : null
+const older = idx >= 0 && idx < logs.length - 1 ? logs[idx + 1] : null
+---
+
+<Layout title={`${member} · ${date}`}>
+  <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+    <a
+      href={`/me/${member}/?view=logs`}
+      class="text-muted-foreground hover:text-foreground">← {member} logs</a
+    >
+    <div class="flex items-center gap-2">
+      {
+        older && (
+          <a
+            href={`/logs/${member}/${older.date}/`}
+            class="rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            ← {older.date}
+          </a>
+        )
+      }
+      {
+        newer && (
+          <a
+            href={`/logs/${member}/${newer.date}/`}
+            class="rounded border border-border px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
+          >
+            {newer.date} →
+          </a>
+        )
+      }
+      <a
+        href={toVsCodeHref(repoPath)}
+        class="rounded bg-muted px-2 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+      >
+        VS Code
+      </a>
+    </div>
+  </div>
+
+  <header class="mb-6">
+    <h1 class="text-2xl font-semibold text-foreground">{date}</h1>
+    <p class="mt-1 text-sm text-muted-foreground">
+      Daily log · {member}
+    </p>
+  </header>
+
+  <MarkdownBody body={body} scope="log" emptyText="Log not found." />
+</Layout>

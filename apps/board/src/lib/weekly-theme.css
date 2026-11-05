@@ -1,0 +1,168 @@
+/* Board look for weekly editions shown in the Weekly tab. Injected after the
+   edition's own <style>, so these rules win at equal specificity; the edition
+   file itself is never changed. Tokens mirror src/styles/global.css. */
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.153 0.006 107.1);
+  --card: oklch(0.985 0.002 106.5);
+  --muted: oklch(0.966 0.005 106.5);
+  --muted-foreground: oklch(0.58 0.031 107.3);
+  --border: oklch(0.93 0.007 106.5);
+  --border-strong: oklch(0.86 0.01 106.5);
+  --accent: oklch(0.45 0.12 250);
+  --amber: oklch(0.5 0.12 70);
+  --red: oklch(0.52 0.19 20);
+  --green: oklch(0.48 0.12 150);
+  --radius: 0.625rem;
+  color-scheme: light;
+}
+:root.dark {
+  --background: oklch(0.20 0.004 285);
+  --foreground: oklch(0.965 0.002 285);
+  --card: oklch(0.22 0.004 285);
+  --muted: oklch(0.27 0.005 285);
+  --muted-foreground: oklch(0.68 0.008 285);
+  --border: oklch(1 0 0 / 12%);
+  --border-strong: oklch(1 0 0 / 22%);
+  --accent: oklch(0.78 0.1 240);
+  --amber: oklch(0.82 0.13 80);
+  --red: oklch(0.72 0.17 20);
+  --green: oklch(0.78 0.13 150);
+  color-scheme: dark;
+}
+
+html { background: var(--background); }
+body {
+  font-family: "Geist Variable", system-ui, sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+code, h2 .goal-id { font-family: "Geist Mono Variable", ui-monospace, Menlo, monospace; }
+
+h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
+h2 {
+  color: var(--foreground);
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+h2 .goal-id, .muted, .legend, .draft, .quiet { color: var(--muted-foreground); }
+h3.track {
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 0 6px 6px 0;
+  font-size: 13px;
+}
+h3.track .track-meta { color: var(--muted-foreground); }
+h4 { color: var(--foreground); font-size: 15px; font-weight: 600; }
+
+p, li { font-size: 13.5px; }
+p.lead, p.why, p.how, p.kickoff { color: var(--muted-foreground); }
+p.why, p.how, details.task-list { border-left-color: var(--border-strong); }
+p.why strong, p.how strong, p.next strong, p.next, .unblocks { color: var(--accent); }
+p.progress { color: var(--foreground); }
+p.closed, .done-tag { color: var(--green); }
+p.placeholder, .due-soon, .stale { color: var(--amber); }
+.past-due { color: var(--red); }
+
+code {
+  background: var(--muted);
+  color: var(--foreground);
+  border-radius: 4px;
+  font-size: 12px;
+}
+a { color: var(--accent); }
+a.lnk { color: var(--accent); }
+a[target="_top"] code:hover { outline: 1px solid var(--accent); }
+
+/* Callouts: tinted from the line colour so they read in both themes. */
+p.discuss, .flags, p.scope, p.walkthrough {
+  background: color-mix(in oklch, var(--amber) 14%, transparent);
+  border-left: 3px solid var(--amber);
+  color: var(--foreground);
+  border-radius: 0 6px 6px 0;
+}
+p.redflag {
+  background: color-mix(in oklch, var(--red) 14%, transparent);
+  border-left: 3px solid var(--red);
+  color: var(--foreground);
+  border-radius: 0 6px 6px 0;
+}
+.preview {
+  background: color-mix(in oklch, var(--accent) 12%, transparent);
+  border-left-color: var(--accent);
+  color: var(--foreground);
+  border-radius: 0 6px 6px 0;
+}
+
+/* Chips */
+.owner-chip, .kind, .chip-pending {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-radius: 4px;
+}
+.focus-chip, .chip-new, .sample {
+  background: color-mix(in oklch, var(--amber) 18%, transparent);
+  color: var(--amber);
+  border-radius: 4px;
+}
+.new-chip, .chip-ok {
+  background: color-mix(in oklch, var(--green) 18%, transparent);
+  color: var(--green);
+  border-radius: 4px;
+}
+
+/* Tables and task lists */
+table.agenda {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  font-size: 13px;
+}
+table.agenda th {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+table.agenda td { border-bottom: 1px solid var(--border); }
+table.agenda tr:last-child td { border-bottom: 0; }
+table.agenda td:first-child { color: var(--muted-foreground); }
+details.task-list {
+  background: var(--card);
+  border-radius: 0 6px 6px 0;
+}
+details.task-list summary { color: var(--muted-foreground); }
+
+/* Edit toolbar */
+#edit-toolbar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px oklch(0 0 0 / 0.18);
+}
+#edit-toolbar button {
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+}
+#edit-toolbar button:hover { border-color: var(--border-strong); }
+#edit-toolbar button.on {
+  background: color-mix(in oklch, var(--amber) 18%, transparent);
+  border-color: var(--amber);
+}
+#edit-toolbar .status { color: var(--muted-foreground); }
+#report[contenteditable="true"] { outline-color: var(--border-strong); }
+#report[contenteditable="true"] table.agenda td { background: color-mix(in oklch, var(--amber) 6%, transparent); }

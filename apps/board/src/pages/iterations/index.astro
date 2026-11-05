@@ -1,0 +1,45 @@
+---
+import Layout from "@/layouts/main.astro";
+import { loadTasks } from "@/lib/manifest";
+import { listIterations, countUnassignedTasks, getCurrentIteration } from "@/lib/iterations";
+
+const tasks = loadTasks();
+const iterations = listIterations(tasks);
+const unassignedCount = countUnassignedTasks(tasks);
+const currentIteration = getCurrentIteration();
+---
+
+<Layout title="Iterations">
+  <h1 class="mb-6 text-xl font-semibold text-foreground">Iterations</h1>
+
+  <div class="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <a href="/tasks/?iteration=unassigned" class="font-medium hover:underline">
+      Unassigned: {unassignedCount} tasks
+    </a>
+    <span class="ml-1 text-amber-600">— tasks with no iteration set</span>
+  </div>
+
+  <div class="divide-y divide-border rounded-lg border border-border bg-card">
+    {iterations.length === 0 ? (
+      <p class="px-4 py-8 text-center text-sm text-muted-foreground">No iterations found.</p>
+    ) : (
+      iterations.map((iter) => {
+        const iterTasks = tasks.filter((t) => t.iteration === iter);
+        const isCurrent = iter === currentIteration;
+        return (
+          <div class={`flex items-center justify-between px-4 py-3 ${isCurrent ? "bg-sky-50" : ""}`}>
+            <div class="flex items-center gap-3">
+              {isCurrent && (
+                <span class="rounded bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">current</span>
+              )}
+              <a href={`/iterations/${iter}/`} class="font-medium text-foreground hover:underline">
+                {iter}
+              </a>
+            </div>
+            <span class="text-sm text-muted-foreground">{iterTasks.length} tasks</span>
+          </div>
+        );
+      })
+    )}
+  </div>
+</Layout>

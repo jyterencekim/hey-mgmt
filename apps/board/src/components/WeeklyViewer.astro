@@ -1,0 +1,73 @@
+---
+import EmptyState from "@/components/EmptyState.astro"
+import type { WeeklyEdition, WeeklyVariant } from "@/lib/weekly"
+
+interface Props {
+  editions: WeeklyEdition[]
+  current: WeeklyEdition | null
+}
+
+const { editions, current } = Astro.props
+const VARIANT_LABEL: Record<WeeklyVariant, string> = {
+  internal: "Internal",
+  external: "External",
+  preview: "Preview",
+}
+// One dropdown entry per member + date; variant tabs switch within it.
+const dates = [...new Map(editions.map((e) => [`${e.member}-${e.date}`, e])).values()]
+const siblings = current
+  ? editions.filter((e) => e.member === current.member && e.date === current.date)
+  : []
+function href(e: WeeklyEdition): string {
+  return `/weekly/${e.slug}/`
+}
+---
+
+{current ? (
+  <div class="flex h-[calc(100vh-3rem)] flex-col">
+    <div class="mb-3 flex flex-wrap items-center gap-3">
+      <h1 class="text-xl font-semibold text-foreground">Weekly</h1>
+      <select
+        aria-label="Edition date"
+        class="rounded-md border border-border bg-card px-2 py-1 text-sm text-foreground"
+        onchange="location.href = this.value"
+      >
+        {dates.map((e) => (
+          <option
+            value={href(editions.find((x) => x.member === e.member && x.date === e.date && x.variant === "internal") ?? e)}
+            selected={e.member === current.member && e.date === current.date}
+          >
+            {e.date} · {e.member}
+          </option>
+        ))}
+      </select>
+      <div class="inline-flex rounded-lg border border-border bg-card p-0.5 text-sm" role="tablist" aria-label="Edition">
+        {siblings.map((e) => (
+          <a
+            href={href(e)}
+            role="tab"
+            aria-selected={e.slug === current.slug}
+            class={`rounded-md px-3 py-1 font-medium ${e.slug === current.slug ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            {VARIANT_LABEL[e.variant]}
+          </a>
+        ))}
+      </div>
+      <a
+        href={`/weekly/raw/${current.slug}.html`}
+        target="_blank"
+        rel="noopener"
+        class="ml-auto text-sm text-muted-foreground hover:text-foreground hover:underline"
+      >
+        Open in new tab ↗
+      </a>
+    </div>
+    <iframe
+      src={`/weekly/raw/${current.slug}.html`}
+      title={`Weekly ${current.date} (${VARIANT_LABEL[current.variant]})`}
+      class="min-h-0 w-full flex-1 rounded-lg border border-border bg-background"
+    />
+  </div>
+) : (
+  <EmptyState message="No weekly editions yet. Run /weekly-report to write one." />
+)}

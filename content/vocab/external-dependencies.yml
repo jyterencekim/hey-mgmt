@@ -1,0 +1,18 @@
+version: 1
+
+# External dependency registry — used by external-impact-check workflows
+# to map external vendor/platform changes to internal areas and repos.
+dependencies: []
+  # Example entry:
+  # - id: github-api
+  #   name: GitHub REST & Webhook API
+  #   category: platform
+  #   criticality: medium
+  #   keywords: ["github webhook", "github api", "octokit"]
+  #   internal:
+  #     entities: ["HeyMgmt"]
+  #     areas: ["Infra", "Team"]
+  #     repos: ["hey-mgmt"]
+  #     code_hints: ["workspace/fisher/external-activity-runtime/lib/github-collector.mjs"]
+  #   failure_modes:
+  #     - Webhook payload changes can break external activity ingestion.

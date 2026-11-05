@@ -1,0 +1,36 @@
+---
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import TaskRow from "./TaskRow.astro";
+import EmptyState from "./EmptyState.astro";
+import type { SerializedTask } from "@/lib/types";
+
+interface Props {
+  tasks: SerializedTask[];
+}
+
+const { tasks } = Astro.props;
+---
+
+{tasks.length === 0 ? (
+  <EmptyState message="No tasks match your filters." />
+) : (
+  <div class="overflow-x-auto rounded-lg border border-border">
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[40%]">Title</TableHead>
+          <TableHead>Priority</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Owner</TableHead>
+          <TableHead>Iteration</TableHead>
+          <TableHead>Due</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {tasks.map((task) => (
+          <TaskRow task={task} />
+        ))}
+      </TableBody>
+    </Table>
+  </div>
+)}

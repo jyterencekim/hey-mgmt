@@ -1,0 +1,44 @@
+{
+  "name": "hey-mgmt",
+  "private": true,
+  "version": "1.0.0",
+  "skillsVersion": "1.2.0",
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "description": "Markdown-first Team & Personal OS — shared knowledge, tasks, decisions, initiatives, goals, and agent workflows",
+  "bin": {
+    "hey": "./scripts/hey.mjs"
+  },
+  "scripts": {
+    "hey": "node scripts/hey.mjs",
+    "dev": "concurrently -n board,api -c blue,magenta \"pnpm --dir apps/board dev\" \"pnpm --dir apps/api dev\"",
+    "frontend": "pnpm --dir apps/board dev",
+    "frontend:clean": "pnpm --dir apps/board dev:clean",
+    "api": "pnpm --dir apps/api dev",
+    "validate": "node scripts/hey.mjs validate",
+    "index:build": "node scripts/hey.mjs index build",
+    "index:watch": "node scripts/hey.mjs index watch",
+    "db:build": "node scripts/hey.mjs db build",
+    "db:query": "node scripts/hey.mjs db query",
+    "graph:build": "node scripts/hey.mjs graph build",
+    "graph:validate": "node scripts/hey.mjs graph validate",
+    "graph:stats": "node scripts/hey.mjs graph stats",
+    "stats": "node scripts/hey.mjs stats",
+    "test": "node --test scripts/lib/__tests__/*.test.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.3.0",
+    "@slack/web-api": "^7.19.0",
+    "cheerio": "^1.1.2",
+    "chokidar": "^4.0.3",
+    "commander": "^13.1.0",
+    "cytoscape": "^3.33.2",
+    "cytoscape-fcose": "^2.2.0",
+    "googleapis": "^154.1.0",
+    "gray-matter": "^4.0.3",
+    "yaml": "^2.7.1"
+  }
+}

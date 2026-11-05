@@ -1,0 +1,69 @@
+sources:
+  slack:
+    enabled: false
+    mode: polling
+    interval_minutes: 5
+    channels: []
+    dm_scope: people_and_bot_dm
+    degrade_to_bot_dm_only: true
+  jira:
+    enabled: false
+    interval_minutes: 10
+    projects: []
+  confluence:
+    enabled: false
+    interval_minutes: 10
+    spaces: []
+  drive:
+    enabled: false
+    interval_minutes: 10
+    shared_drives: []
+    file_types:
+      - google-doc
+      - google-sheet
+      - google-slide
+      - pdf
+approval:
+  delivery: owner_dm
+  artifact_owner_fallback: alice
+  pr_strategy: per_change
+logging:
+  workspace_routing: actor
+  fallback_workspace: alice
+  coalescing_key:
+    - source
+    - object_id
+    - kst_date
+matching:
+  policy: exact_x_external_refs
+  extension_field: x_external_refs
+  llm_match_enabled: true
+  llm_match_confidence_threshold: 0.7
+  llm_match_candidate_limit: 25
+distill:
+  enabled: true
+  min_signal_score: 3
+  suppress_low_signal_unmatched_sources:
+    - slack
+    - jira
+runtime:
+  state_dir: .hey/external-activity
+  socket_mode: true
+  cloudflare_tunnel_required: false
+idempotency:
+  prepared_ttl_hours: 6
+reflection:
+  enabled: true
+  promotion_confidence_threshold: 0.8
+  observation_confidence_threshold: 0.5
+digest:
+  enabled: false
+  schedule:
+    - "12:00"
+    - "18:00"
+  timezone: Asia/Seoul
+  channel: null
+  include_observations: true
+  max_items_per_section: 10
+  delete_previous: true
+  max_headline_bullets: 10

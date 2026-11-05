@@ -1,0 +1,59 @@
+---
+import Layout from "@/layouts/main.astro"
+import InboxItem from "@/components/InboxItem.astro"
+import InboxActions from "@/components/islands/InboxActions"
+import InboxMemberChips from "@/components/InboxMemberChips.astro"
+import { getCurrentMember, listMembers, loadInboxFor } from "@/lib/workspace"
+
+export async function getStaticPaths() {
+  const members = listMembers()
+  return members.map((member) => ({ params: { member } }))
+}
+
+const { member } = Astro.params
+const items = loadInboxFor(member)
+const open = items.filter((i) => i.status === "open")
+const read = items.filter((i) => i.status === "read")
+const discarded = items.filter((i) => i.status === "discarded")
+const isOwn = member === getCurrentMember()
+---
+
+<Layout title={`Inbox — ${member}`}>
+  <div class="mb-2 flex items-baseline justify-between gap-4">
+    <h1 class="text-xl font-semibold text-foreground">Inbox</h1>
+    <p class="text-sm text-muted-foreground">
+      {open.length} open · {read.length} read · {discarded.length} discarded
+    </p>
+  </div>
+  <p class="mb-4 text-sm text-muted-foreground">
+    Showing <span class="font-medium text-foreground">{member}</span>
+    {isOwn ? " (you)" : " · exploring another member"}.
+  </p>
+
+  <InboxMemberChips active={member} />
+
+  {
+    items.length === 0 ? (
+      <p class="text-sm text-muted-foreground">No inbox items.</p>
+    ) : (
+      <div class="space-y-3">
+        {[...open, ...read, ...discarded].map((item) => (
+          <InboxItem item={item}>
+            <InboxActions
+              client:load
+              workspace={member}
+              itemId={item.id}
+              status={item.status}
+            />
+          </InboxItem>
+        ))}
+      </div>
+    )
+  }
+
+  <script>
+    window.addEventListener("board:action-complete", () => {
+      window.location.reload()
+    })
+  </script>
+</Layout>

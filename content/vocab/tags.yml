@@ -1,0 +1,34 @@
+# Controlled tag vocabulary — used by validate to warn on unknown tags
+tags:
+  # Domain
+  - Product
+  - Engineering
+  - Research
+  - Marketing
+  - Operations
+  - Legal
+  - Finance
+  - Design
+  - Security
+  - Infrastructure
+  - UX
+  - Onboarding
+  - Integration
+  - IncidentResponse
+  - Frontend
+  - Backend
+  - DeveloperExperience
+
+  # Work type
+  - Analysis
+  - Implementation
+  - Review
+  - Refactor
+  - Deployment
+  - Documentation
+  - Automation
+  - ChangeImpact
+
+  # Internal
+  - IterationLog
+  - General

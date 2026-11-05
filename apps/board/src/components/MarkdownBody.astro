@@ -1,0 +1,114 @@
+---
+import { renderMarkdown } from "@/lib/markdown"
+
+interface Props {
+  body: string
+  /**
+   * Storage scope key — instances with the same scope share their
+   * pretty/raw preference (e.g. `"artifact"`, `"task"`, `"log"`).
+   * Default: `"md"`.
+   */
+  scope?: string
+  emptyText?: string
+}
+
+const { body, scope = "md", emptyText = "No markdown body." } = Astro.props
+const html = renderMarkdown(body)
+const trimmed = body?.trim() ?? ""
+const storageKey = `hey-md-view:${scope}`
+---
+
+{
+  trimmed.length === 0 ? (
+    <p class="rounded-lg border border-border bg-card px-6 py-5 text-sm text-muted-foreground">
+      {emptyText}
+    </p>
+  ) : (
+    <div data-md-root data-md-storage-key={storageKey}>
+      <div class="mb-2 flex justify-end gap-1 text-xs">
+        <button
+          type="button"
+          data-md-mode-btn="pretty"
+          class="md-mode-btn rounded border border-border px-2 py-0.5 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Pretty
+        </button>
+        <button
+          type="button"
+          data-md-mode-btn="raw"
+          class="md-mode-btn rounded border border-border px-2 py-0.5 text-muted-foreground transition-colors hover:text-foreground"
+        >
+          Raw
+        </button>
+      </div>
+      <article
+        data-md-view="pretty"
+        class="prose prose-sm dark:prose-invert max-w-none rounded-lg border border-border bg-card px-6 py-5"
+        set:html={html}
+      />
+      <pre
+        data-md-view="raw"
+        hidden
+        class="overflow-x-auto rounded-lg border border-border bg-card p-4 text-sm leading-6 whitespace-pre-wrap text-foreground"
+      >{body}</pre>
+    </div>
+  )
+}
+
+<script>
+  // Pretty / raw toggle for <MarkdownBody>. Reads + writes the shared
+  // pretty|raw preference under data-md-storage-key, applies on load,
+  // and re-applies on SPA swap (astro:page-load).
+  (function () {
+    const ACTIVE = ["bg-foreground", "text-background", "border-foreground"]
+    const INACTIVE = ["text-muted-foreground", "hover:text-foreground"]
+
+    function readMode(key: string): "pretty" | "raw" {
+      try {
+        return localStorage.getItem(key) === "raw" ? "raw" : "pretty"
+      } catch {
+        return "pretty"
+      }
+    }
+    function writeMode(key: string, mode: "pretty" | "raw") {
+      try {
+        localStorage.setItem(key, mode)
+      } catch {
+        /* best-effort */
+      }
+    }
+    function applyRoot(root: HTMLElement) {
+      const key = root.dataset.mdStorageKey ?? "hey-md-view:md"
+      const mode = readMode(key)
+      root
+        .querySelectorAll<HTMLElement>("[data-md-view]")
+        .forEach((v) => (v.hidden = v.dataset.mdView !== mode))
+      root
+        .querySelectorAll<HTMLButtonElement>("[data-md-mode-btn]")
+        .forEach((b) => {
+          const active = b.dataset.mdModeBtn === mode
+          ACTIVE.forEach((c) => b.classList.toggle(c, active))
+          INACTIVE.forEach((c) => b.classList.toggle(c, !active))
+        })
+    }
+    function applyAll() {
+      document
+        .querySelectorAll<HTMLElement>("[data-md-root]")
+        .forEach(applyRoot)
+    }
+    function onClick(e: MouseEvent) {
+      const btn = (e.target as HTMLElement | null)?.closest<HTMLButtonElement>(
+        "[data-md-mode-btn]"
+      )
+      if (!btn) return
+      const root = btn.closest<HTMLElement>("[data-md-root]")
+      if (!root) return
+      const mode = btn.dataset.mdModeBtn === "raw" ? "raw" : "pretty"
+      writeMode(root.dataset.mdStorageKey ?? "hey-md-view:md", mode)
+      applyRoot(root)
+    }
+    document.addEventListener("click", onClick)
+    document.addEventListener("astro:page-load", applyAll)
+    applyAll()
+  })()
+</script>

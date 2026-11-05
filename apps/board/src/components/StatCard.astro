@@ -1,0 +1,21 @@
+---
+import { Card, CardContent } from "@/components/ui/card";
+
+interface Props {
+  label: string;
+  count: number | string;
+  sublabel?: string;
+}
+
+const { label, count, sublabel } = Astro.props;
+---
+
+<Card>
+  <CardContent className="p-4">
+    <div class="text-sm font-medium text-muted-foreground">{label}</div>
+    <div class="mt-1 text-3xl font-bold text-foreground">{count}</div>
+    {sublabel && (
+      <div class="mt-1 text-xs text-muted-foreground">{sublabel}</div>
+    )}
+  </CardContent>
+</Card>

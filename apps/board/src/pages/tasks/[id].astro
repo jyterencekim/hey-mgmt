@@ -1,0 +1,62 @@
+---
+import Layout from "@/layouts/main.astro"
+import TaskDetail from "@/components/islands/TaskDetail"
+import { loadTasks, readArtifactMarkdown } from "@/lib/manifest"
+import { toSerializedTask } from "@/lib/workspace"
+import type { Task } from "@/lib/types"
+
+export async function getStaticPaths() {
+  return loadTasks().map((task) => ({
+    params: { id: task.id },
+    props: { task },
+  }))
+}
+
+interface Props {
+  task: Task
+}
+
+const { task } = Astro.props
+const artifact = readArtifactMarkdown(task.path)
+const body = artifact.body.trim()
+const initialTask = toSerializedTask(task)
+---
+
+<Layout title={task.title}>
+  <div class="mb-4">
+    <a
+      href="/tasks/"
+      data-back-link
+      class="text-sm text-muted-foreground hover:text-muted-foreground"
+      >← Back</a
+    >
+  </div>
+  <script is:inline>
+    // Prefer a real "back" so returning to the referring view (e.g. the Goals
+    // timeline/table) is preserved. Fall back to the href on direct entry.
+    ;(function () {
+      var link = document.querySelector("[data-back-link]")
+      if (!link) return
+      link.addEventListener("click", function (e) {
+        var ref = document.referrer
+        if (
+          window.history.length > 1 &&
+          ref &&
+          new URL(ref).origin === window.location.origin
+        ) {
+          e.preventDefault()
+          window.history.back()
+        }
+      })
+    })()
+  </script>
+
+  <TaskDetail
+    client:load
+    initialTask={initialTask}
+    createdAt={task.created_at}
+    body={body}
+    absolutePath={artifact.absolutePath}
+    sources={task.sources}
+  />
+</Layout>
