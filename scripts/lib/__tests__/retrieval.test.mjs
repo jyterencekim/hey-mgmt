@@ -42,9 +42,9 @@ function setupTmpRepo() {
     makeManifestLine({
       id: 'task_integrate-bridge-aggregator',
       title: 'Integrate Bridge Aggregator',
-      owner: 'terence',
+      owner: 'charlie',
       priority: 'do',
-      project: 'SuperearnCore',
+      project: 'TeamOSCore',
       path: 'content/tasks/2026/03/task_integrate-bridge-aggregator.md'
     }),
     makeManifestLine({
@@ -52,8 +52,8 @@ function setupTmpRepo() {
       type: 'note',
       status: 'active',
       title: 'External Schedule and Partner Dependencies (2026 Q1-Q2)',
-      owner: 'jared',
-      project: 'SuperearnCore',
+      owner: 'alice',
+      project: 'TeamOSCore',
       path: 'content/notes/note_external-schedule-2026q1q2.md'
     }),
     makeManifestLine({
@@ -61,7 +61,7 @@ function setupTmpRepo() {
       type: 'decision',
       status: 'active',
       title: 'ADR: Deflate artifact ontology from 10 to 5 types',
-      owner: 'jared',
+      owner: 'alice',
       project: null,
       path: 'content/decisions/decision_deflate-ontology.md'
     })
@@ -77,9 +77,9 @@ function setupTmpRepo() {
         title: 'Integrate Bridge Aggregator',
         path: 'content/tasks/2026/03/task_integrate-bridge-aggregator.md',
         type: 'task',
-        project: 'SuperearnCore',
+        project: 'TeamOSCore',
         status: 'ready',
-        owner: 'terence',
+        owner: 'charlie',
         text: 'Integrate Bridge Aggregator cross-chain asset transfers EIP-712 approval flow QA deploy'
       },
       {
@@ -87,9 +87,9 @@ function setupTmpRepo() {
         title: 'External Schedule and Partner Dependencies (2026 Q1-Q2)',
         path: 'content/notes/note_external-schedule-2026q1q2.md',
         type: 'note',
-        project: 'SuperearnCore',
+        project: 'TeamOSCore',
         status: 'active',
-        owner: 'jared',
+        owner: 'alice',
         text: 'External Schedule and Partner Dependencies release timeline partner dependencies'
       },
       {
@@ -99,7 +99,7 @@ function setupTmpRepo() {
         type: 'decision',
         project: null,
         status: 'active',
-        owner: 'jared',
+        owner: 'alice',
         text: 'ADR Deflate artifact ontology from 10 to 5 types artifact simplification'
       }
     ]
@@ -124,7 +124,7 @@ describe('searchRepository()', () => {
   });
 
   it('still supports empty-query filtered listings', () => {
-    const results = searchRepository('', { owner: 'jared', type: 'note', status: 'active' }, { repoRoot: tmpRoot });
+    const results = searchRepository('', { owner: 'alice', type: 'note', status: 'active' }, { repoRoot: tmpRoot });
     assert.deepEqual(results.map((item) => item.id), ['note_external-schedule-2026q1q2']);
   });
 

@@ -19,8 +19,8 @@ function config(overrides = {}) {
       spaces: [{ key: 'USDT', include_recent_pages: 2 }],
     },
     members: {
-      jared: { confluence_names: ['Jared Lee'] },
-      terence: { confluence_names: ['Terence Kim'] },
+      alice: { confluence_names: ['Alice Lee'] },
+      charlie: { confluence_names: ['Charlie Kim'] },
     },
     ...overrides,
   };
@@ -53,11 +53,11 @@ describe('ConfluenceCollector', () => {
             history: {
               lastUpdated: {
                 when: '2026-03-17T00:00:00.000Z',
-                by: { displayName: 'Jared Lee' },
+                by: { displayName: 'Alice Lee' },
               },
             },
             version: { number: 8 },
-            _links: { base: 'https://kaia-foundation.atlassian.net', webui: '/wiki/spaces/USDT/pages/149783426' },
+            _links: { base: 'https://your-org.atlassian.net', webui: '/wiki/spaces/USDT/pages/149783426' },
           }),
         };
       }
@@ -68,15 +68,15 @@ describe('ConfluenceCollector', () => {
           json: async () => ({
             id: '200000001',
             title: 'Partner Notes',
-            body: { storage: { value: '<p>Terence updated assumptions</p>' } },
+            body: { storage: { value: '<p>Charlie updated assumptions</p>' } },
             history: {
               lastUpdated: {
                 when: '2026-03-17T01:00:00.000Z',
-                by: { displayName: 'Terence Kim' },
+                by: { displayName: 'Charlie Kim' },
               },
             },
             version: { number: 2 },
-            _links: { base: 'https://kaia-foundation.atlassian.net', webui: '/wiki/spaces/USDT/pages/200000001' },
+            _links: { base: 'https://your-org.atlassian.net', webui: '/wiki/spaces/USDT/pages/200000001' },
           }),
         };
       }
@@ -88,9 +88,9 @@ describe('ConfluenceCollector', () => {
       repoRoot,
       config: config(),
       fetchImpl: fakeFetch,
-      email: 'jared@example.com',
+      email: 'alice@example.com',
       token: 'token',
-      baseUrl: 'https://kaia-foundation.atlassian.net',
+      baseUrl: 'https://your-org.atlassian.net',
       ingestEvents: ({ events }) => {
         ingestedEvents = events;
         return { event_count: events.length, candidate_count: 0, log_results: [] };
@@ -103,8 +103,8 @@ describe('ConfluenceCollector', () => {
     assert.deepEqual(
       ingestedEvents.map((event) => [event.object_id, event.workspace_owner]),
       [
-        ['149783426', 'jared'],
-        ['200000001', 'terence'],
+        ['149783426', 'alice'],
+        ['200000001', 'charlie'],
       ]
     );
   });

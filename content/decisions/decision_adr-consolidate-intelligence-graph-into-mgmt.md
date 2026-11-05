@@ -20,7 +20,7 @@ relations:
     target: decision_adr-kg-v2-operating-decisions
 sources:
   - kind: doc
-    ref: workspace/terence/notes/note_2026-09-14-knowledge-graph-v2-design.md
+    ref: workspace/charlie/notes/note_2026-09-14-knowledge-graph-v2-design.md
     title: Knowledge Graph v2 design
   - kind: doc
     ref: content/decisions/decision_adr-kg-v2-operating-decisions.md

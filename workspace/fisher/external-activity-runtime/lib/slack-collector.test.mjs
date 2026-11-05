@@ -8,7 +8,7 @@ import { SlackCollector, extractTextFromSlackFile } from './slack-collector.mjs'
 function config(overrides = {}) {
   return {
     bot: {
-      workspace_url: 'https://kaiafoundation.slack.com',
+      workspace_url: 'https://your-workspace.slack.com',
     },
     collector: {
       enabled: true,
@@ -24,14 +24,14 @@ function config(overrides = {}) {
       ],
     },
     members: {
-      jared: { slack_user_id: 'U07EPER3998', slack_dm_id: 'D07E8TSQB1V' },
-      terence: { slack_user_id: 'U098SMD9TBJ', slack_dm_id: 'D098Y4RTL9X' },
+      alice: { slack_user_id: 'U07EPER3998', slack_dm_id: 'D07E8TSQB1V' },
+      charlie: { slack_user_id: 'U098SMD9TBJ', slack_dm_id: 'D098Y4RTL9X' },
     },
     ...overrides,
   };
 }
 
-function writeMembersVocab(repoRoot, members = ['jared', 'terence', 'oliver']) {
+function writeMembersVocab(repoRoot, members = ['alice', 'charlie', 'bob']) {
   const vocabDir = resolve(repoRoot, 'content', 'vocab');
   mkdirSync(vocabDir, { recursive: true });
   writeFileSync(
@@ -56,7 +56,7 @@ describe('extractTextFromSlackFile', () => {
 describe('SlackCollector', () => {
   it('captures lead-only messages, threads, and files without ingesting them', async () => {
     const repoRoot = mkdtempSync(resolve(tmpdir(), 'slack-leads-'));
-    const leadChannel = { id: 'CLEADS', name: 'superearn_news', include_threads: true, include_files: true, capture_only: true };
+    const leadChannel = { id: 'CLEADS', name: 'teamos_news', include_threads: true, include_files: true, capture_only: true };
     const cfg = config();
     cfg.collector.channels = [leadChannel];
     const calls = [];
@@ -67,7 +67,7 @@ describe('SlackCollector', () => {
       if (href.includes('conversations.replies')) return { ok: true, json: async () => ({ ok: true, messages: [{ ts: '1710000000.000100', user: 'U07EPER3998', text: 'Unverified X lead', files: [{ id: 'FLEAD' }] }, { ts: '1710000001.000100', user: 'U07EPER3998', text: 'Not related to product' }] }) };
       if (href.includes('files.info')) return { ok: true, json: async () => ({ ok: true, file: { id: 'FLEAD', user: 'U07EPER3998', title: 'Lead', name: 'lead.txt', mimetype: 'text/plain', size: 4, created: 1710000000, url_private_download: 'https://files.example/FLEAD' } }) };
       if (href.includes('files.example')) return { ok: true, arrayBuffer: async () => Buffer.from('lead') };
-      if (href.includes('users.info')) return { ok: true, json: async () => ({ ok: true, user: { profile: { display_name: 'Jared Lee' } } }) };
+      if (href.includes('users.info')) return { ok: true, json: async () => ({ ok: true, user: { profile: { display_name: 'Alice Lee' } } }) };
       throw new Error(`Unhandled fetch ${url}`);
     };
     const collector = new SlackCollector({ repoRoot, config: cfg, token: 'xoxb-test', fetchImpl: fakeFetch, ingestEvents: async () => { throw new Error('lead-only content entered activity ingestion'); } });
@@ -132,7 +132,7 @@ describe('SlackCollector', () => {
               filetype: 'html',
               size: 64,
               created: 1710000000,
-              permalink: 'https://kaiafoundation.slack.com/files/U07EPER3998/F123/jpyc-yield-simulator.html',
+              permalink: 'https://your-workspace.slack.com/files/U07EPER3998/F123/jpyc-yield-simulator.html',
               url_private_download: 'https://files.example/F123',
             },
           }),
@@ -143,7 +143,7 @@ describe('SlackCollector', () => {
           ok: true,
           json: async () => ({
             ok: true,
-            user: { profile: { display_name: 'Jared Lee' } },
+            user: { profile: { display_name: 'Alice Lee' } },
           }),
         };
       }
@@ -174,7 +174,7 @@ describe('SlackCollector', () => {
     assert.equal(ingestedEvents.some((event) => event.object_type === 'slack-message'), true);
     assert.equal(ingestedEvents.some((event) => event.object_type === 'slack-thread'), true);
     assert.equal(ingestedEvents.some((event) => event.object_type === 'slack-file'), true);
-    assert.equal(ingestedEvents.every((event) => event.workspace_owner === 'jared'), true);
+    assert.equal(ingestedEvents.every((event) => event.workspace_owner === 'alice'), true);
   });
 
   it('OCRs image attachments even when legacy image ignore config is present', async () => {
@@ -228,7 +228,7 @@ describe('SlackCollector', () => {
               filetype: 'png',
               size: 8,
               created: 1710000000,
-              permalink: 'https://kaiafoundation.slack.com/files/U07EPER3998/FPNG/lp.png',
+              permalink: 'https://your-workspace.slack.com/files/U07EPER3998/FPNG/lp.png',
               url_private_download: 'https://files.example/FPNG',
             },
           }),
@@ -237,7 +237,7 @@ describe('SlackCollector', () => {
       if (href.includes('users.info')) {
         return {
           ok: true,
-          json: async () => ({ ok: true, user: { profile: { display_name: 'Jared Lee' } } }),
+          json: async () => ({ ok: true, user: { profile: { display_name: 'Alice Lee' } } }),
         };
       }
       if (href.includes('files.example')) {
@@ -312,7 +312,7 @@ describe('SlackCollector', () => {
       if (href.includes('users.info')) {
         return {
           ok: true,
-          json: async () => ({ ok: true, user: { profile: { display_name: 'Jared Lee' } } }),
+          json: async () => ({ ok: true, user: { profile: { display_name: 'Alice Lee' } } }),
         };
       }
       throw new Error(`Unhandled fetch ${url}`);
@@ -366,7 +366,7 @@ describe('SlackCollector', () => {
       if (href.includes('users.info')) {
         return {
           ok: true,
-          json: async () => ({ ok: true, user: { profile: { display_name: 'Jared Lee' } } }),
+          json: async () => ({ ok: true, user: { profile: { display_name: 'Alice Lee' } } }),
         };
       }
       throw new Error(`Unhandled fetch ${url}`);
@@ -397,9 +397,9 @@ describe('SlackCollector', () => {
     writeMembersVocab(repoRoot);
     const collectorConfig = config({
       members: {
-        jared: { slack_user_id: 'U07EPER3998', slack_dm_id: 'D07E8TSQB1V' },
-        terence: { slack_user_id: 'U098SMD9TBJ', slack_dm_id: 'D098Y4RTL9X' },
-        oliver: {},
+        alice: { slack_user_id: 'U07EPER3998', slack_dm_id: 'D07E8TSQB1V' },
+        charlie: { slack_user_id: 'U098SMD9TBJ', slack_dm_id: 'D098Y4RTL9X' },
+        bob: {},
       },
       collector: {
         enabled: true,
@@ -437,10 +437,10 @@ describe('SlackCollector', () => {
           json: async () => ({
             ok: true,
             user: {
-              name: 'oliver.kim',
+              name: 'bob.kim',
               profile: {
-                display_name: 'Oliver Kim',
-                real_name: 'Oliver Kim',
+                display_name: 'Bob Kim',
+                real_name: 'Bob Kim',
               },
             },
           }),
@@ -462,7 +462,7 @@ describe('SlackCollector', () => {
     const result = await collector.pollOnce();
 
     assert.equal(result.event_count, 1);
-    assert.equal(ingestedEvents[0].workspace_owner, 'oliver');
-    assert.equal(ingestedEvents[0].actor, 'Oliver Kim');
+    assert.equal(ingestedEvents[0].workspace_owner, 'bob');
+    assert.equal(ingestedEvents[0].actor, 'Bob Kim');
   });
 });

@@ -5,7 +5,7 @@ import { parse as parseYaml } from 'yaml';
 const DEFAULT_CONFIG = {
   defaults: {
     timezone: 'Asia/Seoul',
-    default_owner: 'jared',
+    default_owner: 'alice',
     default_project: 'Team',
     meeting_status: 'active',
     note_status: 'active',

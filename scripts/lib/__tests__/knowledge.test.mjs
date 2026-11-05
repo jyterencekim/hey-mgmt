@@ -24,10 +24,10 @@ function makeEvent(overrides = {}) {
     source: 'slack',
     object_id: 'thread__C0AC9CBPPJS__123_456',
     object_type: 'slack-thread',
-    object_title: '#superearn-internal: vault rebalancing 논의',
+    object_title: '#team-internal: vault rebalancing 논의',
     object_url: 'https://slack.com/archives/C0AC9CBPPJS/p123456',
-    actor: 'Jared',
-    workspace_owner: 'jared',
+    actor: 'Alice',
+    workspace_owner: 'alice',
     summary: 'Team discussed vault rebalancing thresholds for custom strategy',
     changed_at: '2026-04-08T09:30:00.000Z',
     kst_date: '2026-04-08',
@@ -56,7 +56,7 @@ describe('knowledge entry writer', () => {
     assert.equal(parsed.source, 'slack');
     assert.equal(parsed.classification, 'skip');
     assert.equal(parsed.status, 'indexed');
-    assert.equal(parsed.workspace_owner, 'jared');
+    assert.equal(parsed.workspace_owner, 'alice');
   });
 
   it('computes relevance_score for skip', async () => {
@@ -119,12 +119,12 @@ describe('knowledge entry writer', () => {
     const entry = buildKnowledgeEntry({
       event: makeEvent({
         source: 'github',
-        object_id: 'superearn-io/onchain-analysis/commit/c98518caa8c4f92afc31e77e74a56a86775668ea',
+        object_id: 'example-org/onchain-analysis/commit/c98518caa8c4f92afc31e77e74a56a86775668ea',
         object_type: 'github-commit',
         object_title: 'Commit c98518c: Add Dune current holder source-of-funds analysis',
-        object_url: 'https://github.com/superearn-io/onchain-analysis/commit/c98518caa8c4f92afc31e77e74a56a86775668ea',
+        object_url: 'https://github.com/example-org/onchain-analysis/commit/c98518caa8c4f92afc31e77e74a56a86775668ea',
         actor: 'lwj010',
-        summary: 'GitHub commit on superearn-io/onchain-analysis (main): Add Dune current holder source-of-funds analysis',
+        summary: 'GitHub commit on example-org/onchain-analysis (main): Add Dune current holder source-of-funds analysis',
         signature: 'sig_github_commit_001',
       }),
       classification: 'distill',
@@ -173,7 +173,7 @@ describe('knowledge entry writer', () => {
     const first = {
       id: 'kn_one', source: 'slack', object_id: 'obj1', object_type: 'slack-message',
       title: 'One', summary: 'One', url: 'https://example.com/1',
-      actors: [], workspace_owner: 'jared', date: '2026-04-08',
+      actors: [], workspace_owner: 'alice', date: '2026-04-08',
       changed_at: '2026-04-08T09:00:00Z', topics: [], classification: 'match',
       status: 'pending', linked_artifact: null, relevance_score: 0.5, signature: 'sig_status_all',
     };
@@ -316,7 +316,7 @@ describe('knowledge table in catalog SQLite', () => {
     writeFileSync(knowledgePath, JSON.stringify({
       id: 'kn_test1', source: 'slack', object_id: 'obj1', object_type: 'slack-message',
       title: 'Test entry', summary: 'Test summary', url: 'https://example.com',
-      actors: ['Jared'], workspace_owner: 'jared', date: '2026-04-08',
+      actors: ['Alice'], workspace_owner: 'alice', date: '2026-04-08',
       changed_at: '2026-04-08T09:00:00Z', topics: [], classification: 'skip',
       status: 'indexed', linked_artifact: null, agent_reason: 'test',
       relevance_score: 0.5, signature: 'sig_001',
@@ -326,7 +326,7 @@ describe('knowledge table in catalog SQLite', () => {
     const rows = queryCatalog({ repoRoot: testRoot, sql: 'SELECT * FROM knowledge' });
     assert.equal(rows.length, 1);
     assert.equal(rows[0].id, 'kn_test1');
-    assert.equal(rows[0].workspace_owner, 'jared');
+    assert.equal(rows[0].workspace_owner, 'alice');
   });
 
   it('skips malformed JSONL lines', async () => {
@@ -334,7 +334,7 @@ describe('knowledge table in catalog SQLite', () => {
     const knowledgePath = resolve(testRoot, 'workspace/fisher/knowledge/2026-04.jsonl');
     const validLine = JSON.stringify({
       id: 'kn_test2', source: 'slack', object_id: 'obj2', object_type: 'slack-message',
-      title: 'Valid', summary: 'Valid', url: '', actors: [], workspace_owner: 'jared',
+      title: 'Valid', summary: 'Valid', url: '', actors: [], workspace_owner: 'alice',
       date: '2026-04-08', changed_at: '2026-04-08T09:00:00Z', topics: [],
       classification: 'skip', status: 'indexed', relevance_score: 0.5, signature: 'sig_002',
     });
@@ -358,7 +358,7 @@ describe('knowledge table in catalog SQLite', () => {
     const knowledgePath = resolve(testRoot, 'workspace/fisher/knowledge/2026-04.jsonl');
     const entry = {
       id: 'kn_dup1', source: 'slack', object_id: 'obj3', object_type: 'slack-message',
-      title: 'First', summary: 'First', url: '', actors: [], workspace_owner: 'jared',
+      title: 'First', summary: 'First', url: '', actors: [], workspace_owner: 'alice',
       date: '2026-04-08', changed_at: '2026-04-08T09:00:00Z', topics: [],
       classification: 'skip', status: 'indexed', relevance_score: 0.5, signature: 'sig_dup',
     };
@@ -377,7 +377,7 @@ describe('knowledge table in catalog SQLite', () => {
     writeFileSync(knowledgePath, JSON.stringify({
       id: 'kn_stale', source: 'slack', object_id: 'obj4', object_type: 'slack-message',
       title: 'Stale check', summary: 'Initial', url: 'https://example.com',
-      actors: [], workspace_owner: 'jared', date: '2026-04-08',
+      actors: [], workspace_owner: 'alice', date: '2026-04-08',
       changed_at: '2026-04-08T09:00:00Z', topics: [], classification: 'skip',
       status: 'indexed', relevance_score: 0.5, signature: 'sig_stale',
     }) + '\n', 'utf8');

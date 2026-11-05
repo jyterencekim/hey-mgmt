@@ -1,7 +1,7 @@
 // Procedure-graph proposal gate — the ONLY path that writes an accepted edit set
 // into a playbook's x_procedure_graph (decision_adr-kg-v2-operating-decisions D2/D3).
 //
-// The projection repo (superearn-intelligence) is read-only against mgmt; the
+// The projection repo (hey-intelligence) is read-only against mgmt; the
 // validator and the edit interface live there and are imported from the sibling
 // checkout so there is one implementation. Set KG_INTELLIGENCE_ROOT to override
 // the sibling path.
@@ -23,7 +23,7 @@ export function intelligenceRoot(repoRoot) {
   if (existsSync(resolve(internalSelf, 'lib/proposals.mjs'))) {
     return internalSelf;
   }
-  const sibling = repoRoot ? resolve(repoRoot, '..', 'superearn-intelligence') : null;
+  const sibling = repoRoot ? resolve(repoRoot, '..', 'hey-intelligence') : null;
   if (sibling && existsSync(resolve(sibling, 'src/lib/proposals.mjs'))) {
     return sibling;
   }

@@ -1,4 +1,4 @@
-// superearn-io/onchain-analysis research corpus -> oa: nodes.
+// example-org/onchain-analysis research corpus -> oa: nodes.
 //
 // Nodes:  oa:doc:<path-without-.md>   one per markdown document (kind by top-level dir)
 //         oa:strategy:S-NNN            one per row of strategies/catalog.md

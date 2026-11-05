@@ -13,9 +13,9 @@ import {
 function scaffoldFixture(overrides = {}) {
   return {
     generated_at: '2026-08-14T12:00:00.000Z',
-    member: 'terence',
+    member: 'charlie',
     date: '2026-08-14',
-    commits: [{ hash: 'abc1234', time: '10:30', author: 'jyterencekim', subject: 'fix: something' }],
+    commits: [{ hash: 'abc1234', time: '10:30', author: 'charlie-dev', subject: 'fix: something' }],
     runs: [{ run_id: 'run_1', task_id: 'task_x', status: 'completed', events: ['completed'] }],
     tasks_touched: [{ id: 'task_x', title: 'Task X', status: 'done' }],
     ...overrides,
@@ -36,16 +36,16 @@ describe('renderScaffoldSection()', () => {
 
 describe('applyLogScaffold()', () => {
   let tmpRoot;
-  const logPath = () => resolve(tmpRoot, 'workspace/terence/logs/2026-08-14.md');
+  const logPath = () => resolve(tmpRoot, 'workspace/charlie/logs/2026-08-14.md');
 
   beforeEach(() => {
     tmpRoot = resolve(tmpdir(), `test-scaffold-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    mkdirSync(resolve(tmpRoot, 'workspace/terence/logs'), { recursive: true });
+    mkdirSync(resolve(tmpRoot, 'workspace/charlie/logs'), { recursive: true });
   });
 
   afterEach(() => rmSync(tmpRoot, { recursive: true, force: true }));
 
-  const apply = (section) => applyLogScaffold(tmpRoot, { member: 'terence', date: '2026-08-14', section });
+  const apply = (section) => applyLogScaffold(tmpRoot, { member: 'charlie', date: '2026-08-14', section });
 
   it('creates the log file when missing', () => {
     const result = apply(renderScaffoldSection(scaffoldFixture()));

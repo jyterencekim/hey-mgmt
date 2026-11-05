@@ -27,15 +27,15 @@ const RICH_LOG = (date) => `# ${date}
 - 09:30 — Started work on task_bridge-aggregator integration
 - 10:15 — Fixed RPC routing for D'Cent wallet
 - 11:00 — Deployed to QA (commit abc123)
-- 14:00 — Code review with jared on keeper changes
+- 14:00 — Code review with alice on keeper changes
 - 15:30 — Merged task_keeper-update PR #42
 
 ## External Signals
 <!-- external-activity:start -->
-- 10:17 — [slack] #superearn_dev Discussion about bridge | URL: https://example.com/slack1 | Actor: jared.lee | Summary: Bridge discussion | Native IDs: msg_123
-- 11:52 — [confluence] Product spec updated | URL: https://example.com/conf1 | Actor: terence.kim | Summary: Spec update | Native IDs: page_456
-- 12:30 — [slack] #superearn-internal Deploy confirmed | URL: https://example.com/slack2 | Actor: jared.lee | Summary: Deploy OK | Native IDs: msg_789
-- 13:00 — [slack] #superearn-internal QA passed | URL: https://example.com/slack3 | Actor: oliver | Summary: QA green | Native IDs: msg_012
+- 10:17 — [slack] #team-dev Discussion about bridge | URL: https://example.com/slack1 | Actor: alice.lee | Summary: Bridge discussion | Native IDs: msg_123
+- 11:52 — [confluence] Product spec updated | URL: https://example.com/conf1 | Actor: charlie.kim | Summary: Spec update | Native IDs: page_456
+- 12:30 — [slack] #team-internal Deploy confirmed | URL: https://example.com/slack2 | Actor: alice.lee | Summary: Deploy OK | Native IDs: msg_789
+- 13:00 — [slack] #team-internal QA passed | URL: https://example.com/slack3 | Actor: bob | Summary: QA green | Native IDs: msg_012
 <!-- external-activity:end -->
 
 ## Reflection

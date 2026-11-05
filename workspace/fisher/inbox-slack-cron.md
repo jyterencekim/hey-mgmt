@@ -27,7 +27,7 @@ node workspace/fisher/external-activity-runtime/inbox-slack.mjs notify --dry-run
 node workspace/fisher/scripts/audit-hermes-crons.mjs
 ```
 
-Confirm the dry-run contains only `jared`, `terence`, `oliver`, and `eb`, every
+Confirm the dry-run contains only `alice`, `charlie`, `bob`, and `dana`, every
 delivery targets `C0A8A1ELH9A`, no message exceeds 50 Block Kit blocks, and the
 cron audit remains within `max_agent_turns_per_day`.
 

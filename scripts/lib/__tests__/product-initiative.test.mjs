@@ -17,7 +17,7 @@ function entry(overrides) {
     type: 'task',
     title: overrides.id,
     status: 'ready',
-    owner: 'jared',
+    owner: 'alice',
     created_at: '2026-11-01',
     relations_out: [],
     components: [],
@@ -146,7 +146,7 @@ type: initiative
 title: Product P
 created_at: 2026-11-04
 updated_at: 2026-11-04
-owner: jared
+owner: alice
 status: plan
 x_initiative_kind: product
 x_timeline_start: 2026-11-04
@@ -166,7 +166,7 @@ type: task
 title: Task ${id}
 created_at: 2026-11-04
 updated_at: 2026-11-04
-owner: jared
+owner: alice
 status: ready
 iteration: 2026-W45
 definition_of_done:
@@ -181,8 +181,8 @@ describe('product initiative files', () => {
   beforeEach(() => {
     tmpRoot = resolve(tmpdir(), `test-product-initiative-${process.pid}-${Date.now()}`);
     mkdirSync(resolve(tmpRoot, 'content', 'vocab'), { recursive: true });
-    mkdirSync(resolve(tmpRoot, 'workspace', 'jared'), { recursive: true });
-    writeFileSync(resolve(tmpRoot, 'content', 'vocab', 'members.yml'), 'members:\n  - name: jared\n  - name: fisher\n', 'utf8');
+    mkdirSync(resolve(tmpRoot, 'workspace', 'alice'), { recursive: true });
+    writeFileSync(resolve(tmpRoot, 'content', 'vocab', 'members.yml'), 'members:\n  - name: alice\n  - name: fisher\n', 'utf8');
   });
   afterEach(() => rmSync(tmpRoot, { recursive: true, force: true }));
 
@@ -259,7 +259,7 @@ describe('product initiative files', () => {
     const second = sendProductGapAlerts(tmpRoot, { today: now });
     assert.equal(second.results[0].action, 'sent');
     assert.equal(second.results[0].gaps, 3);
-    const items = JSON.parse(JSON.stringify(readFileSync(resolve(tmpRoot, 'workspace/jared/inbox/open', `${second.results[0].inbox_id}.json`), 'utf8')));
+    const items = JSON.parse(JSON.stringify(readFileSync(resolve(tmpRoot, 'workspace/alice/inbox/open', `${second.results[0].inbox_id}.json`), 'utf8')));
     assert.match(items, /task_b/);
     assert.doesNotMatch(items, /task_a`/);
   });

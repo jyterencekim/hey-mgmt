@@ -5,7 +5,7 @@ import { unpack } from './intake-coverage.mjs';
 // flags or synthetic counts. Dates always derive from one frozen UTC window.
 export async function discoverIntake(tools, { after, before, priorDispositions = {} }) {
   const profile = unpack(await tools.mcp__codex_apps__gmail_get_profile({}));
-  if (profile.email !== 'jared.lee@kaia.io') throw new Error('Wrong Gmail identity');
+  if (profile.email !== 'alice@example.com') throw new Error('Wrong Gmail identity');
   const db = unpack(await tools.mcp__codex_apps__notion_fetch({ id: '1e58f758b60f4ce9bf0111c3119e959b' }));
   const ds = 'collection://0623cda6-b2c5-4dbb-8587-c0e7feaac076';
   if (!db.text?.includes(ds) || !db.text.includes('3d60b640-81c0-4985-9b9e-b43155b7dc14')) throw new Error('Notion authority mismatch');

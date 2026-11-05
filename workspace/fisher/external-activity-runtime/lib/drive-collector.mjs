@@ -458,7 +458,7 @@ export class DriveCollector {
     if (state.files?.[fileId]?.fingerprint === fingerprint) return;
 
     const actor = driveActor(file);
-    const workspaceOwner = mapDriveActorToMember(this.config, file) ?? 'jared';
+    const workspaceOwner = mapDriveActorToMember(this.config, file) ?? 'alice';
     events.push({
       source: 'drive',
       object_type: 'drive-file',

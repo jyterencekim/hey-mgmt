@@ -28,7 +28,7 @@ sources:
       D1/D3/D4)
   - kind: user_request
     ref: 'chat:2026-08-14-task-timeline-and-hygiene-design'
-    title: 'In-session ratification of D1/D3/D4 by terence, 2026-08-14'
+    title: 'In-session ratification of D1/D3/D4 by charlie, 2026-08-14'
 ---
 
 ## Context
@@ -50,7 +50,7 @@ Session-start triage costs one human decision per overdue item; that
 does not survive 24 items — people skip or blanket-defer, which
 regrows the pile.
 
-Ratified in-session by terence on 2026-08-14 as decisions D1, D3,
+Ratified in-session by charlie on 2026-08-14 as decisions D1, D3,
 and D4 of
 `note_automated-initiative-task-hygiene-strategy`.
 This ADR is the durable record.
@@ -117,7 +117,7 @@ The retired metric was *"count of open tasks with no `due_date`, hold it below
 N"*. It is not merely failed, it is invalid: this ADR makes no-due-date the
 **normal** backlog state, so the number falls when wish-dates are stripped and
 rises when they are added, and moves for reasons unrelated to health. On
-2026-08-19, stripping 39 wish-dates took terence's hard-deadline overdue count
+2026-08-19, stripping 39 wish-dates took charlie's hard-deadline overdue count
 from 45 to 0 without a single task closing — proof the old number measured
 conformance to a replaced model.
 

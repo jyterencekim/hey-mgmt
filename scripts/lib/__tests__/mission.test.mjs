@@ -18,7 +18,7 @@ function writeTask() {
     'created_at: 2026-05-07',
     'updated_at: 2026-05-07',
     'status: ready',
-    'owner: terence',
+    'owner: charlie',
     'area: Team',
     'priority: plan',
     'definition_of_done:',
@@ -38,9 +38,9 @@ describe('compileMissionBrief()', () => {
   beforeEach(() => {
     tmpRoot = resolve(tmpdir(), `test-mission-${Date.now()}`);
     mkdirSync(resolve(tmpRoot, 'index'), { recursive: true });
-    mkdirSync(resolve(tmpRoot, 'workspace/terence'), { recursive: true });
+    mkdirSync(resolve(tmpRoot, 'workspace/charlie'), { recursive: true });
     writeTask();
-    writeFileSync(resolve(tmpRoot, 'workspace/terence/profile.md'), '# Terence\n\n## Repos\n\n- hey-mgmt\n', 'utf8');
+    writeFileSync(resolve(tmpRoot, 'workspace/charlie/profile.md'), '# Charlie\n\n## Repos\n\n- hey-mgmt\n', 'utf8');
     const manifest = {
       id: 'task_test',
       type: 'task',
@@ -52,7 +52,7 @@ describe('compileMissionBrief()', () => {
       status: 'ready',
       priority: 'plan',
       phase: null,
-      owner: 'terence',
+      owner: 'charlie',
       due_date: null,
       iteration: null,
       tags: [],

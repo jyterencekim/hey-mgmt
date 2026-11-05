@@ -151,7 +151,7 @@ frontmatter, IDs, and commands. qmd is a **read-only, derived** layer.
   into `.hey/qmd/runtime/` on first run (prints download size + estimate), then
   builds/refreshes the index — rebuilt alongside the lexical index.
 - **Scope of rollout:** the engineering machines that actually run `./hey`
-  (terence, jared, oliver, eb) plus the Fisher host. The ~28 names in
+  (charlie, alice, bob, dana) plus the Fisher host. The ~28 names in
   `members.yml` are mostly external partners who never run the CLI; this is not
   a 28-machine install.
 - **Off-device agents** (cloud, CI) are out of scope; revisit hosting only if

@@ -71,7 +71,7 @@ The cutover removes pm2 from normal production entirely.
 1. Slack DM or allowlisted mention enters Hermes native Slack
 2. Slack is routed to the repo-scoped `hey-mgmt` agent
 3. reads/searches/status checks execute immediately
-4. Slack DMs from authenticated Superearn team members are treated as already-confirmed intent, including ordinary writes
+4. Slack DMs from authenticated TeamOS team members are treated as already-confirmed intent, including ordinary writes
 5. allowlisted-channel writes and untrusted DMs still require a confirmation turn
 6. explicit moderation button clicks, or fallback `reject <id>` / `revoke <sig>` / `delete-observation <sig>` commands, execute directly as already-confirmed intent
 

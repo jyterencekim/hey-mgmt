@@ -1,14 +1,14 @@
 ---
 name: mgmt-principles
 description: Enforces hey-mgmt writing principles, style guide, Golden Principles, and qmd change-contract dependency gates.
-owner: terence
+owner: charlie
 applies_to: [hey-mgmt, operations]
 updated: 2026-09-29
 ---
 
 # Team Mgmt Principles & Authoring Guide
 
-Designed and established by Terence as the core operating principles, writing standards, and retrieval harness for `hey-mgmt`. Use this skill when authoring, modifying, or reviewing any markdown artifacts, tasks, decisions, or change-intent workflows in this repository.
+Designed and established by Charlie as the core operating principles, writing standards, and retrieval harness for `hey-mgmt`. Use this skill when authoring, modifying, or reviewing any markdown artifacts, tasks, decisions, or change-intent workflows in this repository.
 
 ---
 

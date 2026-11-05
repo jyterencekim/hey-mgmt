@@ -1,7 +1,7 @@
 ---
 name: explanatory-integrity
 description: Close every substantive response with a plain-language summary for a sharp non-specialist, preserving exact mechanics and trade-offs without jargon or oversimplification.
-owner: terence
+owner: charlie
 applies_to: [any repo, coding, writing, ops, planning]
 updated: 2026-10-26
 ---

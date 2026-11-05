@@ -8,7 +8,7 @@ Usage: `/project:search <your question or topic>`
 1. Parse the user's search intent from `$ARGUMENTS`. Examples:
    - "oracle adapter tasks" → search tasks about oracle adapter
    - "what decisions were made about risk engine" → search decisions about risk engine
-   - "blocked items for terence" → search blocked tasks owned by terence
+   - "blocked items for charlie" → search blocked tasks owned by charlie
    - "everything about Core" → search all types for Core project
 
 2. Ensure the index is fresh:

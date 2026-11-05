@@ -12,7 +12,7 @@ let tmpRoot;
 function setup() {
   tmpRoot = resolve(tmpdir(), `test-manifest-stale-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(resolve(tmpRoot, 'content', 'tasks'), { recursive: true });
-  mkdirSync(resolve(tmpRoot, 'workspace', 'terence', 'logs'), { recursive: true });
+  mkdirSync(resolve(tmpRoot, 'workspace', 'charlie', 'logs'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'index'), { recursive: true });
 }
 
@@ -52,7 +52,7 @@ describe('manifestNeedsBuild', () => {
 
   it('returns true when a workspace/* file mtime exceeds manifest mtime', () => {
     writeFileSync(resolve(tmpRoot, 'index/manifest.jsonl'), '{}\n');
-    const logFile = resolve(tmpRoot, 'workspace/terence/logs/2026-04-30.md');
+    const logFile = resolve(tmpRoot, 'workspace/charlie/logs/2026-04-30.md');
     writeFileSync(logFile, '# log\n');
     bumpMtime(logFile, 60_000);
 

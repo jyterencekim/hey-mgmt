@@ -345,7 +345,7 @@ export class SlackCollector {
     }
 
     const slackUserId = message.user || message.bot_id || '';
-    const workspaceOwner = await this.resolveMemberKey(message.user) ?? 'jared';
+    const workspaceOwner = await this.resolveMemberKey(message.user) ?? 'alice';
     const actorName = await this.userName(message.user);
     const objectId = channelKey(channel.id, message.ts);
     const rawPath = this.writeRawJson('messages', objectId, { channel, message });
@@ -402,7 +402,7 @@ export class SlackCollector {
     const latestMessage = [...messages].sort((left, right) => Number(left.ts) - Number(right.ts)).at(-1) ?? { ts: threadTs };
     const workspaceOwner = await this.resolveMemberKey(latestMessage.user)
       ?? await this.resolveMemberKey(messages[0]?.user)
-      ?? 'jared';
+      ?? 'alice';
     const actorName = await this.userName(latestMessage.user || messages[0]?.user);
     const rawPath = this.writeRawJson('threads', key, { channel, messages });
     if (channel.capture_only === true) return;
@@ -494,7 +494,7 @@ export class SlackCollector {
     if (priorFingerprint === fingerprint && (captureOnly || !wasCaptureOnly)) return;
     if (captureOnly) return;
 
-    const workspaceOwner = await this.resolveMemberKey(file.user) ?? 'jared';
+    const workspaceOwner = await this.resolveMemberKey(file.user) ?? 'alice';
     const actorName = await this.userName(file.user);
     const changedAt = slackTsToIso(file.updated ?? file.timestamp ?? file.created);
     const textHint = extractedText ? ` | Content: ${excerpt(extractedText, 180)}` : '';

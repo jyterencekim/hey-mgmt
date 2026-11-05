@@ -24,7 +24,7 @@ function effectiveSince(explicitSince, stateSince) {
 function buildStubSnapshotFromMessage(message, config, error = null) {
   return {
     ...message,
-    owner: config.defaults?.default_owner ?? 'jared',
+    owner: config.defaults?.default_owner ?? 'alice',
     attendees: [],
     external_attendees: [],
     notes_md: '',
@@ -118,7 +118,7 @@ export async function importGmailMeetings({
     }
 
     if (!snapshot.owner) {
-      snapshot.owner = config.defaults?.default_owner ?? 'jared';
+      snapshot.owner = config.defaults?.default_owner ?? 'alice';
     }
     const action = applyMeetingSnapshot({ repoRoot, config, snapshot, dryRun });
     actions.push(await notifyMeetingAction({ repoRoot, action, dryRun }));

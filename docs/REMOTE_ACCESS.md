@@ -84,10 +84,10 @@ hermes chat      # start a session
 bash scripts/manage-team-ssh.sh list
 
 # Add a member
-bash scripts/manage-team-ssh.sh add jared "ssh-ed25519 AAAA... jared@hey-mgmt"
+bash scripts/manage-team-ssh.sh add alice "ssh-ed25519 AAAA... alice@hey-mgmt"
 
 # Remove a member
-bash scripts/manage-team-ssh.sh remove jared
+bash scripts/manage-team-ssh.sh remove alice
 ```
 
 ### Gateway auth token

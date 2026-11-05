@@ -1,4 +1,4 @@
-// superearn-mgmt artifacts (content/** and workspace/*/**) -> mgmt: nodes,
+// hey-mgmt artifacts (content/** and workspace/*/**) -> mgmt: nodes,
 // typed edges from `relations:`, `mentions` edges from wikilinks and markdown
 // links, `evidenced_by` edges for sources that resolve (memory files, papers),
 // and procedural graphs from playbooks.

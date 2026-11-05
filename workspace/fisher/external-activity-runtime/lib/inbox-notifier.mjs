@@ -36,7 +36,7 @@ export class InboxNotifier {
     repoRoot,
     config,
     webClient = null,
-    nodeBin = process.env.hey-mgmt_CONNECTOR_NODE || process.execPath,
+    nodeBin = process.env.HEY_MGMT_CONNECTOR_NODE || process.execPath,
   }) {
     this.repoRoot = repoRoot;
     this.config = config;

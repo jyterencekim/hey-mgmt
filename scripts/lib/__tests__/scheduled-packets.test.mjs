@@ -25,28 +25,28 @@ describe('listScheduledActionPackets()', () => {
   beforeEach(() => {
     tmpRoot = resolve(tmpdir(), `test-packets-${Date.now()}`);
     mkdirSync(resolve(tmpRoot, 'content/vocab'), { recursive: true });
-    mkdirSync(resolve(tmpRoot, 'workspace/terence'), { recursive: true });
-    writeFileSync(resolve(tmpRoot, 'content/vocab/members.yml'), 'members:\n  - name: terence\n  - name: fisher\n', 'utf8');
-    writeMarkdown(resolve(tmpRoot, 'workspace/terence/due.md'), {
+    mkdirSync(resolve(tmpRoot, 'workspace/charlie'), { recursive: true });
+    writeFileSync(resolve(tmpRoot, 'content/vocab/members.yml'), 'members:\n  - name: charlie\n  - name: fisher\n', 'utf8');
+    writeMarkdown(resolve(tmpRoot, 'workspace/charlie/due.md'), {
       id: 'note_due-packet',
       type: 'note',
       title: 'Due packet',
       status: 'active',
-      owner: 'terence',
+      owner: 'charlie',
       x_kind: 'scheduled_action',
       x_trigger_at: '2026-05-07',
-      x_audience: ['terence', 'fisher'],
+      x_audience: ['charlie', 'fisher'],
       x_prescribed_action: 'Check the loop board',
     });
-    writeMarkdown(resolve(tmpRoot, 'workspace/terence/future.md'), {
+    writeMarkdown(resolve(tmpRoot, 'workspace/charlie/future.md'), {
       id: 'note_future-packet',
       type: 'note',
       title: 'Future packet',
       status: 'active',
-      owner: 'terence',
+      owner: 'charlie',
       x_kind: 'scheduled_action',
       x_trigger_at: '2026-05-08',
-      x_audience: ['terence'],
+      x_audience: ['charlie'],
       x_prescribed_action: 'Later',
     });
   });
@@ -55,7 +55,7 @@ describe('listScheduledActionPackets()', () => {
 
   it('returns due packets for a member', () => {
     const packets = listScheduledActionPackets(tmpRoot, {
-      member: 'terence',
+      member: 'charlie',
       dueBefore: '2026-05-07',
     });
     assert.deepEqual(packets.map((packet) => packet.id), ['note_due-packet']);

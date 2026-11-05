@@ -94,7 +94,7 @@ Hermes runs it daily at 03:15 KST. The command pulls latest `main`, measures raw
 ./hey search "볼트 리밸런싱" --include-knowledge
 
 # Scoped to one member
-./hey search "strategy config" --include-knowledge --knowledge-owner jared
+./hey search "strategy config" --include-knowledge --knowledge-owner alice
 
 # All members
 ./hey search "strategy config" --include-knowledge --knowledge-owner "*"

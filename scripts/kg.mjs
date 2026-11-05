@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// scripts/kg.mjs — build, query, and export the unified SuperEarn knowledge-graph projection.
+// scripts/kg.mjs — build, query, and export the unified TeamOS knowledge-graph projection.
 import { readFileSync, existsSync, statSync, readdirSync } from 'node:fs';
 import { resolve, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -138,7 +138,7 @@ Procedures (Lu et al. 2026)
   proposals [playbook]                                 list proposals and decisions (edge_events)
   refine-context <playbook>                            refiner input: current graph + rejected proposals
 
-Ids are namespaced: mgmt:task_x, mem:terence/feedback_x, ext:kn_…, proc:<playbook>/<node>, auditor:<kind>:<id>, oa:doc:<path>, oa:strategy:S-NNN, src:arxiv:….`;
+Ids are namespaced: mgmt:task_x, mem:charlie/feedback_x, ext:kn_…, proc:<playbook>/<node>, auditor:<kind>:<id>, oa:doc:<path>, oa:strategy:S-NNN, src:arxiv:….`;
 
 export async function runKg(argv) {
   const { pos, opts } = parseArgs(argv);

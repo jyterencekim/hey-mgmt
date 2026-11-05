@@ -20,13 +20,13 @@ const vocab = {
   tags: { tags: ['Ops', 'PM', 'ChangeImpact'] },
   entities: {
     entities: [
-      { canonical: 'Superearn', aliases: [], type: 'project' },
+      { canonical: 'TeamOS', aliases: [], type: 'project' },
       { canonical: 'Keeper', aliases: ['keeper bot'], type: 'module' }
     ]
   },
-  members: { members: [{ name: 'jared' }, { name: 'team' }] },
-  areas: { areas: [{ name: 'SuperearnCore' }] },
-  repos: { repos: [{ name: 'superearn-mgmt', remote: 'https://github.com/superearn-io/superearn-mgmt' }] }
+  members: { members: [{ name: 'alice' }, { name: 'team' }] },
+  areas: { areas: [{ name: 'TeamOSCore' }] },
+  repos: { repos: [{ name: 'hey-mgmt', remote: 'https://github.com/example-org/hey-mgmt' }] }
 };
 
 describe('validateArtifacts()', () => {
@@ -38,8 +38,8 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'ready',
-      owner: 'jared',
-      area: 'SuperearnCore',
+      owner: 'alice',
+      area: 'TeamOSCore',
       priority: 'plan',
       due: '2026-03-15',
       iteration: '2026-W10',
@@ -59,8 +59,8 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'ready',
-      owner: 'jared',
-      area: 'SuperearnCore',
+      owner: 'alice',
+      area: 'TeamOSCore',
       priority: 'plan',
       iteration: '2026-W10',
       definition_of_done: ['Ship'],
@@ -79,9 +79,9 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'ready',
-      owner: 'jared',
+      owner: 'alice',
       watchers: ['team'],
-      area: 'SuperearnCore',
+      area: 'TeamOSCore',
       priority: 'plan',
       iteration: '2026-W10',
       definition_of_done: ['Ship']
@@ -99,9 +99,9 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'ready',
-      owner: 'jared',
+      owner: 'alice',
       watchers: 'team',
-      area: 'SuperearnCore',
+      area: 'TeamOSCore',
       priority: 'plan',
       iteration: '2026-W10',
       definition_of_done: ['Ship']
@@ -120,9 +120,9 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'ready',
-      owner: 'jared',
+      owner: 'alice',
       watchers: ['ghost'],
-      area: 'SuperearnCore',
+      area: 'TeamOSCore',
       priority: 'plan',
       iteration: '2026-W10',
       definition_of_done: ['Ship']
@@ -141,8 +141,8 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'ready',
-      owner: 'jared',
-      area: 'SuperearnCore',
+      owner: 'alice',
+      area: 'TeamOSCore',
       priority: 'plan',
       definition_of_done: ['Ship']
     });
@@ -160,8 +160,8 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'active',
-      owner: 'jared',
-      area: 'SuperearnCore',
+      owner: 'alice',
+      area: 'TeamOSCore',
       priority: 'plan',
       iteration: '2026-W10',
       definition_of_done: ['Ship']
@@ -179,8 +179,8 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'active',
-      owner: 'jared',
-      area: 'SuperearnCore'
+      owner: 'alice',
+      area: 'TeamOSCore'
     });
     const report = validateArtifacts([artifact], {}, vocab);
     assert.equal(report.ok, true);
@@ -194,8 +194,8 @@ describe('validateArtifacts()', () => {
       created_at: '2026-03-06',
       updated_at: '2026-03-06',
       status: 'active',
-      owner: 'jared',
-      area: 'SuperearnCore',
+      owner: 'alice',
+      area: 'TeamOSCore',
       tags: ['ChangeImpact'],
       x_change_contract: {
         triggers: {
@@ -230,12 +230,12 @@ describe('validateArtifacts()', () => {
       created_at: '2026-08-10',
       updated_at: '2026-08-10',
       status: 'active',
-      owner: 'jared',
-      area: 'SuperearnCore',
+      owner: 'alice',
+      area: 'TeamOSCore',
       decision_status: 'accepted',
       tags: ['Ops'],
       x_change_contract: {
-        triggers: { repos: ['superearn-mgmt'] },
+        triggers: { repos: ['hey-mgmt'] },
         obligations: [{ title: 'Follow up', severity: 'required', actions: ['Do the follow-up.'] }]
       }
     });

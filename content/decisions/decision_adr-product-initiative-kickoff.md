@@ -51,7 +51,7 @@ sources:
   - kind: user_request
     ref: claude-code session 2026-11-03
     title: >-
-      Jared sets product initiative rules: dates, PRD, component tasks,
+      Alice sets product initiative rules: dates, PRD, component tasks,
       inbox+Slack alerts, weekly red flag, scope-change display
 ---
 
@@ -167,7 +167,7 @@ initiative's list, or a passed `x_target_date` on an open task.
 - Existing initiatives are not classified automatically: a missing kind is
   missing information. An agent-drafted proposal for the 51 active
   initiatives (27 product, 13 business, 3 marketing, 8 ops, 9 uncertain) is in
-  `workspace/jared/note_initiative-kind-classification-proposal.md` for Jared
+  `workspace/alice/note_initiative-kind-classification-proposal.md` for Alice
   and owners to confirm. Until a kind is set, the validator warns and the
   weekly flags the initiative as unclassified.
 - A kickoff baseline is agreed with the owner, not reconstructed by an agent.

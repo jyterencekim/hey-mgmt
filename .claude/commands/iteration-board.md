@@ -57,9 +57,9 @@ Run these steps in order:
    ```markdown
    | Plan | Ready | Doing | Blocked | Done |
    |------|--------|-------------|---------|------|
-   | — | Bridge aggregator (terence, do) | | | |
-   | | Risk monitoring (eb, plan) | | | |
-   | | Landing page SEO (jared, plan) | | Morpho integration (oliver, routine) | |
+   | — | Bridge aggregator (charlie, do) | | | |
+   | | Risk monitoring (dana, plan) | | | |
+   | | Landing page SEO (alice, plan) | | Morpho integration (bob, routine) | |
    ```
 
 4. Present **Workload by Member**:
@@ -69,10 +69,10 @@ Run these steps in order:
 
    | Member | Plan | Ready | Doing | Blocked | Done | Total |
    |--------|------|--------|-------------|---------|------|-------|
-   | terence | 0 | 2 | 1 | 0 | 3 | 6 |
-   | jared | 0 | 3 | 0 | 0 | 1 | 4 |
-   | oliver | 0 | 2 | 0 | 1 | 0 | 3 |
-   | eb | 0 | 1 | 0 | 0 | 0 | 1 |
+   | charlie | 0 | 2 | 1 | 0 | 3 | 6 |
+   | alice | 0 | 3 | 0 | 0 | 1 | 4 |
+   | bob | 0 | 2 | 0 | 1 | 0 | 3 |
+   | dana | 0 | 1 | 0 | 0 | 0 | 1 |
    | team | 0 | 4 | 0 | 0 | 0 | 4 |
    | **Total** | **0** | **12** | **1** | **1** | **4** | **18** |
    ```

@@ -1,4 +1,4 @@
-const USER_AGENT = 'Mozilla/5.0 (compatible; superearn-distill/1.0)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; hey-distill/1.0)';
 const MAX_CONTENT_LENGTH = 50000;
 
 function stripHtml(html) {

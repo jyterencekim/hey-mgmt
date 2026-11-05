@@ -49,7 +49,7 @@ describe('KB-wide dependency pool membership', () => {
   });
 
   it('rejects workspace artifacts — contracts are team-level knowledge', () => {
-    assert.equal(isDependencyArtifact(makeArtifact({ _workspaceMember: 'terence' })), false);
+    assert.equal(isDependencyArtifact(makeArtifact({ _workspaceMember: 'charlie' })), false);
   });
 
   // A done/archived/cancelled artifact's obligations are historical record,

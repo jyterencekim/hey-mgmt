@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 
-const NON_PERSON_MEMBER_KEYS = new Set(['team', 'agent', 'fisher', 'hann-finance']);
+const NON_PERSON_MEMBER_KEYS = new Set(['team', 'agent', 'fisher', 'partner-finance']);
 
 function readYamlFile(path, fallback) {
   if (!existsSync(path)) return fallback;

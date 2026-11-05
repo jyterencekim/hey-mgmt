@@ -66,10 +66,10 @@ fi
 # Map member names to GitHub usernames
 gh_user_for_member() {
   case "$1" in
-    terence) echo "jyterencekim" ;;
-    jared)   echo "jaredkwon" ;;
-    oliver)  echo "oliverlee0202" ;;
-    eb)      echo "ebleedblue" ;;
+    charlie) echo "charlie-dev" ;;
+    alice)   echo "alice-dev" ;;
+    bob)  echo "bob-dev" ;;
+    dana)      echo "dana-dev" ;;
     *)       echo "$1" ;;
   esac
 }

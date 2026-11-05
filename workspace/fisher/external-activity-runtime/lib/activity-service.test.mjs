@@ -13,11 +13,11 @@ function makeConfig() {
       dm_help_text: 'help',
     },
     members: {
-      jared: {
+      alice: {
         slack_user_id: 'U07EPER3998',
         slack_dm_id: 'D07E8TSQB1V',
       },
-      terence: {
+      charlie: {
         slack_user_id: 'U098SMD9TBJ',
         slack_dm_id: 'D098Y4RTL9X',
       },
@@ -25,7 +25,7 @@ function makeConfig() {
   };
 }
 
-function writeMembersVocab(repoRoot, members = ['jared', 'terence', 'oliver']) {
+function writeMembersVocab(repoRoot, members = ['alice', 'charlie', 'bob']) {
   const vocabDir = resolve(repoRoot, 'content', 'vocab');
   mkdirSync(vocabDir, { recursive: true });
   writeFileSync(
@@ -41,8 +41,8 @@ function makeCandidate(overrides = {}) {
     candidate_type: 'content_update',
     status: 'open',
     artifact_id: 'task_oracle-fallback',
-    owner: 'jared',
-    approvers: ['jared'],
+    owner: 'alice',
+    approvers: ['alice'],
     matching_policy: 'exact_x_external_refs',
     reference_day: '2026-03-16',
     updated_at: '2026-03-16T00:00:00Z',
@@ -189,8 +189,8 @@ describe('ActivityApprovalService', () => {
     writeMembersVocab(repoRoot);
     const baseConfig = makeConfig();
     const client = new FakeClient([makeCandidate({
-      owner: 'oliver',
-      approvers: ['oliver'],
+      owner: 'bob',
+      approvers: ['bob'],
     })]);
     const service = new ActivityApprovalService({
       repoRoot,
@@ -198,7 +198,7 @@ describe('ActivityApprovalService', () => {
         ...baseConfig,
         members: {
           ...baseConfig.members,
-          oliver: {},
+          bob: {},
         },
       },
       client,
@@ -207,10 +207,10 @@ describe('ActivityApprovalService', () => {
       users: {
         info: async () => ({
           user: {
-            name: 'oliver.kim',
+            name: 'bob.kim',
             profile: {
-              display_name: 'Oliver Kim',
-              real_name: 'Oliver Kim',
+              display_name: 'Bob Kim',
+              real_name: 'Bob Kim',
             },
           },
         }),

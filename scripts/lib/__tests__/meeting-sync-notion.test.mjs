@@ -4,7 +4,7 @@ import { listNotionMeetingSnapshots } from '../meeting-sync/notion.mjs';
 
 const config = {
   defaults: {
-    default_owner: 'jared',
+    default_owner: 'alice',
   },
   notion: {
     database_id: 'db-123',
@@ -19,12 +19,12 @@ const config = {
     },
   },
   members: {
-    jared: {
-      notion_people: ['Jared', 'Jared Lee'],
-      gmail_addresses: ['jared.lee@kaia.io'],
+    alice: {
+      notion_people: ['Alice', 'Alice Lee'],
+      gmail_addresses: ['alice@example.com'],
     },
-    terence: {
-      notion_people: ['Terence'],
+    charlie: {
+      notion_people: ['Charlie'],
       gmail_addresses: [],
     },
   },
@@ -41,14 +41,14 @@ describe('meeting sync notion import', () => {
               url: 'https://notion.so/page-123',
               last_edited_time: '2026-03-23T01:00:00.000Z',
               properties: {
-                Title: { type: 'title', title: [{ plain_text: 'Kaia Foundation Daily' }] },
+                Title: { type: 'title', title: [{ plain_text: 'Core Platform Daily' }] },
                 Start: { type: 'date', date: { start: '2026-03-23T01:00:00.000Z' } },
                 End: { type: 'date', date: { start: '2026-03-23T02:00:00.000Z' } },
                 Attendees: {
                   type: 'people',
-                  people: [{ name: 'Jared Lee', person: { email: 'jared.lee@kaia.io' } }, { name: 'Partner X', person: { email: 'partner@example.com' } }],
+                  people: [{ name: 'Alice Lee', person: { email: 'alice@example.com' } }, { name: 'Partner X', person: { email: 'partner@example.com' } }],
                 },
-                Owner: { type: 'people', people: [{ name: 'Jared Lee', person: { email: 'jared.lee@kaia.io' } }] },
+                Owner: { type: 'people', people: [{ name: 'Alice Lee', person: { email: 'alice@example.com' } }] },
                 'Calendar Event ID': { type: 'rich_text', rich_text: [{ plain_text: 'cal-123' }] },
                 'Source URL': { type: 'url', url: 'https://docs.google.com/document/d/doc_12345/edit' },
               },
@@ -94,9 +94,9 @@ describe('meeting sync notion import', () => {
     });
 
     assert.equal(snapshot.notion_page_id, 'page-123');
-    assert.equal(snapshot.title, 'Kaia Foundation Daily');
-    assert.equal(snapshot.owner, 'jared');
-    assert.deepEqual(snapshot.attendees, ['jared']);
+    assert.equal(snapshot.title, 'Core Platform Daily');
+    assert.equal(snapshot.owner, 'alice');
+    assert.deepEqual(snapshot.attendees, ['alice']);
     assert.deepEqual(snapshot.external_attendees, ['partner@example.com']);
     assert.equal(snapshot.calendar_event_id, 'cal-123');
     assert.match(snapshot.notes_md, /Bridge status reviewed/);

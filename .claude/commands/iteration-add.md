@@ -40,7 +40,7 @@ Run these steps in order:
    - 2026-03-10 [milestone] Bridge aggregator deployed to testnet (task_integrate-bridge-aggregator)
    - 2026-03-11 [blocker] Morpho deployment gated by KF hardfork — no ETA (task_kaia-morpho-integration)
    - 2026-03-11 [decision] Use Redstone oracle for Pendle markets (decision_oracle-choice)
-   - 2026-03-12 [coordination] Synced with Hann Finance on EarnUSDT vault timeline
+   - 2026-03-12 [coordination] Synced with Partner Finance on EarnUSDT vault timeline
    ```
 
 5. Update the `updated_at` field in the frontmatter to today's date.

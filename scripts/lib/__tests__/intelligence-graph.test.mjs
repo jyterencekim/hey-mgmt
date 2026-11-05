@@ -1,4 +1,4 @@
-// End-to-end use-case scenarios for internal intelligence graph in superearn-mgmt.
+// End-to-end use-case scenarios for internal intelligence graph in hey-mgmt.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve, dirname, join } from 'node:path';

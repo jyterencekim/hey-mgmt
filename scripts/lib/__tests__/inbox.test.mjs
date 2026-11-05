@@ -9,7 +9,7 @@ let tmpRoot;
 
 function setupTmpRepo() {
   tmpRoot = resolve(tmpdir(), `test-inbox-${Date.now()}`);
-  mkdirSync(resolve(tmpRoot, 'workspace', 'jared'), { recursive: true });
+  mkdirSync(resolve(tmpRoot, 'workspace', 'alice'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'content', 'notes', '2026', '03'), { recursive: true });
 }
 
@@ -20,23 +20,23 @@ describe('inbox flow', () => {
   it('captures raw input outside the structured artifact graph', () => {
     const { item, path } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Slack request',
       body: 'Can we investigate oracle fallback drift?',
-      source: 'slack://superearn/123'
+      source: 'slack://teamos/123'
     });
 
-    const listed = listInboxItems({ repoRoot: tmpRoot, workspace: 'jared' });
+    const listed = listInboxItems({ repoRoot: tmpRoot, workspace: 'alice' });
     assert.equal(listed.length, 1);
     assert.equal(listed[0].id, item.id);
     assert.equal(listed[0].status, 'open');
-    assert.ok(path.includes('workspace/jared/inbox/open/'));
+    assert.ok(path.includes('workspace/alice/inbox/open/'));
   });
 
   it('captures with kind field defaulting to self', () => {
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Self capture',
       body: 'My own item',
     });
@@ -47,18 +47,18 @@ describe('inbox flow', () => {
   it('promotes an inbox item into a canonical artifact with namespaced linkage', () => {
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Slack request',
       body: 'Can we investigate oracle fallback drift?'
     });
 
     const result = promoteInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       itemId: item.id,
       type: 'note',
       title: 'Investigate oracle fallback drift',
-      extraFields: { owner: 'jared', status: 'active' }
+      extraFields: { owner: 'alice', status: 'active' }
     });
 
     const raw = readFileSync(resolve(tmpRoot, result.artifact.path), 'utf8');
@@ -70,24 +70,24 @@ describe('inbox flow', () => {
   it('acknowledges an inbox item and moves it out of the default open queue', () => {
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Slack request',
       body: 'Can we investigate oracle fallback drift?'
     });
 
     const acknowledged = acknowledgeInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       itemId: item.id,
       context: { command: 'inbox ack' },
     });
 
     assert.equal(acknowledged.status, 'read');
-    assert.ok(existsSync(resolve(tmpRoot, 'workspace', 'jared', 'inbox', 'read', `${item.id}.json`)));
+    assert.ok(existsSync(resolve(tmpRoot, 'workspace', 'alice', 'inbox', 'read', `${item.id}.json`)));
 
-    const openItems = listInboxItems({ repoRoot: tmpRoot, workspace: 'jared' });
-    const allItems = listInboxItems({ repoRoot: tmpRoot, workspace: 'jared', includeAll: true });
-    const readItems = listInboxItems({ repoRoot: tmpRoot, workspace: 'jared', status: 'read' });
+    const openItems = listInboxItems({ repoRoot: tmpRoot, workspace: 'alice' });
+    const allItems = listInboxItems({ repoRoot: tmpRoot, workspace: 'alice', includeAll: true });
+    const readItems = listInboxItems({ repoRoot: tmpRoot, workspace: 'alice', status: 'read' });
 
     assert.equal(openItems.length, 0);
     assert.equal(allItems.length, 1);
@@ -105,7 +105,7 @@ describe('inbox flow', () => {
         'type: task',
         'title: Feather DD',
         'status: done',
-        'owner: jared',
+        'owner: alice',
         "updated_at: '2026-05-15'",
         '---',
         '',
@@ -117,13 +117,13 @@ describe('inbox flow', () => {
 
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Feather follow-up',
-      body: 'Please finish the Jared DD rows.',
+      body: 'Please finish the Alice DD rows.',
       metadata: { x_task_ref: 'task_feather' },
     });
 
-    const [listed] = listInboxItems({ repoRoot: tmpRoot, workspace: 'jared' });
+    const [listed] = listInboxItems({ repoRoot: tmpRoot, workspace: 'alice' });
 
     assert.equal(listed.id, item.id);
     assert.equal(listed.status, 'open');
@@ -131,7 +131,7 @@ describe('inbox flow', () => {
       id: 'task_feather',
       title: 'Feather DD',
       status: 'done',
-      owner: 'jared',
+      owner: 'alice',
       updated_at: '2026-05-15',
       path: 'tasks/2026/05/task_feather.md',
     });
@@ -141,7 +141,7 @@ describe('inbox flow', () => {
   it('can list inbox items without linked task cross-check annotations', () => {
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Task-linked item',
       body: '',
       metadata: { x_task_ref: 'task_missing' },
@@ -149,7 +149,7 @@ describe('inbox flow', () => {
 
     const [listed] = listInboxItems({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       includeTaskStatus: false,
     });
 
@@ -161,17 +161,17 @@ describe('inbox flow', () => {
   it('falls back to the inbox item title when no override is provided', () => {
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Slack request',
       body: 'Can we investigate oracle fallback drift?'
     });
 
     const result = promoteInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       itemId: item.id,
       type: 'note',
-      extraFields: { owner: 'jared', status: 'active' }
+      extraFields: { owner: 'alice', status: 'active' }
     });
 
     assert.ok(result.artifact.id.startsWith('note_'));
@@ -183,30 +183,30 @@ describe('inbox flow', () => {
   it('can promote an already acknowledged inbox item', () => {
     const { item } = captureInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       title: 'Slack request',
       body: 'Can we investigate oracle fallback drift?'
     });
 
     acknowledgeInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       itemId: item.id,
       context: { command: 'inbox ack' },
     });
 
     const result = promoteInboxItem({
       repoRoot: tmpRoot,
-      workspace: 'jared',
+      workspace: 'alice',
       itemId: item.id,
       type: 'note',
       title: 'Investigate oracle fallback drift',
-      extraFields: { owner: 'jared', status: 'active' }
+      extraFields: { owner: 'alice', status: 'active' }
     });
 
-    const promoted = getInboxItem({ repoRoot: tmpRoot, workspace: 'jared', itemId: item.id });
+    const promoted = getInboxItem({ repoRoot: tmpRoot, workspace: 'alice', itemId: item.id });
     assert.equal(promoted.status, 'promoted');
-    assert.ok(existsSync(resolve(tmpRoot, 'workspace', 'jared', 'inbox', 'promoted', `${item.id}.json`)));
+    assert.ok(existsSync(resolve(tmpRoot, 'workspace', 'alice', 'inbox', 'promoted', `${item.id}.json`)));
 
     const raw = readFileSync(resolve(tmpRoot, result.artifact.path), 'utf8');
     assert.ok(raw.includes('x_inbox_item_id'));
@@ -215,11 +215,11 @@ describe('inbox flow', () => {
 
 function setupTmpRepoWithMembers() {
   const root = resolve(tmpdir(), `test-inbox-send-${Date.now()}`);
-  mkdirSync(resolve(root, 'workspace', 'jared'), { recursive: true });
-  mkdirSync(resolve(root, 'workspace', 'terence'), { recursive: true });
+  mkdirSync(resolve(root, 'workspace', 'alice'), { recursive: true });
+  mkdirSync(resolve(root, 'workspace', 'charlie'), { recursive: true });
   mkdirSync(resolve(root, 'content', 'vocab'), { recursive: true });
   mkdirSync(resolve(root, 'content', 'notes', '2026', '03'), { recursive: true });
-  writeFileSync(resolve(root, 'content', 'vocab', 'members.yml'), 'members:\n  - name: jared\n    role: lead\n  - name: terence\n    role: engineer\n  - name: agent\n    role: automation\n', 'utf8');
+  writeFileSync(resolve(root, 'content', 'vocab', 'members.yml'), 'members:\n  - name: alice\n    role: lead\n  - name: charlie\n    role: engineer\n  - name: agent\n    role: automation\n', 'utf8');
   return root;
 }
 
@@ -232,26 +232,26 @@ describe('cross-member inbox send', () => {
   it('sends an inbox item to another member workspace', () => {
     const { item, path } = sendInboxItem({
       repoRoot: root,
-      from: 'terence',
-      to: 'jared',
+      from: 'charlie',
+      to: 'alice',
       title: 'Review bridge config',
       body: 'Please check the new oracle params',
     });
 
     assert.equal(item.kind, 'member-send');
-    assert.equal(item.source, 'member:terence');
-    assert.equal(item.workspace, 'jared');
+    assert.equal(item.source, 'member:charlie');
+    assert.equal(item.workspace, 'alice');
     assert.equal(item.status, 'open');
-    assert.equal(item.metadata.x_from, 'terence');
+    assert.equal(item.metadata.x_from, 'charlie');
     assert.ok(item.metadata.x_sent_at);
-    assert.ok(path.includes('workspace/jared/inbox/open/'));
+    assert.ok(path.includes('workspace/alice/inbox/open/'));
   });
 
   it('includes task reference in metadata when provided', () => {
     const { item } = sendInboxItem({
       repoRoot: root,
-      from: 'terence',
-      to: 'jared',
+      from: 'charlie',
+      to: 'alice',
       title: 'Bridge task handoff',
       body: '',
       taskRef: 'task_bridge-aggregator',
@@ -262,23 +262,23 @@ describe('cross-member inbox send', () => {
 
   it('throws for unknown recipient member', () => {
     assert.throws(
-      () => sendInboxItem({ repoRoot: root, from: 'terence', to: 'nobody', title: 'Test' }),
+      () => sendInboxItem({ repoRoot: root, from: 'charlie', to: 'nobody', title: 'Test' }),
       /Unknown member: "nobody"/
     );
   });
 
   it('throws for member without workspace directory', () => {
     assert.throws(
-      () => sendInboxItem({ repoRoot: root, from: 'terence', to: 'agent', title: 'Test' }),
+      () => sendInboxItem({ repoRoot: root, from: 'charlie', to: 'agent', title: 'Test' }),
       /no workspace directory/
     );
   });
 
   it('sent items appear in recipient listInboxItems', () => {
-    sendInboxItem({ repoRoot: root, from: 'terence', to: 'jared', title: 'Item 1' });
-    sendInboxItem({ repoRoot: root, from: 'terence', to: 'jared', title: 'Item 2' });
+    sendInboxItem({ repoRoot: root, from: 'charlie', to: 'alice', title: 'Item 1' });
+    sendInboxItem({ repoRoot: root, from: 'charlie', to: 'alice', title: 'Item 2' });
 
-    const items = listInboxItems({ repoRoot: root, workspace: 'jared' });
+    const items = listInboxItems({ repoRoot: root, workspace: 'alice' });
     assert.equal(items.length, 2);
     assert.ok(items.every((i) => i.kind === 'member-send'));
   });
@@ -286,19 +286,19 @@ describe('cross-member inbox send', () => {
   it('recipient can promote a sent inbox item', () => {
     const { item } = sendInboxItem({
       repoRoot: root,
-      from: 'terence',
-      to: 'jared',
+      from: 'charlie',
+      to: 'alice',
       title: 'Promote me',
       body: 'This should become a note',
     });
 
     const result = promoteInboxItem({
       repoRoot: root,
-      workspace: 'jared',
+      workspace: 'alice',
       itemId: item.id,
       type: 'note',
       title: 'Promoted from inbox send',
-      extraFields: { owner: 'jared', status: 'active' },
+      extraFields: { owner: 'alice', status: 'active' },
     });
 
     assert.ok(result.artifact.id.startsWith('note_'));

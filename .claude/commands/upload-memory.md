@@ -16,7 +16,7 @@ filters for team-relevant content, and writes them to `workspace/$MEMBER/memory/
    - Glob all dirs matching `~/.claude/projects/-*-Documents-hey-mgmt-*/memory/`
    - **Skip `hey-mgmt`** — its local Claude memories redirect to the team memory store (circular).
    - For each remaining dir:
-     - Extract the repo name from the directory suffix (e.g., `-Documents-hey-mgmt-kaia-usdt-miniapp` → `kaia-usdt-miniapp`)
+     - Extract the repo name from the directory suffix (e.g., `-Documents-hey-mgmt-core-usdt-miniapp` → `core-usdt-miniapp`)
      - Ignore worktree variant dirs (contain `--claude-worktrees-`) — they duplicate the parent repo's memories and dedup handles them anyway
      - Cross-reference `workspace/$MEMBER/repos.yml` for validation. If a repo is not listed, warn but **still process** — use the extracted dir name as `source_repo`.
    - List all `.md` files in each memory dir
@@ -77,7 +77,7 @@ filters for team-relevant content, and writes them to `workspace/$MEMBER/memory/
      name: QA Environment Endpoints
      description: QA backend URLs; QA is effective production
      type: reference
-     source_repo: kaia-usdt-miniapp
+     source_repo: core-usdt-miniapp
      ---
      ```
    - Update `workspace/$MEMBER/memory/MEMORY.md`:
@@ -93,10 +93,10 @@ filters for team-relevant content, and writes them to `workspace/$MEMBER/memory/
 
    | Action  | Repo                         | Memory                    | Reason           |
    |---------|------------------------------|---------------------------|------------------|
-   | Created | kaia-usdt-miniapp            | QA Deploy Workflow        | New, team-useful |
-   | Updated | kaia-usdt-miniapp-frontend   | Repo Architecture         | Richer info      |
-   | Skipped | kaia-usdt-miniapp-frontend   | No Use Client Directive   | Repo-specific    |
-   | Skipped | kaia-usdt-miniapp            | NestJS Module Pattern     | Code-derivable   |
+   | Created | core-usdt-miniapp            | QA Deploy Workflow        | New, team-useful |
+   | Updated | core-usdt-miniapp-frontend   | Repo Architecture         | Richer info      |
+   | Skipped | core-usdt-miniapp-frontend   | No Use Client Directive   | Repo-specific    |
+   | Skipped | core-usdt-miniapp            | NestJS Module Pattern     | Code-derivable   |
    ```
 
    **Idempotency**: This command is safe to re-run. Dedup-by-name prevents duplicate writes. Running twice on the same inputs produces no changes on the second run.

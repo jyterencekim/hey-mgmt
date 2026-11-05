@@ -80,4 +80,4 @@ Examples: `2026.1.1`, `2026.3.2`, `2025.12.1`
 
 ## Backfill Reference
 
-CalVer tags were backfilled in March 2026 for the period 2025-12 through 2026-03. Old semver tags such as `v0.12.13`, `v0.4.29`, and `v1.1.0-kaia` remain in history alongside the CalVer tags.
+CalVer tags were backfilled in March 2026 for the period 2025-12 through 2026-03. Old semver tags such as `v0.12.13`, `v0.4.29`, and `v1.1.0-core` remain in history alongside the CalVer tags.

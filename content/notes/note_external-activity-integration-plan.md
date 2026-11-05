@@ -71,7 +71,7 @@ This note captures the implemented external activity integration baseline for `h
 
 ## Updates
 <!-- candidate:reflection_16be5e0d4225c2ca -->
-- 2026-04-09: Slack backlog catch-up thread clarified and implemented the external-activity operating path, including Drive folder scoping for Jared's meeting-note folder, My Drive enumeration fixes, summary-first handling for meeting notes, temporary background catch-up execution, and removal of nonessential local changes before continuing the pipeline.
+- 2026-04-09: Slack backlog catch-up thread clarified and implemented the external-activity operating path, including Drive folder scoping for Alice's meeting-note folder, My Drive enumeration fixes, summary-first handling for meeting notes, temporary background catch-up execution, and removal of nonessential local changes before continuing the pipeline.
 
 ## External Signals`.
 - Exact `x_external_refs` matches in `content/` create pending `content_update` candidates under `.hey/external-activity/candidates/`.

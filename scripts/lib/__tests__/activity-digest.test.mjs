@@ -11,9 +11,9 @@ const makePromoted = (overrides = {}) => ({
   date: '2026-04-08',
   source: 'github',
   title: 'Promoted Item',
-  actor: 'terence.kim (KR)',
+  actor: 'charlie.kim (KR)',
   time: '2026-04-08T04:12:00.000Z',
-  url: 'https://github.com/superearn/x/pull/1',
+  url: 'https://github.com/teamos/x/pull/1',
   relevance: 'high',
   promoted_to: 'task_example',
   reason: 'Thread reports implementation progress',
@@ -26,9 +26,9 @@ const makeObserved = (overrides = {}) => ({
   date: '2026-04-08',
   source: 'slack',
   title: 'Observed Item',
-  actor: 'oliver.kim (KR)',
+  actor: 'bob.kim (KR)',
   time: '2026-04-08T06:00:00.000Z',
-  url: 'https://kaiafoundation.slack.com/archives/C1/p1',
+  url: 'https://your-workspace.slack.com/archives/C1/p1',
   relevance: 'moderate',
   reason: 'Discussion worth watching',
   ...overrides,
@@ -119,7 +119,7 @@ describe('buildPromotedThreadBlocks (grouped detail)', () => {
         signature: 'a1',
         source: 'slack',
         promoted_to: 'task_x',
-        actor: 'terence.kim (KR)',
+        actor: 'charlie.kim (KR)',
         time: '2026-04-08T04:00:00.000Z',
         summary: 'Budget $5000 finalized',
         url: 'https://example.com/a',
@@ -128,7 +128,7 @@ describe('buildPromotedThreadBlocks (grouped detail)', () => {
         signature: 'a2',
         source: 'slack',
         promoted_to: 'task_x',
-        actor: 'oliver.kim (KR)',
+        actor: 'bob.kim (KR)',
         time: '2026-04-08T09:30:00.000Z',
         summary: 'Owner approved allocation',
         url: 'https://example.com/b',
@@ -137,8 +137,8 @@ describe('buildPromotedThreadBlocks (grouped detail)', () => {
     const blocks = buildPromotedThreadBlocks({ items });
     const group = blocks.find((b) => b.accessory?.action_id === 'fisher_activity_revoke');
     const text = group.text.text;
-    assert.ok(text.includes('terence.kim'));
-    assert.ok(text.includes('oliver.kim'));
+    assert.ok(text.includes('charlie.kim'));
+    assert.ok(text.includes('bob.kim'));
     assert.ok(text.includes('speech_balloon'));
     assert.ok(text.includes('Budget $5000 finalized'));
     assert.ok(text.includes('Owner approved allocation'));
@@ -151,13 +151,13 @@ describe('buildPromotedThreadBlocks (grouped detail)', () => {
       makePromoted({
         signature: 'a1',
         source: 'slack',
-        title: '#superearn_dev Let us inspect docs repo and investigate drift',
+        title: '#team-dev Let us inspect docs repo and investigate drift',
         promoted_to: null,
       }),
     ];
     const blocks = buildPromotedThreadBlocks({ items });
     const group = blocks.find((b) => b.accessory?.action_id === 'fisher_activity_revoke');
-    // The group header should show the cleaned title, not the "#superearn_dev" prefix
+    // The group header should show the cleaned title, not the "#team-dev" prefix
     assert.ok(group.text.text.includes('Let us inspect docs repo'));
   });
 
@@ -188,7 +188,7 @@ describe('buildObservedThreadBlocks', () => {
     assert.equal(sectionBlocks.length, 2);
     const first = sectionBlocks[0];
     assert.ok(first.text.text.includes('Observed Item'));
-    assert.ok(first.text.text.includes('oliver.kim'));
+    assert.ok(first.text.text.includes('bob.kim'));
     assert.equal(first.accessory.text.text, 'Delete');
     assert.ok(first.accessory.value.includes('"signature":"o1"'));
   });

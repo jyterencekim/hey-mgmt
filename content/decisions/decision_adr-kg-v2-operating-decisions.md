@@ -24,10 +24,10 @@ relations:
     target: decision_deflate-ontology
 sources:
   - kind: doc
-    ref: workspace/terence/notes/note_2026-09-14-knowledge-graph-v2-design.md
+    ref: workspace/charlie/notes/note_2026-09-14-knowledge-graph-v2-design.md
     title: Knowledge Graph v2 design (Section 9 listed these as open decisions)
   - kind: doc
-    ref: workspace/terence/notes/note_2026-09-14-procedural-graphs-paper-ingest.md
+    ref: workspace/charlie/notes/note_2026-09-14-procedural-graphs-paper-ingest.md
     title: >-
       Procedural Graphs paper ingest (validation gate, rejection memory, small
       graphs)
@@ -43,7 +43,7 @@ sources:
 
 ## Context
 
-The Knowledge Graph v2 design left six decisions open. Decision 1 (where the projection lives) was taken on 2026-09-14: the sibling repo `hey-mgmt-intelligence`. On the same day terence confirmed decision 2 and delegated 3 through 7 to the agent with the instruction "you decide". This ADR records all of them so Phase 1 can start.
+The Knowledge Graph v2 design left six decisions open. Decision 1 (where the projection lives) was taken on 2026-09-14: the sibling repo `hey-mgmt-intelligence`. On the same day charlie confirmed decision 2 and delegated 3 through 7 to the agent with the instruction "you decide". This ADR records all of them so Phase 1 can start.
 
 Facts that constrain the choices, from the first build of the projection over this repo:
 
@@ -71,21 +71,21 @@ Every edit to an accepted procedure graph enters as `status: proposed`. The gate
 
 Ties are accepted, as in the paper's Equation 5. A metric-gated candidate that fails structural validation never reaches rollout. Rejected proposals are kept with `status: rejected` and a `reason`, and every later refinement of the same playbook receives them as negative evidence.
 
-*Addendum 2026-09-14 (terence).* The gate is a mgmt command, `./hey procedure gate`, because it is the one operation that writes to a playbook. The projection repo `hey-mgmt-intelligence` is read-only against mgmt: it validates (`kg propose`), localizes, and queries, and mgmt imports its validator and edit interface from the sibling checkout so there is one implementation. The one-shot relation/type migration commands were removed from `kg` after they were applied.
+*Addendum 2026-09-14 (charlie).* The gate is a mgmt command, `./hey procedure gate`, because it is the one operation that writes to a playbook. The projection repo `hey-mgmt-intelligence` is read-only against mgmt: it validates (`kg propose`), localizes, and queries, and mgmt imports its validator and edit interface from the sibling checkout so there is one implementation. The one-shot relation/type migration commands were removed from `kg` after they were applied.
 
 ### D3. Agent identity: `members.yml` is the only identity registry
 
 Humans are `member:<name>` and agents are `agent:<name>`; both names MUST resolve to an entry in `content/vocab/members.yml`. Agents carry `role: agent-runtime` (Fisher already does). No separate `agents.yml`. Only a `member:` identity may set an edge to `accepted`; an `agent:` identity may only create `proposed` edges or, for imports it produced, `heuristic_signal` edges. The projection rejects an `accepted` edge asserted by an agent at build time and reports it.
 
-*Addendum 2026-09-14 (terence, while implementing the auditor import).* A third identity class, `system:<name>`, names a deterministic pipeline that has its own promotion gate — today only `system:auditor`, whose facts pass `protocol_knowledge_strict_promotion_gate` before they are exported. Edges asserted by a `system:` identity keep their native strength and status. Facts the auditor holds from `fisher_agent_formalizer` are exported as `agent:fisher` with `heuristic_signal`, because their own caveats say they are source-asserted context, not verifier-confirmed truth.
+*Addendum 2026-09-14 (charlie, while implementing the auditor import).* A third identity class, `system:<name>`, names a deterministic pipeline that has its own promotion gate — today only `system:auditor`, whose facts pass `protocol_knowledge_strict_promotion_gate` before they are exported. Edges asserted by a `system:` identity keep their native strength and status. Facts the auditor holds from `fisher_agent_formalizer` are exported as `agent:fisher` with `heuristic_signal`, because their own caveats say they are source-asserted context, not verifier-confirmed truth.
 
 ### D4. `links_to` deprecation: warning for artifacts updated from 2026-09-15, error later
 
 The bare-string shorthand and explicit `links_to` stay valid for the 4,679 existing edges. From 2026-09-15, `./hey validate` warns when an artifact whose `updated_at` is on or after that date carries a bare-string relation, naming the typed alternatives. The projection's `untyped_share` metric is tracked in `kg stats`; when it falls below 30% the warning becomes an error and a one-shot migration types the remainder. Rationale: an immediate error would block every commit on 4,679 edits nobody has time for; a warning scoped to touched artifacts moves the number without a flag day.
 
-### D5. Auditor export: terence owns it, tracked as a task
+### D5. Auditor export: charlie owns it, tracked as a task
 
-terence owns the auditor's `graph-exchange/v0` export (`export_protocol_knowledge_jsonl` next to the existing `export_*_jsonl` tools), because auditor and observatory work defaults to terence. Tracked as `task_export-protocol-knowledge-graph-exchange`. Until it lands, the `auditor:` namespace in the projection is empty and the two what-is graphs remain disjoint; the design's Phase 1 exit criterion is not met before this task is done.
+charlie owns the auditor's `graph-exchange/v0` export (`export_protocol_knowledge_jsonl` next to the existing `export_*_jsonl` tools), because auditor and observatory work defaults to charlie. Tracked as `task_export-protocol-knowledge-graph-exchange`. Until it lands, the `auditor:` namespace in the projection is empty and the two what-is graphs remain disjoint; the design's Phase 1 exit criterion is not met before this task is done.
 
 ### D6. Registry upkeep: creator adds the row the same day; `/clean` diffs weekly
 

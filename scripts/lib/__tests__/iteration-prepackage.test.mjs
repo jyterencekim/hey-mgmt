@@ -21,7 +21,7 @@ function manifestLine(overrides) {
     updated_at: '2026-08-10',
     status: 'ready',
     priority: 'plan',
-    owner: 'terence',
+    owner: 'charlie',
     due_date: null,
     iteration: null,
     planned_date: null,
@@ -64,7 +64,7 @@ describe('buildIterationPrepackage()', () => {
     writeFileSync(resolve(tmpRoot, 'index/manifest.jsonl'), [
       manifestLine({ id: 'task_carry', path: 'content/tasks/task_carry.md', status: 'ready', iteration: '2026-W33' }),
       manifestLine({ id: 'task_next', path: 'content/tasks/task_next.md', status: 'ready', iteration: '2026-W34' }),
-      manifestLine({ id: 'task_done', path: 'content/tasks/task_done.md', status: 'done', iteration: '2026-W33', owner: 'eb' }),
+      manifestLine({ id: 'task_done', path: 'content/tasks/task_done.md', status: 'done', iteration: '2026-W33', owner: 'alice' }),
       manifestLine({ id: 'task_archived', path: 'content/tasks/task_archived.md', status: 'archived', iteration: '2026-W33' }),
     ].join('\n') + '\n', 'utf8');
 
@@ -83,13 +83,13 @@ describe('buildIterationPrepackage()', () => {
 
     assert.deepEqual(pkg.closed.map((task) => task.id), ['task_done', 'task_archived']);
 
-    const terence = pkg.capacity.find((row) => row.owner === 'terence');
+    const charlie = pkg.capacity.find((row) => row.owner === 'charlie');
     assert.deepEqual(
-      { committed: terence.committed_next, incoming: terence.carry_incoming, projected: terence.projected },
+      { committed: charlie.committed_next, incoming: charlie.carry_incoming, projected: charlie.projected },
       { committed: 1, incoming: 1, projected: 2 }
     );
-    assert.equal(terence.over_cap, false);
-    assert.equal(terence.cap, WEEKLY_COMMITMENT_CAP);
+    assert.equal(charlie.over_cap, false);
+    assert.equal(charlie.cap, WEEKLY_COMMITMENT_CAP);
   });
 
   it('flags a member whose projected commitments exceed the cap', async () => {
@@ -108,10 +108,10 @@ describe('buildIterationPrepackage()', () => {
       today: '2026-08-14',
       pr: false,
     });
-    const terence = pkg.capacity.find((row) => row.owner === 'terence');
-    assert.equal(terence.over_cap, true);
+    const charlie = pkg.capacity.find((row) => row.owner === 'charlie');
+    assert.equal(charlie.over_cap, true);
 
     const text = formatIterationPrepackage(pkg);
-    assert.match(text, /terence: 0 committed \+ 11 carry incoming = 11 — OVER CAP by 1/);
+    assert.match(text, /charlie: 0 committed \+ 11 carry incoming = 11 — OVER CAP by 1/);
   });
 });

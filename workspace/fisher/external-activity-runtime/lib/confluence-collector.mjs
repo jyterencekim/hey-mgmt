@@ -159,7 +159,7 @@ export class ConfluenceCollector {
     const rawPath = this.writeRawJson(pageId, page);
     const textPath = pageText ? this.writePageText(pageId, pageText) : rawPath;
     const actor = pageActor(page) || 'unknown';
-    const workspaceOwner = mapActorToMember(this.config, actor) ?? 'jared';
+    const workspaceOwner = mapActorToMember(this.config, actor) ?? 'alice';
     events.push({
       source: 'confluence',
       object_type: 'confluence-page',

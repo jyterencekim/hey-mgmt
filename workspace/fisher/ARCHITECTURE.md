@@ -44,7 +44,7 @@ This should be achieved through the Hermes operator setup on the Mac Mini. Runti
 2. Hermes routes the Slack event to the repo-scoped agent `hey-mgmt`.
 3. That agent runs in the repo workspace `/Users/hey-mgmt/workspace/hey-mgmt`.
 4. Read-only requests execute immediately.
-5. Slack DMs from authenticated Superearn team members are treated as already-confirmed intent, including ordinary writes to `content/` or `workspace/`.
+5. Slack DMs from authenticated TeamOS team members are treated as already-confirmed intent, including ordinary writes to `content/` or `workspace/`.
 6. Non-member DMs and allowlisted-channel writes still require **Strict Confirm** before mutation.
 7. Explicit moderation actions are treated as already-confirmed intent. The primary UX is Slack buttons for reject, revoke, and delete, with CLI-backed text fallback only when buttons are unavailable.
 

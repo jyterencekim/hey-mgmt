@@ -32,7 +32,7 @@ function encodeSlackActionValue(payload) {
 }
 
 export class HeyActivityClient {
-  constructor({ repoRoot, nodeBin = process.env.hey-mgmt_CONNECTOR_NODE || process.execPath } = {}) {
+  constructor({ repoRoot, nodeBin = process.env.HEY_MGMT_CONNECTOR_NODE || process.execPath } = {}) {
     this.repoRoot = repoRoot;
     this.nodeBin = nodeBin;
     this.heyScript = resolve(repoRoot, 'scripts', 'hey.mjs');

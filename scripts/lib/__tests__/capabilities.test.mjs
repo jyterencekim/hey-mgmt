@@ -62,8 +62,8 @@ describe('intelligenceStatus', () => {
   // installed and built; each missing stage names the next step apply() takes.
   it('walks clone → install → build and reports the stage that is missing', () => {
     const base = mkdtempSync(join(tmpdir(), 'hey-cap-'));
-    const mgmt = join(base, 'superearn-mgmt');
-    const sib = join(base, 'superearn-intelligence');
+    const mgmt = join(base, 'hey-mgmt');
+    const sib = join(base, 'hey-intelligence');
     mkdirSync(mgmt);
     const prev = process.env.KG_INTELLIGENCE_ROOT;
     delete process.env.KG_INTELLIGENCE_ROOT;

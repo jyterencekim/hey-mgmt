@@ -43,7 +43,7 @@ describe('hey task list freshness', () => {
       created_at: '2026-06-16',
       updated_at: '2026-06-16',
       status: 'ready',
-      owner: 'jared',
+      owner: 'alice',
       priority: 'do',
       iteration: '2026-W25',
       due_date: '2026-06-21',
@@ -61,7 +61,7 @@ describe('hey task list freshness', () => {
         updated_at: '2026-06-01',
         status: 'doing',
         priority: 'plan',
-        owner: 'jared',
+        owner: 'alice',
         due_date: '2026-06-01',
         iteration: '2026-W23',
         tags: [],
@@ -82,13 +82,13 @@ describe('hey task list freshness', () => {
   afterEach(() => rmSync(tmpRoot, { recursive: true, force: true }));
 
   it('rebuilds a stale manifest before listing tasks', () => {
-    const output = execFileSync(process.execPath, [resolve(process.cwd(), 'scripts/hey.mjs'), 'task', 'list', '--owner', 'jared'], {
+    const output = execFileSync(process.execPath, [resolve(process.cwd(), 'scripts/hey.mjs'), 'task', 'list', '--owner', 'alice'], {
       cwd: process.cwd(),
       env: { ...process.env, HEY_REPO_ROOT: tmpRoot },
       encoding: 'utf8',
     });
 
-    assert.match(output, /task_fresh\s+ready\s+do\s+jared\s+Fresh task title/);
+    assert.match(output, /task_fresh\s+ready\s+do\s+alice\s+Fresh task title/);
     assert.doesNotMatch(output, /Stale task title/);
   });
 });

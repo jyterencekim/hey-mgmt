@@ -11,7 +11,7 @@ Team ceremonies and coordination rituals for the hey-mgmt system.
 A roadmap is a task artifact with `status: plan` that links to child tasks via relations.
 
 ```bash
-./hey new --type task --title "Plan: Oracle Adapter V2 Migration" --project Core --owner jared --field status=plan
+./hey new --type task --title "Plan: Oracle Adapter V2 Migration" --project Core --owner alice --field status=plan
 ```
 
 Then edit the generated file to add child task relations:
@@ -115,7 +115,7 @@ Run `/iteration-close` to process the current iteration log. This generates the 
 
 ```bash
 # Create a meeting note
-./hey new --type meeting --title "Weekly sync 2026-W10" --field "attendees=[jared, terence, oliver, eb]" --field "start_at=2026-03-07T10:00:00Z" --field "end_at=2026-03-07T11:00:00Z"
+./hey new --type meeting --title "Weekly sync 2026-W10" --field "attendees=[alice, charlie, bob, dana]" --field "start_at=2026-03-07T10:00:00Z" --field "end_at=2026-03-07T11:00:00Z"
 ```
 
 Edit the meeting artifact to capture:

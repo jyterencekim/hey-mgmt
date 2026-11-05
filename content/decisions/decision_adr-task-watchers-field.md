@@ -36,9 +36,9 @@ notification mechanism, `./hey inbox send`, for telling another member about a
 task once. Neither expresses a **standing association** — "person X is not the
 owner, but should keep seeing this task until it closes."
 
-This gap surfaced on `task_delete-or-repoint-dangling-adm`: Terence owns the
-DNS deletion, but Oliver should stay looped in. The only options were (a) a
-free-text "cc oliver" prose line — invisible to tooling, or (b) a one-time
+This gap surfaced on `task_delete-or-repoint-dangling-adm`: Charlie owns the
+DNS deletion, but Bob should stay looped in. The only options were (a) a
+free-text "cc bob" prose line — invisible to tooling, or (b) a one-time
 inbox send — which notifies once but never re-surfaces. A frontmatter field was
 the missing primitive.
 

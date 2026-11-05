@@ -56,7 +56,7 @@ function loadDigestState(root, member) {
 }
 
 /**
- * Compose the morning digest for one member (P3, D2 terence pilot).
+ * Compose the morning digest for one member (P3, D2 charlie pilot).
  *
  * Pure read: the digest leads with today's planned set (D1 — x_planned_date is
  * a schedule, not a deadline), keeps hard-deadline overdue as the only alarm

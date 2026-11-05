@@ -98,8 +98,11 @@ async function createCollector(repoRoot, source, fisherConfig, ingestEvents) {
     }
     case 'drive': {
       const { DriveCollector } = await import('../../workspace/fisher/external-activity-runtime/lib/drive-collector.mjs');
-      if (!process.env.GOOGLE_SERVICE_ACCOUNT_JSON_PATH) {
-        throw new Error('Missing GOOGLE_SERVICE_ACCOUNT_JSON_PATH');
+      const { loadGoogleServiceAccount } = await import('../../workspace/fisher/external-activity-runtime/lib/google-auth.mjs');
+      if (!loadGoogleServiceAccount(process.env)) {
+        throw new Error(
+          'Missing Google Service Account credentials (set GOOGLE_SERVICE_ACCOUNT_JSON_PATH, GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_SERVICE_ACCOUNT_JSON_BASE64, or GOOGLE_SERVICE_ACCOUNT_EMAIL + GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY)',
+        );
       }
       return new DriveCollector({ repoRoot, config: fisherConfig, ingestEvents });
     }

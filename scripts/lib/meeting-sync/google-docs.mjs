@@ -128,7 +128,7 @@ function extractMetadata({ document, markdown, fallbackTitle, fallbackDateText, 
     end_at: timeRange.end_at,
     attendees: mappedPeople.attendees,
     external_attendees: mappedPeople.external_attendees,
-    owner: resolveOwner(ownerText, config, config.defaults?.default_owner ?? 'jared'),
+    owner: resolveOwner(ownerText, config, config.defaults?.default_owner ?? 'alice'),
     calendar_event_id: calendarEventId ?? null,
   };
 }
@@ -171,7 +171,7 @@ export async function fetchGoogleDocSnapshot({
       google_doc_id: null,
       google_doc_url: webViewLink ?? gmailMessage?.google_doc_url ?? null,
       title: fallbackTitle ?? gmailMessage?.title ?? 'Imported Meeting',
-      owner: config.defaults?.default_owner ?? 'jared',
+      owner: config.defaults?.default_owner ?? 'alice',
       attendees: [],
       external_attendees: [],
       notes_md: '',

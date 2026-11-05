@@ -19,7 +19,7 @@ relations:
     target: decision_deflate-ontology
 sources:
   - kind: doc
-    ref: workspace/terence/docs/skill-architecture-thought-capture.md
+    ref: workspace/charlie/docs/skill-architecture-thought-capture.md
     title: Original skill architecture design (superseded)
   - kind: doc
     ref: .claude/commands/idea.md

@@ -1,6 +1,6 @@
 // Data model for the unified projection: namespaces, node/edge shapes,
 // relation vocabulary, reciprocal derivation, and the drift migration map.
-// Design: superearn-mgmt workspace/terence/notes/note_2026-09-14-knowledge-graph-v2-design.md
+// Design: hey-mgmt workspace/charlie/notes/note_2026-09-14-knowledge-graph-v2-design.md
 
 export const NAMESPACES = ['mgmt', 'mem', 'ext', 'auditor', 'chain', 'proc', 'src', 'oa'];
 

@@ -9,7 +9,7 @@
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-export const DEFAULT_URL = 'https://auditor.superearn.io';
+export const DEFAULT_URL = 'https://auditor.example.com';
 
 export async function fetchFacts({ baseUrl = DEFAULT_URL, pageSize = 1000, fetchImpl = fetch } = {}) {
   // The facts route caps at `limit` and ignores `offset`, so we widen coverage by

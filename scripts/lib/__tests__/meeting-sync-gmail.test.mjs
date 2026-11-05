@@ -13,8 +13,8 @@ function fakeMessage() {
     payload: {
       headers: [
         { name: 'From', value: 'Gemini <gemini-notes@google.com>' },
-        { name: 'To', value: 'jared.lee@kaia.io' },
-        { name: 'Subject', value: 'Notes: “(Confirmed) Kaia Foundation Daily” Mar 23, 2026' },
+        { name: 'To', value: 'alice@example.com' },
+        { name: 'Subject', value: 'Notes: “(Confirmed) Core Platform Daily” Mar 23, 2026' },
       ],
       parts: [
         {
@@ -41,7 +41,7 @@ describe('meeting sync gmail parsing', () => {
 
     assert.equal(normalized.google_doc_id, 'doc_12345');
     assert.equal(normalized.google_doc_url, 'https://docs.google.com/document/d/doc_12345/edit?usp=sharing');
-    assert.equal(normalized.title, 'Kaia Foundation Daily');
+    assert.equal(normalized.title, 'Core Platform Daily');
     assert.equal(normalized.parse_status, 'linked');
   });
 

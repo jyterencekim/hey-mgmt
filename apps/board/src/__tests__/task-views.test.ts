@@ -23,7 +23,7 @@ function task(overrides: Partial<SerializedTask>): SerializedTask {
     title: valueOrDefault(overrides, "title", "Default"),
     status: valueOrDefault(overrides, "status", "ready"),
     priority: valueOrDefault(overrides, "priority", "plan"),
-    owner: valueOrDefault(overrides, "owner", "jared"),
+    owner: valueOrDefault(overrides, "owner", "alice"),
     iteration: valueOrDefault(overrides, "iteration", "2026-W17"),
     area: valueOrDefault(overrides, "area", null),
     due_date: valueOrDefault(overrides, "due_date", null),
@@ -40,7 +40,7 @@ function task(overrides: Partial<SerializedTask>): SerializedTask {
 }
 
 const context = {
-  currentMember: "jared",
+  currentMember: "alice",
   currentIteration: "2026-W17",
   today: "2026-04-27",
 }
@@ -84,10 +84,10 @@ describe("task view presets", () => {
     expect(matchesTaskPreset(task({ status: "plan" }), "open", context)).toBe(
       true
     )
-    expect(matchesTaskPreset(task({ owner: "jared" }), "mine", context)).toBe(
+    expect(matchesTaskPreset(task({ owner: "alice" }), "mine", context)).toBe(
       true
     )
-    expect(matchesTaskPreset(task({ owner: "terence" }), "mine", context)).toBe(
+    expect(matchesTaskPreset(task({ owner: "charlie" }), "mine", context)).toBe(
       false
     )
     expect(
@@ -131,7 +131,7 @@ describe("task view presets", () => {
   it("does not match open-only presets for closed tasks", () => {
     const closed = task({
       status: "done",
-      owner: "jared",
+      owner: "alice",
       iteration: null,
       due_date: "2026-04-26",
       priority: null,

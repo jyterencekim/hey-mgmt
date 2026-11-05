@@ -260,7 +260,7 @@ Use the built-in compaction commands when history gets heavy:
 
 ```bash
 ./hey log stats
-./hey log compact --member jared
+./hey log compact --member alice
 ./hey log compact --all
 ```
 

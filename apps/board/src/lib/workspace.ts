@@ -39,7 +39,7 @@ export const CORE_TEAM = new Set(listCoreTeam())
 /**
  * Resolve the current member from MEMBER env var.
  * Throws if unset — silent fallback to a hardcoded name causes the board to
- * impersonate that member for everyone else (the previous "terence" default
+ * impersonate that member for everyone else (the previous "charlie" default
  * shipped this exact regression).
  */
 export function getCurrentMember(): string {

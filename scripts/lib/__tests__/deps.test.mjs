@@ -20,7 +20,7 @@ function setupTmpRepo() {
       id: 'note_strategy-config-frontend-impact',
       type: 'note',
       status: 'active',
-      owner: 'terence',
+      owner: 'charlie',
       priority: null,
       title: 'Strategy config changes also require frontend portfolio follow-up',
       path: 'content/notes/dependencies/note_strategy-config-frontend-impact.md',
@@ -29,7 +29,7 @@ function setupTmpRepo() {
       hashes: { content_hash: 'hash-1' },
       created_at: '2026-04-06',
       updated_at: '2026-04-06',
-      area: 'SuperearnApp',
+      area: 'TeamOSApp',
       entities: [],
       links_out: [],
       sources: [{ kind: 'doc', ref: 'content/tasks/2026/04/task_frontend-portfolio-logic-update.md' }],
@@ -42,7 +42,7 @@ function setupTmpRepo() {
       id: 'task_frontend-portfolio-logic-update',
       type: 'task',
       status: 'ready',
-      owner: 'terence',
+      owner: 'charlie',
       priority: 'plan',
       title: 'Frontend 포트폴리오 로직 업데이트 (strategy config 기반)',
       path: 'content/tasks/2026/04/task_frontend-portfolio-logic-update.md',
@@ -51,7 +51,7 @@ function setupTmpRepo() {
       hashes: { content_hash: 'hash-2' },
       created_at: '2026-04-03',
       updated_at: '2026-04-06',
-      area: 'SuperearnApp',
+      area: 'TeamOSApp',
       entities: [],
       links_out: [],
       sources: [],
@@ -83,17 +83,17 @@ function setupTmpRepo() {
         relative_path: 'notes/dependencies/note_strategy-config-frontend-impact.md',
         created_at: '2026-04-06',
         updated_at: '2026-04-06',
-        owner: 'terence',
-        area: 'SuperearnApp',
+        owner: 'charlie',
+        area: 'TeamOSApp',
         tags: ['ChangeImpact'],
         sources: [{ kind: 'doc', ref: 'content/tasks/2026/04/task_frontend-portfolio-logic-update.md' }],
         relations_out: [{ type: 'links_to', target: 'task_frontend-portfolio-logic-update' }],
         links_out: [],
         contract: {
           triggers: {
-            repos: ['superearn-strategy-admin'],
+            repos: ['core-admin'],
             paths: ['config/strategies/*.json', 'public/config/strategies/*.json'],
-            areas: ['SuperearnApp'],
+            areas: ['TeamOSApp'],
             entities: [],
             intents: ['update strategy config', 'strategy config 기반 포트폴리오 로직 업데이트'],
             terms: ['strategy config', 'strategy admin', 'portfolio logic', '포트폴리오 로직', 'ethereum json']
@@ -118,7 +118,7 @@ function setupTmpRepo() {
           ],
           verification: ['Ethereum portfolio flow renders correctly with the new config.']
         },
-        trigger_repo_terms: ['superearn-strategy-admin', 'strategy admin'],
+        trigger_repo_terms: ['core-admin', 'strategy admin'],
         trigger_entity_terms: [],
         obligation_repo_terms: [],
         obligation_entity_terms: [],
@@ -163,7 +163,7 @@ describe('dependency retrieval', () => {
   });
 
   it('lists and shows dependency notes', () => {
-    const listed = listDependencies({ repoRoot: tmpRoot, area: 'SuperearnApp' });
+    const listed = listDependencies({ repoRoot: tmpRoot, area: 'TeamOSApp' });
     assert.deepEqual(listed.map((entry) => entry.id), ['note_strategy-config-frontend-impact']);
 
     const shown = showDependency({ repoRoot: tmpRoot, id: 'note_strategy-config-frontend-impact' });
@@ -194,7 +194,7 @@ describe('dependency retrieval', () => {
   });
 
   it('filters listDependencies by repo', () => {
-    const matched = listDependencies({ repoRoot: tmpRoot, repo: 'superearn-strategy-admin' });
+    const matched = listDependencies({ repoRoot: tmpRoot, repo: 'core-admin' });
     assert.equal(matched.length, 1);
 
     const empty = listDependencies({ repoRoot: tmpRoot, repo: 'nonexistent-repo' });

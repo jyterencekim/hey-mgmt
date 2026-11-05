@@ -1,7 +1,7 @@
 ---
 name: long-run-discipline
 description: Rehearse long jobs on real-shaped input before the full run, checkpoint their progress, and keep delegated subagents accountable, so runs don't fail hours in.
-owner: eb
+owner: dana
 applies_to: [acquisition, backfills, model sweeps, migrations, subagents]
 updated: 2026-09-29
 ---

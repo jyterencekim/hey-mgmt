@@ -5,19 +5,19 @@ import { fetchGoogleDocSnapshot } from '../meeting-sync/google-docs.mjs';
 const config = {
   defaults: {
     timezone: 'Asia/Seoul',
-    default_owner: 'jared',
+    default_owner: 'alice',
   },
   members: {
-    jared: {
-      gmail_addresses: ['jared.lee@kaia.io'],
-      notion_people: ['Jared', 'Jared Lee'],
+    alice: {
+      gmail_addresses: ['alice@example.com'],
+      notion_people: ['Alice', 'Alice Lee'],
     },
   },
 };
 
 function docsFixture() {
   return {
-    title: 'Kaia Foundation Daily',
+    title: 'Core Platform Daily',
     body: {
       content: [
         {
@@ -34,13 +34,13 @@ function docsFixture() {
         },
         {
           paragraph: {
-            elements: [{ textRun: { content: 'Attendees: Jared Lee, Partner X\n' } }],
+            elements: [{ textRun: { content: 'Attendees: Alice Lee, Partner X\n' } }],
             paragraphStyle: { namedStyleType: 'NORMAL_TEXT' },
           },
         },
         {
           paragraph: {
-            elements: [{ textRun: { content: 'Owner: Jared Lee\n' } }],
+            elements: [{ textRun: { content: 'Owner: Alice Lee\n' } }],
             paragraphStyle: { namedStyleType: 'NORMAL_TEXT' },
           },
         },
@@ -87,9 +87,9 @@ describe('meeting sync google docs', () => {
     });
 
     assert.equal(snapshot.google_doc_id, 'doc_12345');
-    assert.equal(snapshot.title, 'Kaia Foundation Daily');
-    assert.equal(snapshot.owner, 'jared');
-    assert.deepEqual(snapshot.attendees, ['jared']);
+    assert.equal(snapshot.title, 'Core Platform Daily');
+    assert.equal(snapshot.owner, 'alice');
+    assert.deepEqual(snapshot.attendees, ['alice']);
     assert.deepEqual(snapshot.external_attendees, ['Partner X']);
     assert.equal(snapshot.parse_status, 'ready');
     assert.match(snapshot.notes_md, /Bridge status reviewed/);

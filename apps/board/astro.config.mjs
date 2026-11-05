@@ -26,7 +26,7 @@ try {
 }
 
 const API_TARGET =
-  process.env.hey-mgmt_API_URL ?? "http://127.0.0.1:4317"
+  process.env.HEY_MGMT_API_URL ?? "http://127.0.0.1:4317"
 
 // https://astro.build/config
 export default defineConfig({

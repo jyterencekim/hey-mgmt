@@ -87,7 +87,7 @@ title: "Scalable ~3% hedged JPY yield product (1-day lockup)"
 created_at: 2026-07-01
 updated_at: 2026-07-01
 status: active
-owner: oliver
+owner: bob
 target: "~3%+ APY, FX-hedged JPY yield, 1-day lockup"
 metric: "Net hedged JPY APY, %"
 target_date: 2026-09-30
@@ -204,8 +204,8 @@ To prevent bad states from day one:
 Done in the change that accompanies this ADR:
 
 1. ✅ Code changes above implemented; `./hey validate` (0 errors) and `./hey index build` green.
-2. ✅ Three human-set company goals authored by jared (2026-07-01) from the 2H Focus map: `goal_tvl-growth` (general TVL, no target date), `goal_jpy-yield-product` (Q3), `goal_asian-stablecoin-savings` (Q4). An interim `goal_10m-tvl` seed — migrated from the objective stranded in `task_roadmap-app.md` — was superseded by these and removed.
-3. ✅ Eight `contributes_to` relations wired from initiatives to the three goals per the Focus map (JPY-yield product ← JPYC-vault / Yearn-USDT / Morpho-leverage / risk-monitoring; Asian-savings ← auditor / GTM / referral; TVL ← Kaia-vault).
+2. ✅ Three human-set company goals authored by alice (2026-07-01) from the 2H Focus map: `goal_tvl-growth` (general TVL, no target date), `goal_jpy-yield-product` (Q3), `goal_asian-stablecoin-savings` (Q4). An interim `goal_10m-tvl` seed — migrated from the objective stranded in `task_roadmap-app.md` — was superseded by these and removed.
+3. ✅ Eight `contributes_to` relations wired from initiatives to the three goals per the Focus map (JPY-yield product ← JPYC-vault / Yearn-USDT / Morpho-leverage / risk-monitoring; Asian-savings ← auditor / GTM / referral; TVL ← Core-vault).
 4. ✅ Board goals roll-up view (`pages/goals/`) and the `### Goal Authoring` Ground Rule in `CLAUDE.md`.
 5. ✅ AGENTS.md type table updated to include `initiative` and `goal` (now 7 rows).
 

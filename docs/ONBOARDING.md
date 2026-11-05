@@ -34,7 +34,7 @@ Create `workspace/$MEMBER/profile.md` with:
 - **Domains** — areas you own or contribute to
 - **Repos** — which repos you work in, your role, relevant skills, and MCPs per repo
 
-See [`workspace/terence/profile.md`](../workspace/terence/profile.md) as an example.
+See [`workspace/charlie/profile.md`](../workspace/charlie/profile.md) as an example.
 
 ---
 
@@ -46,7 +46,7 @@ Convention: siblings are checked out beside this repo (`../hey-mgmt-auditor`, �
 
 The unified knowledge graph over all of this is built directly into this repo (`./hey graph`). Run `./hey graph build` to generate the local projection (`.kg/graph.sqlite`); query it with `./hey graph search <term>`, `./hey graph neighborhood <id>`, and `./hey graph guidance --tool "<last tool call>"`. Export sanitized or complete graphs via `./hey graph export`.
 
-Then create `workspace/$MEMBER/repos.yml` (gitignored) listing your local paths for the repos you actually work in. See [`workspace/terence/repos.yml`](../workspace/terence/repos.yml) as an example format.
+Then create `workspace/$MEMBER/repos.yml` (gitignored) listing your local paths for the repos you actually work in. See [`workspace/charlie/repos.yml`](../workspace/charlie/repos.yml) as an example format.
 
 ---
 

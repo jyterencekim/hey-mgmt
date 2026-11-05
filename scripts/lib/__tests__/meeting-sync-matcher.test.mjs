@@ -24,7 +24,7 @@ describe('meeting sync matcher', () => {
   it('prefers exact google doc matches', () => {
     const result = matchMeetingSnapshot({
       snapshot: {
-        title: 'Kaia Foundation Daily',
+        title: 'Core Platform Daily',
         google_doc_id: 'doc-123',
         start_at: '2026-03-23T01:00:00.000Z',
       },
@@ -32,7 +32,7 @@ describe('meeting sync matcher', () => {
         artifact({
           id: 'meeting_daily-sync',
           type: 'meeting',
-          title: 'Kaia Foundation Daily',
+          title: 'Core Platform Daily',
           frontmatter: { x_google_doc_id: 'doc-123', start_at: '2026-03-23T01:00:00.000Z' },
         }),
       ],
@@ -46,7 +46,7 @@ describe('meeting sync matcher', () => {
   it('matches gmail-created stubs before fuzzy fallback', () => {
     const result = matchMeetingSnapshot({
       snapshot: {
-        title: 'Kaia Foundation Daily',
+        title: 'Core Platform Daily',
         gmail_message_id: 'msg-123',
         start_at: '2026-03-23T01:00:00.000Z',
       },
@@ -54,7 +54,7 @@ describe('meeting sync matcher', () => {
         artifact({
           id: 'note_stub-123',
           type: 'note',
-          title: 'Kaia Foundation Daily',
+          title: 'Core Platform Daily',
           frontmatter: { x_gmail_message_id: 'msg-123', x_sync_parse_status: 'pending_fetch' },
         }),
       ],
@@ -68,14 +68,14 @@ describe('meeting sync matcher', () => {
   it('falls back to title/date/start_at proximity when exact ids are absent', () => {
     const result = matchMeetingSnapshot({
       snapshot: {
-        title: 'Kaia Foundation Daily',
+        title: 'Core Platform Daily',
         start_at: '2026-03-23T01:20:00.000Z',
       },
       artifacts: [
         artifact({
           id: 'meeting_daily-sync',
           type: 'meeting',
-          title: 'Kaia Foundation Daily',
+          title: 'Core Platform Daily',
           frontmatter: { start_at: '2026-03-23T01:00:00.000Z' },
         }),
       ],

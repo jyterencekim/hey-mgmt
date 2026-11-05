@@ -106,7 +106,7 @@ grep, or run:
 - Task id: `task_bridgeswap-qa-consolidated-fol`
 - Decision id: `decision_adr-replace-p0-p3-priority-wit`
 - Commit hash: `51dbd66e`
-- Log entry with timestamp: `workspace/terence/logs/2026-04-09.md @ 15:32`
+- Log entry with timestamp: `workspace/charlie/logs/2026-04-09.md @ 15:32`
 - Idea id, note id, meeting id, iteration id
 
 Agents should prefer **the smallest concrete pointer** that lets the
@@ -133,8 +133,8 @@ Not:
 
 | Wrong order | Right order |
 |---|---|
-| "You have 3 overdue tasks. But you shipped the bridge PR yesterday, so good job." | "You wrapped the bridge aggregator QA yesterday — that was the last blocker on W14's critical path. Three items still want attention: `task_hann-finance-subgraph` (due 2026-04-12), `task_keeper-emergency-util-functions`, `task_yearn-vault-manager-upgrade`. Triage?" |
-| "세 개의 태스크가 지연되었습니다. 그래도 어제 브리지 PR 머지하셨네요, 수고하셨어요." | "어제 bridge aggregator QA 마무리하셨습니다 — W14 크리티컬 패스의 마지막 블로커였습니다. 아직 확인이 필요한 세 건이 있습니다: `task_hann-finance-subgraph` (2026-04-12 마감), `task_keeper-emergency-util-functions`, `task_yearn-vault-manager-upgrade`. 정리하시겠어요?" |
+| "You have 3 overdue tasks. But you shipped the bridge PR yesterday, so good job." | "You wrapped the bridge aggregator QA yesterday — that was the last blocker on W14's critical path. Three items still want attention: `task_partner-finance-subgraph` (due 2026-04-12), `task_keeper-emergency-util-functions`, `task_yearn-vault-manager-upgrade`. Triage?" |
+| "세 개의 태스크가 지연되었습니다. 그래도 어제 브리지 PR 머지하셨네요, 수고하셨어요." | "어제 bridge aggregator QA 마무리하셨습니다 — W14 크리티컬 패스의 마지막 블로커였습니다. 아직 확인이 필요한 세 건이 있습니다: `task_partner-finance-subgraph` (2026-04-12 마감), `task_keeper-emergency-util-functions`, `task_yearn-vault-manager-upgrade`. 정리하시겠어요?" |
 
 Reminders follow recognition. They never lead. They are framed as
 *"here is what wants your attention"*, not *"here is what you failed

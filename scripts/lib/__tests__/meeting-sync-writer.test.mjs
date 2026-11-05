@@ -10,7 +10,7 @@ function initRepo() {
   const repoRoot = mkdtempSync(resolve(tmpdir(), 'meeting-sync-writer-'));
   mkdirSync(resolve(repoRoot, 'content', 'vocab'), { recursive: true });
   mkdirSync(resolve(repoRoot, 'content', 'policies'), { recursive: true });
-  writeFileSync(resolve(repoRoot, 'content', 'vocab', 'members.yml'), 'members:\n  - name: jared\n    role: lead\n  - name: team\n    role: shared\n');
+  writeFileSync(resolve(repoRoot, 'content', 'vocab', 'members.yml'), 'members:\n  - name: alice\n    role: lead\n  - name: team\n    role: shared\n');
   writeFileSync(resolve(repoRoot, 'content', 'vocab', 'areas.yml'), 'areas:\n  - name: Team\n    status: active\n');
   writeFileSync(resolve(repoRoot, 'content', 'vocab', 'tags.yml'), 'tags:\n  - Ops\n');
   writeFileSync(resolve(repoRoot, 'content', 'vocab', 'entities.yml'), 'entities: []\n');
@@ -21,7 +21,7 @@ function initRepo() {
 const config = {
   defaults: {
     timezone: 'Asia/Seoul',
-    default_owner: 'jared',
+    default_owner: 'alice',
     default_project: 'Team',
     meeting_status: 'active',
     note_status: 'active',
@@ -30,9 +30,9 @@ const config = {
     start_tolerance_minutes: 180,
   },
   members: {
-    jared: {
-      gmail_addresses: ['jared.lee@kaia.io'],
-      notion_people: ['Jared', 'Jared Lee'],
+    alice: {
+      gmail_addresses: ['alice@example.com'],
+      notion_people: ['Alice', 'Alice Lee'],
     },
   },
 };
@@ -46,10 +46,10 @@ describe('meeting sync writer', () => {
       config,
       snapshot: {
         source: 'gmail',
-        title: 'Kaia Foundation Daily',
+        title: 'Core Platform Daily',
         google_doc_id: 'doc-123',
         gmail_message_id: 'msg-123',
-        owner: 'jared',
+        owner: 'alice',
         attendees: [],
         external_attendees: [],
         updated_at: '2026-03-23T01:00:00.000Z',
@@ -66,14 +66,14 @@ describe('meeting sync writer', () => {
       config,
       snapshot: {
         source: 'notion',
-        title: 'Kaia Foundation Daily',
+        title: 'Core Platform Daily',
         google_doc_id: 'doc-123',
         notion_page_id: 'page-123',
         calendar_event_id: 'cal-123',
         start_at: '2026-03-23T01:00:00.000Z',
         end_at: '2026-03-23T02:00:00.000Z',
-        owner: 'jared',
-        attendees: ['jared'],
+        owner: 'alice',
+        attendees: ['alice'],
         external_attendees: ['Partner X'],
         notes_md: 'Notion authoritative notes',
         action_items: ['Share updated action list'],
@@ -91,13 +91,13 @@ describe('meeting sync writer', () => {
       config,
       snapshot: {
         source: 'gmail',
-        title: 'Kaia Foundation Daily',
+        title: 'Core Platform Daily',
         google_doc_id: 'doc-123',
         gmail_message_id: 'msg-123',
         start_at: '2026-03-23T01:00:00.000Z',
         end_at: '2026-03-23T02:00:00.000Z',
-        owner: 'jared',
-        attendees: ['jared'],
+        owner: 'alice',
+        attendees: ['alice'],
         external_attendees: ['Partner X'],
         notes_md: 'gmail overwrite attempt',
         action_items: ['Should not replace notion'],

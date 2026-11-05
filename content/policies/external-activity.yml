@@ -23,10 +23,19 @@ sources:
       - google-sheet
       - google-slide
       - pdf
+  github:
+    enabled: false
+    interval_minutes: 10
+    repos: []
+    event_types:
+      - pr
+      - issue
+
 approval:
   delivery: owner_dm
   artifact_owner_fallback: alice
   pr_strategy: per_change
+
 logging:
   workspace_routing: actor
   fallback_workspace: alice
@@ -34,28 +43,34 @@ logging:
     - source
     - object_id
     - kst_date
+
 matching:
   policy: exact_x_external_refs
   extension_field: x_external_refs
   llm_match_enabled: true
   llm_match_confidence_threshold: 0.7
   llm_match_candidate_limit: 25
+
 distill:
   enabled: true
   min_signal_score: 3
   suppress_low_signal_unmatched_sources:
     - slack
     - jira
+
 runtime:
   state_dir: .hey/external-activity
   socket_mode: true
   cloudflare_tunnel_required: false
+
 idempotency:
-  prepared_ttl_hours: 6
+  prepared_ttl_hours: 0.5
+
 reflection:
   enabled: true
   promotion_confidence_threshold: 0.8
   observation_confidence_threshold: 0.5
+
 digest:
   enabled: false
   schedule:
@@ -65,5 +80,13 @@ digest:
   channel: null
   include_observations: true
   max_items_per_section: 10
-  delete_previous: true
   max_headline_bullets: 10
+  delete_previous: true
+
+knowledge_compaction:
+  enabled: true
+  min_interval_hours: 24
+  max_interval_hours: 168
+  min_superseded_rows: 500
+  min_superseded_ratio: 0.2
+  min_periodic_superseded_rows: 50

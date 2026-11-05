@@ -9,7 +9,7 @@ function digestFixture(overrides = {}) {
   return {
     generated_at: '2026-08-14T00:00:00.000Z',
     today: '2026-08-14',
-    member: 'terence',
+    member: 'charlie',
     inputs: { git_head: 'abc1234', manifest_built_at: '2026-08-14T00:00:00.000Z' },
     planned_today: [
       { id: 'task_planned', title: 'Planned work', status: 'ready', priority: 'do', due_date: null, planned_date: '2026-08-14' },
@@ -65,7 +65,7 @@ describe('recordLoopDigest()', () => {
 
   beforeEach(() => {
     tmpRoot = resolve(tmpdir(), `test-digest-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    mkdirSync(resolve(tmpRoot, 'workspace/terence/notes'), { recursive: true });
+    mkdirSync(resolve(tmpRoot, 'workspace/charlie/notes'), { recursive: true });
     mkdirSync(resolve(tmpRoot, 'content'), { recursive: true });
   });
 
@@ -74,7 +74,7 @@ describe('recordLoopDigest()', () => {
   it('records inbox state and marks due packets surfaced exactly once', () => {
     // The packet marker is the "consumed" half of the P4 loop restore —
     // without it packets re-list forever. The forward digest is output-only.
-    const packetPath = 'workspace/terence/notes/note_packet.md';
+    const packetPath = 'workspace/charlie/notes/note_packet.md';
     writeFileSync(
       resolve(tmpRoot, packetPath),
       '---\nid: note_packet\ntype: note\ntitle: Reminder\nstatus: active\nx_kind: scheduled_action\nx_trigger_at: 2026-08-01\n---\n# Reminder\n\nBody.\n',
@@ -89,7 +89,7 @@ describe('recordLoopDigest()', () => {
 
     const marked = readFileSync(resolve(tmpRoot, packetPath), 'utf8');
     assert.match(marked, /x_surfaced_at: .*2026-08-14/);
-    assert.match(marked, /> Surfaced 2026-08-14 in terence's digest/);
+    assert.match(marked, /> Surfaced 2026-08-14 in charlie's digest/);
 
     // Idempotent: a second run must not double-mark the packet.
     const second = recordLoopDigest(tmpRoot, digest);

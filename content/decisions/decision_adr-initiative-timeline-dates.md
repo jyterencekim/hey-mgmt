@@ -108,12 +108,12 @@ unscheduled gap visible to owners.
 - **Backfill is owner-driven, not auto-written.** The initiative scaffold template
   gains the two fields (new initiatives are prompted from day one); a helper lists
   each active initiative with its derived suggestion; owners set their own targets.
-  jared seeds jared-owned initiatives; other owners receive an inbox heads-up with
+  alice seeds alice-owned initiatives; other owners receive an inbox heads-up with
   the derived suggestion. No mass auto-write — that would fabricate commitments on
   another owner's behalf.
-- **Coordination:** the indexer / SQLite / validator touch points sit in terence's
+- **Coordination:** the indexer / SQLite / validator touch points sit in charlie's
   area (owner of the linear-ontology ADR and the `scripts/lib` pipeline).
-  Implementation is coordinated with terence.
+  Implementation is coordinated with charlie.
 - The validator gains a **soft** check: warn when both fields are present and
   `x_timeline_start > x_timeline_end`. Neither field is required.
 - Member-facing timeline surfaces lead with the initiative `title`, per

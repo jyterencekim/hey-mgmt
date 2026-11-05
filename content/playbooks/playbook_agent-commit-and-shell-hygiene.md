@@ -15,23 +15,23 @@ tags:
   - Operations
 sources:
   - kind: doc
-    ref: workspace/terence/memory/feedback-git-stash-pop-hazard.md@6660cc0f4
+    ref: workspace/charlie/memory/feedback-git-stash-pop-hazard.md@6660cc0f4
     title: 'git stash pop can pop an unrelated stash (memory, migrated 2026-09-14)'
   - kind: doc
-    ref: workspace/terence/memory/feedback-secret-echo-hazard.md@6660cc0f4
+    ref: workspace/charlie/memory/feedback-secret-echo-hazard.md@6660cc0f4
     title: Do not interpolate a fetched secret into an echo line
   - kind: doc
-    ref: workspace/terence/memory/feedback_zsh_loop_word_splitting.md@6660cc0f4
+    ref: workspace/charlie/memory/feedback_zsh_loop_word_splitting.md@6660cc0f4
     title: The Bash tool runs zsh; for x in $VAR does not split
   - kind: doc
-    ref: workspace/terence/memory/reference_hey-mgmt_io_ssh_host_alias.md@6660cc0f4
+    ref: workspace/charlie/memory/reference_hey-mgmt_io_ssh_host_alias.md@6660cc0f4
     title: hey-mgmt-io pushes need the github.com-hey-mgmt host alias
   - kind: doc
     ref: >-
-      workspace/terence/memory/feedback_test_only_prs_merge_immediately.md@6660cc0f4
-    title: Test-only PRs merge immediately (terence 2026-06-09)
+      workspace/charlie/memory/feedback_test_only_prs_merge_immediately.md@6660cc0f4
+    title: Test-only PRs merge immediately (charlie 2026-06-09)
   - kind: doc
-    ref: workspace/terence/memory/reference_codex_service_tier_fix.md@6660cc0f4
+    ref: workspace/charlie/memory/reference_codex_service_tier_fix.md@6660cc0f4
     title: Local codex needs -c service_tier=flex
 x_procedure_graph:
   schema: procedural-graph/v0
@@ -82,7 +82,7 @@ x_procedure_graph:
       guidance: stage the files you changed by name; other sessions share the tree
       pitfalls: >-
         git add -A sweeps another session's untracked evidence dirs into your
-        commit (happened 2026-09-14 with kaia-v0518 files)
+        commit (happened 2026-09-14 with core-v0518 files)
     - src: stage_own_files
       rel: LEADS_TO
       dst: commit

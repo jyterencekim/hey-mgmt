@@ -16,7 +16,7 @@ Set up this repo for a new team member. Run this once after cloning.
    ```bash
    cat content/vocab/members.yml
    ```
-   Only offer human members (jared, terence, oliver, eb) — not `team` or `agent`.
+   Only offer human members (alice, charlie, bob, dana) — not `team` or `agent`.
 
 4. Ask the user for their preferred language for AI responses and generated content. Offer common options:
    - `en` — English
@@ -121,8 +121,8 @@ Set up this repo for a new team member. Run this once after cloning.
     ```
 
 12. Remind the member to complete their workspace setup:
-    - Fill in `workspace/$MEMBER/profile.md` with their domains, repos, skills, and MCPs. Use `workspace/terence/profile.md` as a reference.
-    - Create `workspace/$MEMBER/repos.yml` listing local paths to their working repos. Use `workspace/terence/repos.yml` as the format example. This enables the `/night` command to survey activity across all repos.
+    - Fill in `workspace/$MEMBER/profile.md` with their domains, repos, skills, and MCPs. Use `workspace/charlie/profile.md` as a reference.
+    - Create `workspace/$MEMBER/repos.yml` listing local paths to their working repos. Use `workspace/charlie/repos.yml` as the format example. This enables the `/night` command to survey activity across all repos.
     - Read `docs/ONBOARDING.md` for the full onboarding checklist.
 
 13. Enable local semantic search (optional). Tell the member this step is

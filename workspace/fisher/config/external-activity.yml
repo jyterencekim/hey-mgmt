@@ -1,39 +1,118 @@
-repo:
-  branch: main
-  auto_pull: true
-  auto_push: true
+# Fisher External Activity Runtime Configuration
+# Consumed by `workspace/fisher/external-activity-runtime/lib/config.mjs`
+# Used by `./hey activity poll --source <slack|confluence|drive|github|meeting>`
 
+bot:
+  name: fisher
+  socket_mode: true
+  slack_workspace_url: https://your-workspace.slack.com
+
+collector:
+  # Slack polling interval and target channel IDs
+  poll_interval_seconds: 1800
+  channels:
+    # - id: C0123456789
+    #   name: general
+    #   visibility: public
+  dm_allowlist:
+    - alice
+    - bob
+
+# Map member keys (from content/vocab/members.yml) to external identities
+# so Slack, Confluence, Google Drive, and GitHub events attribute work to the right member.
 members:
   alice:
-    slack_user_ids: []
-    slack_handles: [alice]
-    atlassian_account_ids: []
-    emails: [alice@example.com]
-    github_logins: [alice]
+    slack_user_id: ""
+    slack_dm_id: ""
+    confluence_names:
+      - Alice
+    drive_emails:
+      - alice@example.com
+    github_login: alice-dev
   bob:
-    slack_user_ids: []
-    slack_handles: [bob]
-    atlassian_account_ids: []
-    emails: [bob@example.com]
-    github_logins: [bob]
+    slack_user_id: ""
+    slack_dm_id: ""
+    confluence_names:
+      - Bob
+    drive_emails:
+      - bob@example.com
+    github_login: bob-dev
 
-sources:
-  slack:
-    enabled: false
-    channels: []
-    include_bot_dms: true
-    allow_all_user_dms: true
-    dm_user_allowlist: []
-  confluence:
-    enabled: false
-    cql: 'type = page order by lastmodified desc'
-    limit: 25
-  drive:
-    enabled: false
-    page_size: 50
-    shared_drive_ids: []
-    folder_ids: []
-  github:
-    enabled: false
-    repos: []
-    events: [pull_request, issues, release]
+confluence:
+  enabled: false
+  poll_interval_seconds: 1800
+  # Confluence space keys to poll (e.g. ["ENG", "PROD"])
+  spaces: []
+  max_pages_per_Space: 50
+
+approval:
+  default_approver: alice
+  require_approval_for_kb_writes: true
+  auto_ingest_workspace_logs: true
+  max_Notifications_per_cycle: 5
+  coalesce_window_seconds: 600
+  min_confidence: 0.75
+
+drive:
+  enabled: false
+  poll_interval_seconds: 1800
+  # Google Drive folder IDs or Shared Drive IDs to monitor
+  folders: []
+  shared_drives: []
+  impersonate_user: alice@example.com
+  include_shared_with_me: true
+  lookback_days: 7
+  max_files_per_cycle: 50
+
+github:
+  enabled: false
+  poll_interval_seconds: 1800
+  # GitHub repositories to poll in "owner/repo" format
+  repos:
+    # - your-org/core-platform
+  lookback_days: 7
+  max_items_per_repo: 30
+
+meeting:
+  enabled: false
+  poll_interval_seconds: 1800
+  limit: 20
+
+chat:
+  enabled: false
+  max_context_artifacts: 8
+  max_history_messages: 10
+  max_tokens: 1500
+  Write_commands_enabled: true
+
+reflection:
+  enabled: true
+  promotion_confidence_threshold: 0.8
+  observation_confidence_threshold: 0.5
+
+digest:
+  enabled: false
+  schedule:
+    - "12:00"
+    - "18:00"
+  timezone: Asia/Seoul
+  # Slack channel ID where daily digests should be posted
+  channel: null
+  include_observations: true
+  max_items_per_section: 10
+  max_headline_bullets: 10
+  delete_previous: true
+
+inbox:
+  enabled: false
+  delivery_schedule:
+    - "09:00"
+  reminder_interval_hours: 4
+  quiet_hours_start: "22:00"
+  quiet_hours_end: "08:00"
+  timezone: Asia/Seoul
+
+hermes:
+  enabled: true
+  max_candidates_per_cycle: 5
+  state_dir: .hey/external-activity

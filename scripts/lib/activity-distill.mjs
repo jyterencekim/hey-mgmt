@@ -203,7 +203,7 @@ function buildSources(repoRoot, event, mirrorRelativePath = null) {
 }
 
 function buildCommonFrontmatter(repoRoot, candidate, event, artifactType, mirrorRelativePath = null) {
-  const owner = 'jared';
+  const owner = 'alice';
   const frontmatter = {
     owner,
     sources: buildSources(repoRoot, event, mirrorRelativePath),

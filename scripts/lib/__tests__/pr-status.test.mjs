@@ -19,7 +19,7 @@ function manifestLine(overrides) {
     status: 'ready',
     priority: 'plan',
     phase: null,
-    owner: 'terence',
+    owner: 'charlie',
     due_date: null,
     iteration: '2026-W19',
     tags: [],
@@ -37,11 +37,11 @@ function manifestLine(overrides) {
 describe('extractPrRefs()', () => {
   it('reads both reference forms that name a repository', () => {
     const refs = extractPrRefs(
-      'Landed https://github.com/superearn-io/superearn-auditor/pull/158 and kaiachain/kaia-usdt-miniapp-frontend#400.'
+      'Landed https://github.com/example-org/core-service/pull/158 and kaiachain/core-usdt-miniapp-frontend#400.'
     );
     assert.deepEqual(refs.map((ref) => ref.key), [
-      'superearn-io/superearn-auditor#158',
-      'kaiachain/kaia-usdt-miniapp-frontend#400',
+      'example-org/core-service#158',
+      'kaiachain/core-usdt-miniapp-frontend#400',
     ]);
   });
 
@@ -53,7 +53,7 @@ describe('extractPrRefs()', () => {
 
   it('deduplicates a pull request cited more than once', () => {
     const refs = extractPrRefs(
-      'superearn-io/superearn-auditor#158 was reverted, then https://github.com/superearn-io/superearn-auditor/pull/158 relanded.'
+      'example-org/core-service#158 was reverted, then https://github.com/example-org/core-service/pull/158 relanded.'
     );
     assert.equal(refs.length, 1);
   });
@@ -62,30 +62,30 @@ describe('extractPrRefs()', () => {
     // Verbatim shape from task_rename-usd-named-fields-that-c, which sat open
     // for eleven days after its PR merged because nobody re-read this sentence.
     const [ref] = extractPrRefs(
-      '**Open.** `kaiachain/kaia-usdt-miniapp-frontend#400` -> `develop`.\nPartner-org repo, so a human reviews and lands it.'
+      '**Open.** `kaiachain/core-usdt-miniapp-frontend#400` -> `develop`.\nPartner-org repo, so a human reviews and lands it.'
     );
     assert.equal(ref.claims_pending, true);
   });
 
   it('does not treat a plain landed statement as pending', () => {
-    const [ref] = extractPrRefs('Landed and live: superearn-io/superearn-data-pipeline#77, deploy green.');
+    const [ref] = extractPrRefs('Landed and live: example-org/core-data-pipeline#77, deploy green.');
     assert.equal(ref.claims_pending, false);
   });
 });
 
 describe('buildPrCheck()', () => {
   const bodies = {
-    'content/tasks/task_all_merged.md': 'Shipped in superearn-io/superearn-data-pipeline#77 and kaiachain/kaia-usdt-miniapp-frontend#400.',
-    'content/tasks/task_one_open.md': 'Opened superearn-io/superearn-ops-runtime#221; still in review.',
-    'content/tasks/task_unreadable.md': 'Tracked in superearn-io/ghost-repo#1.',
+    'content/tasks/task_all_merged.md': 'Shipped in example-org/core-data-pipeline#77 and kaiachain/core-usdt-miniapp-frontend#400.',
+    'content/tasks/task_one_open.md': 'Opened example-org/core-ops-runtime#221; still in review.',
+    'content/tasks/task_unreadable.md': 'Tracked in example-org/ghost-repo#1.',
     'content/tasks/task_no_refs.md': 'No pull request has been opened yet.',
-    'content/tasks/task_stale_text.md': '**Open.** `kaiachain/kaia-usdt-miniapp-frontend#400` awaits a human reviewer in the partner org.',
+    'content/tasks/task_stale_text.md': '**Open.** `kaiachain/core-usdt-miniapp-frontend#400` awaits a human reviewer in the partner org.',
   };
 
   const fetcher = async (ref) => {
-    if (ref.key === 'superearn-io/superearn-data-pipeline#77') return { state: 'MERGED', mergedAt: '2026-07-28T00:00:00Z' };
-    if (ref.key === 'kaiachain/kaia-usdt-miniapp-frontend#400') return { state: 'MERGED', mergedAt: '2026-07-29T04:27:01Z' };
-    if (ref.key === 'superearn-io/superearn-ops-runtime#221') return { state: 'OPEN', mergedAt: null };
+    if (ref.key === 'example-org/core-data-pipeline#77') return { state: 'MERGED', mergedAt: '2026-07-28T00:00:00Z' };
+    if (ref.key === 'kaiachain/core-usdt-miniapp-frontend#400') return { state: 'MERGED', mergedAt: '2026-07-29T04:27:01Z' };
+    if (ref.key === 'example-org/core-ops-runtime#221') return { state: 'OPEN', mergedAt: null };
     throw new Error('could not resolve to a PullRequest');
   };
 

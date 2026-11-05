@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { unpack, pagination, collectSearch, recoverThreadWindow, collectThreadWindow, bodyChunks, assertBodyReviewed, assertThreadCoverage } from './intake-coverage.mjs';
-const row = (ts, thread = '1.0') => `### Result 1 of 1\nMessage_ts: ${ts}\nPermalink: [link](https://kaiafoundation.slack.com/archives/C1/p123?thread_ts=${thread}&cid=C1)\nText: original ${ts}\n`;
+const row = (ts, thread = '1.0') => `### Result 1 of 1\nMessage_ts: ${ts}\nPermalink: [link](https://your-workspace.slack.com/archives/C1/p123?thread_ts=${thread}&cid=C1)\nText: original ${ts}\n`;
 const page = (ts, cursor = null) => ({ content: [{ type: 'text', text: JSON.stringify({ results: ts ? row(ts) : 'No results found.', pagination_info: cursor ? `For next page use cursor \`${cursor}\`` : 'End of results - No more pages available.' }) }] });
 test('unwraps real top-level structured rows without reducing to counts', () => assert.deepEqual(unpack({ structuredContent: { results: [{ url: 'x' }] } }).results, [{ url: 'x' }]));
 test('requires explicit terminal evidence and preserves opaque cursor', () => {

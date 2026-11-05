@@ -23,7 +23,7 @@ function config(overrides = {}) {
       files: [],
     },
     members: {
-      jared: { drive_emails: ['jared.lee@kaia.io'] },
+      alice: { drive_emails: ['alice@example.com'] },
     },
     ...overrides,
   };
@@ -101,8 +101,8 @@ describe('DriveCollector', () => {
               mimeType: 'application/vnd.google-apps.folder',
               modifiedTime: '2026-04-09T01:00:00.000Z',
               webViewLink: 'https://drive.google.com/drive/folders/folder-my-drive',
-              owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-              lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+              owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+              lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
             }),
           };
         }
@@ -117,8 +117,8 @@ describe('DriveCollector', () => {
                 modifiedTime: '2026-03-30T01:58:00.000Z',
                 parents: ['folder-my-drive'],
                 webViewLink: 'https://drive.google.com/file/d/doc-my-drive-1/view',
-                owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-                lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+                owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+                lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
               }],
             }),
           };
@@ -200,8 +200,8 @@ describe('DriveCollector', () => {
                   modifiedTime: '2026-03-17T03:00:00.000Z',
                   driveId: 'drive-1',
                   webViewLink: 'https://drive.google.com/file/d/doc-777/view',
-                  owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-                  lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+                  owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+                  lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
                 },
               }],
             }),
@@ -252,7 +252,7 @@ describe('DriveCollector', () => {
 
     assert.equal(result.event_count, 1);
     assert.equal(ingestedEvents[0].object_id, 'doc-777');
-    assert.equal(ingestedEvents[0].workspace_owner, 'jared');
+    assert.equal(ingestedEvents[0].workspace_owner, 'alice');
     assert.match(ingestedEvents[0].summary, /JPYC launch readiness/);
   });
 
@@ -288,8 +288,8 @@ describe('DriveCollector', () => {
                 modifiedTime: '2026-03-30T03:00:00.000Z',
                 driveId: 'drive-1',
                 webViewLink: 'https://drive.google.com/file/d/doc-888/view',
-                owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-                lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+                owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+                lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
               }],
             }),
           };
@@ -357,8 +357,8 @@ describe('DriveCollector', () => {
               mimeType: 'application/vnd.google-apps.folder',
               modifiedTime: '2026-04-09T01:00:00.000Z',
               driveId: 'drive-1',
-              owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-              lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+              owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+              lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
             }),
           };
         }
@@ -374,8 +374,8 @@ describe('DriveCollector', () => {
                 driveId: 'drive-1',
                 parents: ['folder-1'],
                 webViewLink: 'https://drive.google.com/file/d/doc-folder-1/view',
-                owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-                lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+                owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+                lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
               }],
             }),
           };
@@ -453,14 +453,14 @@ describe('DriveCollector', () => {
                 time: '2026-03-27T13:52:13.000Z',
                 file: {
                   id: 'docx-1',
-                  name: 'SuperEarn - FLOQ Risk Report 20260305.docx',
+                  name: 'TeamOS - FLOQ Risk Report 20260305.docx',
                   mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                   modifiedTime: '2026-03-27T13:52:13.000Z',
                   driveId: 'drive-1',
                   size: 1234,
                   webViewLink: 'https://drive.google.com/file/d/docx-1/view',
-                  owners: [{ displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' }],
-                  lastModifyingUser: { displayName: 'Jared Lee', emailAddress: 'jared.lee@kaia.io' },
+                  owners: [{ displayName: 'Alice Lee', emailAddress: 'alice@example.com' }],
+                  lastModifyingUser: { displayName: 'Alice Lee', emailAddress: 'alice@example.com' },
                 },
               }],
             }),

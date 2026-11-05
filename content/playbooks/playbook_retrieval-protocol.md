@@ -71,7 +71,7 @@ Separate the retrieval target before searching:
 
 - object type: task, note, meeting, decision, playbook, doc, Slack thread, file
 - time window: today, yesterday, last week, current iteration, recent months
-- owner or actor: jared, eb, terence, oliver, fisher, agent
+- owner or actor: alice, dana, charlie, bob, fisher, agent
 - lifecycle: final, done, ready, current, draft, uploaded, attached
 - semantic clues: domain terms, numbers, caps, APIs, filenames, partner names
 

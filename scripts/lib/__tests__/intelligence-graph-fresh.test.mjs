@@ -12,7 +12,7 @@ let cfg;
 function setup() {
   tmpRoot = resolve(tmpdir(), `test-kg-fresh-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(resolve(tmpRoot, 'content', 'tasks'), { recursive: true });
-  mkdirSync(resolve(tmpRoot, 'workspace', 'terence'), { recursive: true });
+  mkdirSync(resolve(tmpRoot, 'workspace', 'charlie'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'imports'), { recursive: true });
   mkdirSync(resolve(tmpRoot, '.kg'), { recursive: true });
 
@@ -58,7 +58,7 @@ describe('graphNeedsBuild & getDb staleness auto-rebuild', () => {
 
   it('returns true when a workspace markdown file is newer than dbPath', () => {
     writeFileSync(cfg.dbPath, 'fake-sqlite');
-    const ws = resolve(tmpRoot, 'workspace/terence/note_scratch.md');
+    const ws = resolve(tmpRoot, 'workspace/charlie/note_scratch.md');
     writeFileSync(ws, '---\nid: note_scratch\ntype: note\n---\n');
     bumpMtime(ws, 60_000);
 

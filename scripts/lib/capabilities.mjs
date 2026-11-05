@@ -75,11 +75,11 @@ export function cmpVersion(a, b) {
 // The knowledge graph projection lives internally in .kg/graph.sqlite (built via
 // ./hey graph build, see decision_adr-consolidate-intelligence-graph-into-mgmt).
 // Sibling checkout is kept as a fallback if present.
-export const INTELLIGENCE_REPO = 'superearn-io/superearn-intelligence';
+export const INTELLIGENCE_REPO = 'example-org/hey-intelligence';
 export function intelligenceDir(repoRoot) {
   return process.env.KG_INTELLIGENCE_ROOT
     ? resolve(process.env.KG_INTELLIGENCE_ROOT)
-    : resolve(repoRoot, '..', 'superearn-intelligence');
+    : resolve(repoRoot, '..', 'hey-intelligence');
 }
 export function intelligenceStatus(repoRoot) {
   const internalDb = resolve(repoRoot, '.kg/graph.sqlite');
@@ -205,7 +205,7 @@ export const CAPABILITIES = [
         // to gh (carries GitHub auth), then plain HTTPS.
         const origin = gitConfig(repoRoot, 'remote.origin.url');
         const attempts = [];
-        if (/superearn-mgmt(\.git)?$/.test(origin)) attempts.push(['git', ['clone', origin.replace(/superearn-mgmt(\.git)?$/, 'superearn-intelligence$1'), dir]]);
+        if (/hey-mgmt(\.git)?$/.test(origin)) attempts.push(['git', ['clone', origin.replace(/hey-mgmt(\.git)?$/, 'hey-intelligence$1'), dir]]);
         attempts.push(['gh', ['repo', 'clone', INTELLIGENCE_REPO, dir]]);
         attempts.push(['git', ['clone', `https://github.com/${INTELLIGENCE_REPO}.git`, dir]]);
         const errors = [];
@@ -214,10 +214,10 @@ export const CAPABILITIES = [
           try { execFileSync(cmd, args, { stdio: ['ignore', 'inherit', 'pipe'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }); break; }
           catch (error) { errors.push(`${cmd} ${args[0]}: ${(error.stderr?.toString() || error.message).trim().split('\n').pop()}`); }
         }
-        if (!existsSync(resolve(dir, 'bin/kg.mjs'))) throw new Error(`could not clone ${INTELLIGENCE_REPO} (need superearn-io access):\n        - ${errors.join('\n        - ')}`);
+        if (!existsSync(resolve(dir, 'bin/kg.mjs'))) throw new Error(`could not clone ${INTELLIGENCE_REPO} (need example-org access):\n        - ${errors.join('\n        - ')}`);
       }
       if (!existsSync(resolve(dir, 'node_modules'))) {
-        log('npm install (superearn-intelligence)');
+        log('npm install (hey-intelligence)');
         execFileSync('npm', ['install', '--no-fund', '--no-audit'], { cwd: dir, stdio: 'inherit' });
       }
       const env = { ...process.env, KG_MGMT_ROOT: process.env.KG_MGMT_ROOT ?? repoRoot };

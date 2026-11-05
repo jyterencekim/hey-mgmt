@@ -126,7 +126,7 @@ title: "JPYC Vault Integration"
 created_at: 2026-03-01
 updated_at: 2026-04-01
 status: active
-owner: oliver
+owner: bob
 project: Product
 priority: do
 tags:

@@ -8,16 +8,16 @@ import { notifyMeetingAction } from '../meeting-sync/importer.mjs';
 import { listInboxItems } from '../inbox.mjs';
 
 const MEMBERS_YML = `members:
-  - name: jared
+  - name: alice
     role: lead-and-product-manager
-  - name: oliver
+  - name: bob
     role: strategy-and-finance
-  - name: terence
+  - name: charlie
     role: backend-frontend-engineer
-  - name: eb
+  - name: dana
     role: engineering-lead
-  - name: benji
-    role: external-linecorp
+  - name: ext-partner
+    role: external-partner
   - name: team
     role: shared
 `;
@@ -26,11 +26,11 @@ const MEETING_MD = `---
 id: meeting_test-2026-05-04
 type: meeting
 title: Test Meeting
-owner: jared
+owner: alice
 attendees:
-  - jared
-  - terence
-  - benji
+  - alice
+  - charlie
+  - ext-partner
 ---
 
 ## Notes
@@ -42,7 +42,7 @@ const NOTE_MD = `---
 id: note_test-2026-05-04
 type: note
 title: Not a meeting
-owner: jared
+owner: alice
 ---
 
 Body.
@@ -52,10 +52,10 @@ function setupRepo() {
   const root = resolve(tmpdir(), `test-meeting-notify-${Date.now()}-${Math.random().toString(36).slice(2)}`);
   mkdirSync(resolve(root, 'content', 'vocab'), { recursive: true });
   mkdirSync(resolve(root, 'content', 'meetings', '2026', '05'), { recursive: true });
-  mkdirSync(resolve(root, 'workspace', 'jared'), { recursive: true });
-  mkdirSync(resolve(root, 'workspace', 'oliver'), { recursive: true });
-  mkdirSync(resolve(root, 'workspace', 'terence'), { recursive: true });
-  mkdirSync(resolve(root, 'workspace', 'eb'), { recursive: true });
+  mkdirSync(resolve(root, 'workspace', 'alice'), { recursive: true });
+  mkdirSync(resolve(root, 'workspace', 'bob'), { recursive: true });
+  mkdirSync(resolve(root, 'workspace', 'charlie'), { recursive: true });
+  mkdirSync(resolve(root, 'workspace', 'dana'), { recursive: true });
   writeFileSync(resolve(root, 'content', 'vocab', 'members.yml'), MEMBERS_YML, 'utf8');
   writeFileSync(resolve(root, 'content', 'meetings', '2026', '05', 'meeting_test-2026-05-04.md'), MEETING_MD, 'utf8');
   writeFileSync(resolve(root, 'content', 'meetings', '2026', '05', 'note_test-2026-05-04.md'), NOTE_MD, 'utf8');
@@ -73,9 +73,9 @@ describe('meeting-notify', () => {
     const result = await notifyMeeting({ repoRoot: root, meetingPath });
 
     assert.equal(result.meeting_id, 'meeting_test-2026-05-04');
-    assert.deepEqual(result.sent.map((entry) => entry.recipient), ['jared', 'oliver', 'terence', 'eb']);
+    assert.deepEqual(result.sent.map((entry) => entry.recipient), ['alice', 'bob', 'charlie', 'dana']);
 
-    for (const recipient of ['jared', 'oliver', 'terence', 'eb']) {
+    for (const recipient of ['alice', 'bob', 'charlie', 'dana']) {
       const items = listInboxItems({ repoRoot: root, workspace: recipient });
       assert.equal(items.length, 1);
       assert.ok(items[0].title.includes('읽어주세요'));
@@ -94,9 +94,9 @@ describe('meeting-notify', () => {
 
     const r2 = await notifyMeeting({ repoRoot: root, meetingPath });
     assert.equal(r2.sent.length, 0);
-    assert.deepEqual(r2.skipped_already_sent, ['jared', 'oliver', 'terence', 'eb']);
+    assert.deepEqual(r2.skipped_already_sent, ['alice', 'bob', 'charlie', 'dana']);
 
-    const items = listInboxItems({ repoRoot: root, workspace: 'terence' });
+    const items = listInboxItems({ repoRoot: root, workspace: 'charlie' });
     assert.equal(items.length, 1);
   });
 
@@ -111,7 +111,7 @@ describe('meeting-notify', () => {
     const result = await notifyMeetingAction({ repoRoot: root, action, dryRun: false });
 
     assert.equal(result.notification.sent.length, 4);
-    assert.deepEqual(result.notification.sent.map((entry) => entry.recipient), ['jared', 'oliver', 'terence', 'eb']);
+    assert.deepEqual(result.notification.sent.map((entry) => entry.recipient), ['alice', 'bob', 'charlie', 'dana']);
     assert.ok(result.notification.sent.every((entry) => entry.path.startsWith('workspace/')));
   });
 
@@ -126,9 +126,9 @@ describe('meeting-notify', () => {
     const result = await notifyMeeting({ repoRoot: root, meetingPath, dryRun: true });
 
     assert.equal(result.dry_run, true);
-    assert.deepEqual(result.would_send, ['jared', 'oliver', 'terence', 'eb']);
+    assert.deepEqual(result.would_send, ['alice', 'bob', 'charlie', 'dana']);
 
-    for (const recipient of ['jared', 'oliver', 'terence', 'eb']) {
+    for (const recipient of ['alice', 'bob', 'charlie', 'dana']) {
       assert.equal(listInboxItems({ repoRoot: root, workspace: recipient }).length, 0);
     }
 

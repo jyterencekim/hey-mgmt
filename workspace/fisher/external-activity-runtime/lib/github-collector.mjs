@@ -249,7 +249,7 @@ export class GitHubCollector {
       const rawPath = this.writeRawJson('prs', `${ownerRepo.replace('/', '-')}-${prNum}`, pr);
       const author = pr.author?.login ?? 'unknown';
       const workspaceOwner = mapGitHubLoginToMember(this.config, author)
-        ?? this.config.approval?.artifact_owner_fallback ?? 'jared';
+        ?? this.config.approval?.artifact_owner_fallback ?? 'alice';
 
       const prState = pr.state === 'MERGED' ? 'merged' : pr.state === 'CLOSED' ? 'closed' : 'open';
       const reviewNote = pr.reviewDecision ? ` [${pr.reviewDecision}]` : '';
@@ -304,7 +304,7 @@ export class GitHubCollector {
       const assigneeLogin = issue.assignees?.[0]?.login;
       const workspaceOwner = mapGitHubLoginToMember(this.config, assigneeLogin)
         ?? mapGitHubLoginToMember(this.config, author)
-        ?? this.config.approval?.artifact_owner_fallback ?? 'jared';
+        ?? this.config.approval?.artifact_owner_fallback ?? 'alice';
 
       events.push({
         source: 'github',
@@ -388,7 +388,7 @@ export class GitHubCollector {
       });
       const author = commit.author?.login ?? commit.commit?.author?.name ?? 'unknown';
       const workspaceOwner = mapGitHubLoginToMember(this.config, commit.author?.login)
-        ?? this.config.approval?.artifact_owner_fallback ?? 'jared';
+        ?? this.config.approval?.artifact_owner_fallback ?? 'alice';
       const filesChanged = Array.isArray(detail?.files) ? detail.files.length : undefined;
 
       events.push({
@@ -476,7 +476,7 @@ export class GitHubCollector {
           object_title: `onchain-analysis ${file.path}: ${title}`,
           object_url: objectUrl,
           actor: 'github',
-          workspace_owner: this.config.approval?.artifact_owner_fallback ?? 'jared',
+          workspace_owner: this.config.approval?.artifact_owner_fallback ?? 'alice',
           changed_at: changedAt,
           native_change_id: nativeChangeId,
           summary: `GitHub tracked knowledge file on ${ownerRepo} (${branch}): ${file.path} — ${summary}`,
@@ -502,7 +502,7 @@ export class GitHubCollector {
           summary,
           url: objectUrl,
           actors: ['github'],
-          workspace_owner: this.config.approval?.artifact_owner_fallback ?? 'jared',
+          workspace_owner: this.config.approval?.artifact_owner_fallback ?? 'alice',
           date: kstDate,
           changed_at: changedAt,
           topics: ['onchain-analysis', file.path.split('/')[0]].filter(Boolean),

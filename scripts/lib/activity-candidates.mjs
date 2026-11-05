@@ -70,7 +70,7 @@ function kgPath(repoRoot, config) {
   if (process.env.KG_GRAPH_PATH) return resolve(process.env.KG_GRAPH_PATH);
   const localKg = resolve(repoRoot, '.kg', 'graph.sqlite');
   if (existsSync(localKg)) return localKg;
-  return resolve(repoRoot, '..', 'superearn-intelligence', '.kg', 'graph.sqlite');
+  return resolve(repoRoot, '..', 'hey-intelligence', '.kg', 'graph.sqlite');
 }
 
 function kgRows(db, table) {
@@ -83,7 +83,7 @@ function kgValue(row, names) {
 }
 
 // The projection is disposable and read-only. Keep this adapter tolerant of
-// additive schema changes in superearn-intelligence and fail closed on errors.
+// additive schema changes in hey-intelligence and fail closed on errors.
 function readKgNeighbors({ repoRoot, config, seedIds }) {
   const path = kgPath(repoRoot, config);
   if (!existsSync(path) || !seedIds.length) return [];
@@ -196,7 +196,7 @@ function chooseStatusPatch(events) {
 }
 
 function candidateOwner(approvers, fallbackApprover) {
-  return approvers[0] ?? fallbackApprover ?? 'jared';
+  return approvers[0] ?? fallbackApprover ?? 'alice';
 }
 
 function markSupersededCandidates(repoRoot, config, candidateKey, keepId) {
@@ -549,7 +549,7 @@ export function finalizeAgentDecisions({ repoRoot, config, decisions }) {
       const matchExisting = existingByKey.get(matchKey);
       const mergedEvents = mergeEvents(matchExisting?.events, events);
       const signature = buildCandidateSignature(artifact.id, mergedEvents);
-      const approvers = resolveArtifactApprovers(artifact, config.approval?.artifact_owner_fallback ?? 'jared');
+      const approvers = resolveArtifactApprovers(artifact, config.approval?.artifact_owner_fallback ?? 'alice');
 
       const candidate = writeCandidate(repoRoot, config, {
         id: matchExisting?.id,
@@ -560,7 +560,7 @@ export function finalizeAgentDecisions({ repoRoot, config, decisions }) {
         artifact_id: artifact.id,
         artifact_path: artifact.relativePath,
         artifact_type: artifact.type,
-        owner: candidateOwner(approvers, config.approval?.artifact_owner_fallback ?? 'jared'),
+        owner: candidateOwner(approvers, config.approval?.artifact_owner_fallback ?? 'alice'),
         approvers,
         approval_policy: 'any_approver',
         reference_day: decision._event_data?.kst_date ?? todayKst(),
@@ -581,7 +581,7 @@ export function finalizeAgentDecisions({ repoRoot, config, decisions }) {
       const event = decision._event_data ?? {};
       const distillKey = `distill_review:${event.source ?? 'agent'}:${event.object_id ?? stableHash(eventSignatures)}:${event.kst_date ?? todayKst()}`;
       const distillExisting = existingByKey.get(distillKey);
-      const approvers = uniqueOrdered([event.workspace_owner, config.approval?.artifact_owner_fallback ?? 'jared'].filter(Boolean));
+      const approvers = uniqueOrdered([event.workspace_owner, config.approval?.artifact_owner_fallback ?? 'alice'].filter(Boolean));
 
       const highlights = decision.summary_points ?? [];
       const artifactType = decision.artifact_type ?? 'note';
@@ -596,7 +596,7 @@ export function finalizeAgentDecisions({ repoRoot, config, decisions }) {
         artifact_id: null,
         artifact_path: null,
         artifact_type: artifactType,
-        owner: candidateOwner(approvers, config.approval?.artifact_owner_fallback ?? 'jared'),
+        owner: candidateOwner(approvers, config.approval?.artifact_owner_fallback ?? 'alice'),
         approvers,
         approval_policy: 'any_approver',
         reference_day: event.kst_date ?? todayKst(),
@@ -604,7 +604,7 @@ export function finalizeAgentDecisions({ repoRoot, config, decisions }) {
         domain_tag: decision.domain_tag ?? null,
         signal_score: Math.round((decision.confidence ?? 0) * 10),
         selection_reason: decision.match_reason ?? 'agent classification',
-        suggested_artifact: { type: artifactType, title, owner: 'jared' },
+        suggested_artifact: { type: artifactType, title, owner: 'alice' },
         draft: {
           type: artifactType,
           title,
@@ -824,7 +824,7 @@ export function finalizeReflectionDecisions({ repoRoot, config, decisions }) {
           suggested_artifact: {
             type: promo.artifact_type ?? 'note',
             title: promo.title ?? eventData.object_title ?? 'Untitled',
-            owner: eventData.workspace_owner ?? config.approval?.artifact_owner_fallback ?? 'jared',
+            owner: eventData.workspace_owner ?? config.approval?.artifact_owner_fallback ?? 'alice',
           },
           domain_tag: promo.domain_tag,
           unmatched_ref: {

@@ -85,7 +85,7 @@ Fisher can execute any `./hey` command in the repo workspace:
 
 ## What Fisher won't do without confirmation
 
-In Slack DMs, authenticated Superearn team members are pre-approved, so Fisher can execute ordinary repo writes without an extra confirmation turn.
+In Slack DMs, authenticated TeamOS team members are pre-approved, so Fisher can execute ordinary repo writes without an extra confirmation turn.
 
 In allowlisted channels, or in DMs from senders Fisher cannot match to a trusted team member, writes to `content/` or `workspace/` still require explicit confirmation. Fisher will explain the proposed change and ask you to confirm before writing.
 

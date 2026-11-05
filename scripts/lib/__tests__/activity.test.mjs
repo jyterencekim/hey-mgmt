@@ -22,12 +22,12 @@ function setupRepo() {
   mkdirSync(resolve(tmpRoot, 'content', 'decisions'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'content', 'vocab'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'content', 'policies'), { recursive: true });
-  mkdirSync(resolve(tmpRoot, 'workspace', 'jared'), { recursive: true });
+  mkdirSync(resolve(tmpRoot, 'workspace', 'alice'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'workspace', 'fisher', 'observations'), { recursive: true });
   mkdirSync(resolve(tmpRoot, 'workspace', 'fisher', 'knowledge'), { recursive: true });
 
-  write(resolve(tmpRoot, 'content', 'vocab', 'members.yml'), `members:\n  - name: jared\n    role: pm\n  - name: terence\n    role: backend\n`);
-  write(resolve(tmpRoot, 'content', 'vocab', 'areas.yml'), `areas:\n  - name: SuperearnCore\n`);
+  write(resolve(tmpRoot, 'content', 'vocab', 'members.yml'), `members:\n  - name: alice\n    role: pm\n  - name: charlie\n    role: backend\n`);
+  write(resolve(tmpRoot, 'content', 'vocab', 'areas.yml'), `areas:\n  - name: TeamOSCore\n`);
   write(resolve(tmpRoot, 'content', 'vocab', 'tags.yml'), `tags: []\n`);
   write(resolve(tmpRoot, 'content', 'vocab', 'entities.yml'), `entities: []\n`);
   write(resolve(tmpRoot, 'content', 'policies', 'governance.yml'), `sources_policy:\n  decision:\n    min_refs: 2\n`);
@@ -39,8 +39,8 @@ title: Oracle fallback
 created_at: 2026-03-13
 updated_at: 2026-03-13
 status: ready
-owner: jared
-area: SuperearnCore
+owner: alice
+area: TeamOSCore
 priority: plan
 iteration: 2026-W11
 definition_of_done:
@@ -64,9 +64,9 @@ created_at: 2026-03-13
 updated_at: 2026-03-13
 decision_status: accepted
 owners:
-  - jared
-  - terence
-area: SuperearnCore
+  - alice
+  - charlie
+area: TeamOSCore
 sources:
   - kind: doc
     ref: docs/references/oracle-policy.md
@@ -90,8 +90,8 @@ function makeAgentEvent(source, signature) {
     object_id: `${source}-object-1`,
     object_title: `${source} duplicate replay check`,
     object_url: `https://example.com/${source}/object-1`,
-    actor: 'Jared',
-    workspace_owner: 'jared',
+    actor: 'Alice',
+    workspace_owner: 'alice',
     changed_at: '2026-03-13T09:15:00+09:00',
     kst_date: '2026-03-13',
     summary: `${source} replay should only be processed once`,
@@ -113,8 +113,8 @@ describe('external activity workflow', () => {
         object_id: 'SUPER-321',
         object_title: 'SUPER-321 Oracle fallback',
         object_url: 'https://jira.example/SUPER-321',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T09:15:00+09:00',
         native_change_id: 'chg-1',
         summary: 'Status changed to in_progress',
@@ -126,7 +126,7 @@ describe('external activity workflow', () => {
     assert.equal(result.event_count, 1);
     assert.equal(result.candidate_count, 0);
 
-    const logRaw = readFileSync(resolve(tmpRoot, 'workspace', 'jared', 'logs', '2026-03-13.md'), 'utf8');
+    const logRaw = readFileSync(resolve(tmpRoot, 'workspace', 'alice', 'logs', '2026-03-13.md'), 'utf8');
     assert.ok(logRaw.includes('## External Signals'));
     assert.ok(logRaw.includes('SUPER-321 Oracle fallback'));
 
@@ -143,8 +143,8 @@ describe('external activity workflow', () => {
         object_id: 'SUPER-321',
         object_title: 'SUPER-321 Oracle fallback',
         object_url: 'https://jira.example/SUPER-321',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T09:15:00+09:00',
         native_change_id: 'chg-1',
         summary: 'Status changed to in_progress'
@@ -155,8 +155,8 @@ describe('external activity workflow', () => {
         object_id: 'SUPER-321',
         object_title: 'SUPER-321 Oracle fallback',
         object_url: 'https://jira.example/SUPER-321',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T11:40:00+09:00',
         native_change_id: 'chg-2',
         summary: 'Comment added'
@@ -164,7 +164,7 @@ describe('external activity workflow', () => {
     ], null, 2), 'utf8');
 
     await ingestActivityFile({ repoRoot: tmpRoot, filePath: fixturePath });
-    const logRaw = readFileSync(resolve(tmpRoot, 'workspace', 'jared', 'logs', '2026-03-13.md'), 'utf8');
+    const logRaw = readFileSync(resolve(tmpRoot, 'workspace', 'alice', 'logs', '2026-03-13.md'), 'utf8');
     assert.equal(logRaw.split('SUPER-321 Oracle fallback').length - 1, 1);
     assert.ok(logRaw.includes('Status changed to in_progress; Comment added'));
   });
@@ -178,8 +178,8 @@ describe('external activity workflow', () => {
         object_id: 'SUPER-321',
         object_title: 'SUPER-321 Oracle fallback',
         object_url: 'https://jira.example/SUPER-321',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T09:15:00+09:00',
         native_change_id: 'chg-1',
         summary: 'Status changed to in_progress',
@@ -199,8 +199,8 @@ describe('external activity workflow', () => {
         object_id: 'doc-777',
         object_title: 'Bridge rollout draft',
         object_url: 'https://drive.example/doc-777',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T10:00:00+09:00',
         native_change_id: 'chg-77',
         summary: 'Draft updated'
@@ -218,7 +218,7 @@ describe('external activity workflow', () => {
     writeFileSync(rawRef, `Launch policy review
 
 - Decision: ship the rollout in phases.
-- Owner: Jared
+- Owner: Alice
 - Next step: document the external dependencies.
 - Rationale: legal review is complete and partner approvals are in place.
 `, 'utf8');
@@ -231,8 +231,8 @@ describe('external activity workflow', () => {
         object_id: 'doc-888',
         object_title: 'Launch policy review',
         object_url: 'https://drive.example/doc-888',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T10:30:00+09:00',
         native_change_id: 'chg-88',
         summary: 'Decision draft updated',
@@ -254,8 +254,8 @@ describe('external activity workflow', () => {
         object_id: '149783426',
         object_title: 'Oracle policy page',
         object_url: 'https://confluence.example/149783426',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T15:00:00+09:00',
         native_change_id: 'chg-decision-1',
         summary: 'Decision page updated'
@@ -352,8 +352,8 @@ Troubleshooting:
         object_id: 'message__C1__1_1',
         object_title: '#team ok',
         object_url: 'https://slack.example/message',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T17:00:00+09:00',
         native_change_id: 'chg-slack-1',
         summary: 'Slack message in #team: ok',
@@ -375,8 +375,8 @@ Troubleshooting:
         object_id: 'pdf-1',
         object_title: 'Risk review',
         object_url: 'https://drive.example/pdf-1',
-        actor: 'Jared',
-        workspace_owner: 'jared',
+        actor: 'Alice',
+        workspace_owner: 'alice',
         changed_at: '2026-03-13T16:00:00+09:00',
         native_change_id: 'chg-pdf-1',
         summary: 'Uploaded new PDF'
@@ -445,8 +445,8 @@ describe('updateKnowledgeEntryStatus revoke', () => {
       title: 'Test entry',
       summary: 'A test knowledge entry',
       url: 'https://jira.example/SUPER-100',
-      actors: ['Jared'],
-      workspace_owner: 'jared',
+      actors: ['Alice'],
+      workspace_owner: 'alice',
       date: '2026-03-13',
       changed_at: '2026-03-13T09:00:00+09:00',
       topics: [],
@@ -532,8 +532,8 @@ describe('finalizeReflectionDecisions', () => {
           object_type: 'slack-message',
           object_title: 'Oracle fallback launch note',
           object_url: 'http://example.com/promoted',
-          actor: 'Jared',
-          workspace_owner: 'jared',
+          actor: 'Alice',
+          workspace_owner: 'alice',
           changed_at: '2026-04-08T09:00:00+09:00',
           kst_date: '2026-04-08',
           signature: 'test_sig_promoted',
@@ -566,8 +566,8 @@ describe('finalizeReflectionDecisions', () => {
       object_type: 'drive-file',
       object_title: 'Drive doc with useful notes',
       object_url: 'https://docs.example/drive-doc-1',
-      actor: 'Jared',
-      workspace_owner: 'jared',
+      actor: 'Alice',
+      workspace_owner: 'alice',
       changed_at: '2026-04-09T09:00:00+09:00',
       kst_date: '2026-04-09',
       signature: 'test_sig_distill_promoted',
@@ -616,8 +616,8 @@ describe('finalizeReflectionDecisions', () => {
     db.exec(`CREATE TABLE nodes (id TEXT PRIMARY KEY, kind TEXT, title TEXT, status TEXT, owner TEXT, area TEXT);
       CREATE TABLE edges (src TEXT, rel TEXT, dst TEXT, status TEXT);
       INSERT INTO nodes VALUES
-        ('mgmt:task_oracle-fallback', 'task', 'Oracle fallback', 'ready', 'jared', 'SuperearnCore'),
-        ('mgmt:initiative_oracle', 'initiative', 'Oracle reliability initiative', 'doing', 'terence', 'SuperearnCore'),
+        ('mgmt:task_oracle-fallback', 'task', 'Oracle fallback', 'ready', 'alice', 'TeamOSCore'),
+        ('mgmt:initiative_oracle', 'initiative', 'Oracle reliability initiative', 'doing', 'charlie', 'TeamOSCore'),
         ('auditor:strategy:oracle', 'strategy', 'Oracle fallback strategy', 'active', NULL, 'Auditor');
       INSERT INTO edges VALUES
         ('mgmt:initiative_oracle', 'parent_of', 'mgmt:task_oracle-fallback', 'accepted'),

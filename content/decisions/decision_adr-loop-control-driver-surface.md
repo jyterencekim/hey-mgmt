@@ -15,10 +15,10 @@ tags:
   - Documentation
 sources:
   - kind: doc
-    ref: workspace/terence/ideas/2026-04-30-idea-loop-control-workflow-candidate.md
+    ref: workspace/charlie/ideas/2026-04-30-idea-loop-control-workflow-candidate.md
     title: Loop Control Workflow Candidate
   - kind: doc
-    ref: workspace/terence/ideas/2026-04-30-idea-scheduled-action-packets.md
+    ref: workspace/charlie/ideas/2026-04-30-idea-scheduled-action-packets.md
     title: Scheduled Action Packets
   - kind: doc
     ref: content/playbooks/playbook_loop-control-usage-guide.md
@@ -194,7 +194,7 @@ data.
 
 Per D2 of
 `note_automated-initiative-task-hygiene-strategy`
-(terence pilot):
+(charlie pilot):
 
 - **Fisher may author scaffold sections** of ceremonies and daily
   logs — clearly marked, containing pastward facts only: commits,
@@ -216,7 +216,7 @@ Per D2 of
 
 The 2026-08-14 amendment above held that **forward data lives in the digest,
 never the log**. That rule is retired, because its premise no longer exists:
-terence removed the `digests/` directory, and `workspace/<member>/logs/YYYY-MM-DD.md`
+charlie removed the `digests/` directory, and `workspace/<member>/logs/YYYY-MM-DD.md`
 is now the single durable record. A rule that routes forward data to a home that
 was deleted has no referent — it does not constrain, it just fails.
 
@@ -248,9 +248,9 @@ exactly that distinction.
 ## Relations
 
 - Promotes the rationale from
-  [`note_2026-04-30-loop-control-workflow-candidate`](../../workspace/terence/ideas/2026-04-30-idea-loop-control-workflow-candidate.md)
+  [`note_2026-04-30-loop-control-workflow-candidate`](../../workspace/charlie/ideas/2026-04-30-idea-loop-control-workflow-candidate.md)
   and
-  [`note_2026-04-30-scheduled-action-packets`](../../workspace/terence/ideas/2026-04-30-idea-scheduled-action-packets.md)
+  [`note_2026-04-30-scheduled-action-packets`](../../workspace/charlie/ideas/2026-04-30-idea-scheduled-action-packets.md)
   into a permanent team ADR.
 - Operational usage lives in
   [`playbook_loop-control-usage-guide`](../playbooks/playbook_loop-control-usage-guide.md).

@@ -10,7 +10,7 @@ function digestFixture(overrides = {}) {
   return {
     generated_at: '2026-08-19T08:30:00.000Z',
     today: '2026-08-19',
-    member: 'terence',
+    member: 'charlie',
     inputs: { git_head: 'abc1234', manifest_built_at: '2026-08-18T23:30:00.000Z' },
     planned_today: [{ id: 'task_a', title: 'Planned thing', status: 'ready', priority: 'do' }],
     missed_plans: [],
@@ -55,14 +55,14 @@ describe('digest + scaffold sharing one log', () => {
 
   function setup() {
     root = resolve(tmpdir(), `test-digest-log-${Date.now()}-${Math.floor(process.hrtime()[1] / 1000)}`);
-    mkdirSync(resolve(root, 'workspace/terence/logs'), { recursive: true });
+    mkdirSync(resolve(root, 'workspace/charlie/logs'), { recursive: true });
     return root;
   }
 
   it('creates the log when absent, so an unattended pass always leaves evidence it ran', () => {
     setup();
     const result = applyMarkedSection(root, {
-      member: 'terence',
+      member: 'charlie',
       date: '2026-08-19',
       section: buildDigestLogSection(digestFixture()),
       startMarker: DIGEST_START,
@@ -80,7 +80,7 @@ describe('digest + scaffold sharing one log', () => {
     // The whole point of marker scoping: the member writes judgment into this
     // same file all day, and a re-run at any hour must not eat it.
     setup();
-    const logPath = resolve(root, 'workspace/terence/logs/2026-08-19.md');
+    const logPath = resolve(root, 'workspace/charlie/logs/2026-08-19.md');
     writeFileSync(logPath, [
       '# 2026-08-19',
       '',
@@ -99,7 +99,7 @@ describe('digest + scaffold sharing one log', () => {
     ].join('\n'), 'utf8');
 
     applyMarkedSection(root, {
-      member: 'terence',
+      member: 'charlie',
       date: '2026-08-19',
       section: buildDigestLogSection(digestFixture()),
       startMarker: DIGEST_START,
@@ -120,7 +120,7 @@ describe('digest + scaffold sharing one log', () => {
     // digest re-run clobbered the scaffold, the day's pastward facts would be
     // lost every morning.
     setup();
-    const logPath = resolve(root, 'workspace/terence/logs/2026-08-19.md');
+    const logPath = resolve(root, 'workspace/charlie/logs/2026-08-19.md');
     writeFileSync(logPath, [
       '# 2026-08-19',
       '',
@@ -132,7 +132,7 @@ describe('digest + scaffold sharing one log', () => {
     ].join('\n'), 'utf8');
 
     applyMarkedSection(root, {
-      member: 'terence',
+      member: 'charlie',
       date: '2026-08-19',
       section: buildDigestLogSection(digestFixture()),
       startMarker: DIGEST_START,
@@ -148,11 +148,11 @@ describe('digest + scaffold sharing one log', () => {
 
   it('fails loud on unbalanced markers instead of guessing which half to keep', () => {
     setup();
-    const logPath = resolve(root, 'workspace/terence/logs/2026-08-19.md');
+    const logPath = resolve(root, 'workspace/charlie/logs/2026-08-19.md');
     writeFileSync(logPath, `# 2026-08-19\n\n${DIGEST_START}\nhalf-written\n`, 'utf8');
     assert.throws(
       () => applyMarkedSection(root, {
-        member: 'terence',
+        member: 'charlie',
         date: '2026-08-19',
         section: buildDigestLogSection(digestFixture()),
         startMarker: DIGEST_START,

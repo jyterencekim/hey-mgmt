@@ -17,7 +17,7 @@ function makeDecision(overrides = {}) {
       object_type: 'issue',
       object_title: 'Fix the thing',
       object_url: 'https://jira.example/PROJ-1',
-      actor: 'jared',
+      actor: 'alice',
       changed_at: '2026-04-08T09:00:00+09:00',
       kst_date: '2026-04-08',
     },

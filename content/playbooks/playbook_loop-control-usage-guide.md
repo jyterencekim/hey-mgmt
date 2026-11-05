@@ -14,10 +14,10 @@ tags:
   - Automation
 sources:
   - kind: doc
-    ref: workspace/terence/ideas/2026-04-30-idea-loop-control-workflow-candidate.md
+    ref: workspace/charlie/ideas/2026-04-30-idea-loop-control-workflow-candidate.md
     title: Loop Control Workflow Candidate
   - kind: doc
-    ref: workspace/terence/ideas/2026-04-30-idea-scheduled-action-packets.md
+    ref: workspace/charlie/ideas/2026-04-30-idea-scheduled-action-packets.md
     title: Scheduled Action Packets
   - kind: doc
     ref: content/initiatives/2026/05/initiative_harness-v1-execution-harness.md
@@ -25,10 +25,10 @@ sources:
   - kind: user_request
     ref: codex-2026-08-25-morning-hierarchy
     title: >-
-      Terence requested an exemplary large-topic, middle-topic, small-action
+      Charlie requested an exemplary large-topic, middle-topic, small-action
       morning log and team adoption
   - kind: doc
-    ref: workspace/terence/logs/2026-08-25.md
+    ref: workspace/charlie/logs/2026-08-25.md
     title: Worked morning-log example and KST date-bound execution evidence
 ---
 
@@ -115,7 +115,7 @@ Apply these rules:
 - Do not put another `##` heading inside `## Plan`; `/snap` and log compaction treat the next level-two heading as the end of the plan.
 - Preserve Fisher-owned marker regions exactly. Human-authored priorities MUST stay outside those regions.
 
-See [`workspace/terence/logs/2026-08-25.md`](../../workspace/terence/logs/2026-08-25.md) for a worked example.
+See [`workspace/charlie/logs/2026-08-25.md`](../../workspace/charlie/logs/2026-08-25.md) for a worked example.
 
 ### Snap
 

@@ -1,6 +1,6 @@
 # Ceremony Crons
 
-Registration prep for the D2 pilot (terence). Design:
+Registration prep for the D2 pilot (charlie). Design:
 `content/notes/2026/08/note_automated-initiative-task-hygiene-strategy.md` (P3).
 Implemented 2026-08-14 in `scripts/hey.mjs` (`loop digest`, `log scaffold`,
 `iteration prepackage`). Declared in
@@ -20,7 +20,7 @@ repo-managed daily record.
 ## Opt-in
 
 Per-member jobs run only for members with `x_ceremony_cron: true` in
-`content/vocab/members.yml`. Today that is terence only. The turn MUST check
+`content/vocab/members.yml`. Today that is charlie only. The turn MUST check
 this before running a per-member command. `iteration prepackage` is team-level
 and runs while at least one member is opted in.
 
@@ -29,12 +29,12 @@ and runs while at least one member is opted in.
 Registered Hermes jobs (all `deliver: local`, workdir
 `/Users/hey-mgmt/workspace/hey-mgmt`):
 
-- `terence-loop-digest` — `0a40f4d662b3`
-- `terence-log-scaffold` — `5f4e37b41a95`
+- `charlie-loop-digest` — `0a40f4d662b3`
+- `charlie-log-scaffold` — `5f4e37b41a95`
 - `hey-mgmt-iteration-prepackage` — `510fe93c6e3d`
 - `hey-mgmt-product-initiative-alert` — `720dc0d2c0ff` (registered 2026-11-03; enabled; Asia/Seoul; script-only)
 
-### terence-loop-digest
+### charlie-loop-digest
 
 - Schedule: `30 8 * * *` Asia/Seoul (daily 08:30 KST).
 - Turn steps, same shape as `hey-mgmt-index-rebuild`:
@@ -42,12 +42,12 @@ Registered Hermes jobs (all `deliver: local`, workdir
   ```bash
   git pull --rebase
   node scripts/hey.mjs index build && node scripts/hey.mjs db build
-  node scripts/hey.mjs loop digest --member terence --record
+  node scripts/hey.mjs loop digest --member charlie --record
   git add -u
-  git commit -m "digest: morning terence" && git push origin main
+  git commit -m "digest: morning charlie" && git push origin main
   ```
 
-- Output: **`workspace/terence/logs/YYYY-MM-DD.md`** — the daily log, created if
+- Output: **`workspace/charlie/logs/YYYY-MM-DD.md`** — the daily log, created if
   absent, written between `<!-- fisher:digest:start -->` and
   `<!-- fisher:digest:end -->` under a `## Loop Control — auto (…)` heading.
   Idempotent: re-running replaces only that region. This is the durable
@@ -57,7 +57,7 @@ Registered Hermes jobs (all `deliver: local`, workdir
   member-authored. That is what makes the 21:30 check below meaningful: a log
   with the digest section but no `## Plan` says precisely "the machine ran, the
   member has not committed to a day". The rendered digest also goes to the cron/Slack
-  delivery, and inbox-delta state stays in `.hey/loop-digest/terence.json`
+  delivery, and inbox-delta state stays in `.hey/loop-digest/charlie.json`
   (untracked), with surfaced markers on due packets.
 
 - **Why the log and not an ephemeral delivery.** A pass whose only output is a
@@ -69,7 +69,7 @@ Registered Hermes jobs (all `deliver: local`, workdir
 - **`/morning` does not own this file.** If a member runs `/morning` later, it
   merges into what this job wrote — it must not recreate or overwrite it.
 
-### terence-log-scaffold
+### charlie-log-scaffold
 
 - Schedule: `30 21 * * *` Asia/Seoul (daily 21:30 KST).
 - Turn steps:
@@ -77,12 +77,12 @@ Registered Hermes jobs (all `deliver: local`, workdir
   ```bash
   git pull --rebase
   node scripts/hey.mjs index build
-  node scripts/hey.mjs log scaffold --member terence
-  git add workspace/terence/logs && git commit -m "log: scaffold terence" && git push origin main
+  node scripts/hey.mjs log scaffold --member charlie
+  git add workspace/charlie/logs && git commit -m "log: scaffold charlie" && git push origin main
   ```
 
 - Output: `## Auto scaffold` between `<!-- fisher:scaffold:start -->` and
-  `<!-- fisher:scaffold:end -->` in `workspace/terence/logs/YYYY-MM-DD.md`.
+  `<!-- fisher:scaffold:end -->` in `workspace/charlie/logs/YYYY-MM-DD.md`.
   Idempotent; never touches lines outside the markers. Unbalanced markers
   fail loud — do not auto-repair; fix the file by hand.
 
@@ -162,7 +162,7 @@ being a signal.
 
 Two consecutive days of case 2 or 3 for the same member means the scheduled pass
 is broken rather than a day being skipped — surface it as such, so it reads as
-"the automation stopped" and not "terence was busy". Do not wait for someone to
+"the automation stopped" and not "charlie was busy". Do not wait for someone to
 run `hermes cron list` to discover this.
 
 ### Other jobs
@@ -178,12 +178,12 @@ Precedent: README "Auditor Launch Wiring on the Mac Mini". On the Mac Mini
 (`/Users/hey-mgmt/workspace/hey-mgmt`):
 
 1. `git pull` — brings the CLI commands, the yml declaration, and this file.
-2. `node scripts/hey.mjs loop digest --member terence` (without `--record`) —
+2. `node scripts/hey.mjs loop digest --member charlie` (without `--record`) —
    verify the digest renders without error under the Hermes user.
 3. Registration is complete. If recovery is needed, recreate the three jobs
    with the exact names, schedules, and timezones from `hermes.cron_jobs` in
    `workspace/fisher/config/external-activity.yml`
-   (`terence-loop-digest`, `terence-log-scaffold`,
+   (`charlie-loop-digest`, `charlie-log-scaffold`,
    `hey-mgmt-iteration-prepackage`). The repo yml does NOT auto-register.
 4. No new env vars. The commands are offline except the prepackage PR check;
    if the turn user has no GitHub credentials, add `--no-pr` to the

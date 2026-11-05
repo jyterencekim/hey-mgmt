@@ -1,4 +1,4 @@
-// Sanitization and export engine for the SuperEarn Knowledge Graph.
+// Sanitization and export engine for the TeamOS Knowledge Graph.
 // Filters internal/private nodes and ensures 100% referential integrity (zero dangling edges).
 
 import { writeFileSync, mkdirSync, copyFileSync, rmSync, existsSync } from 'node:fs';

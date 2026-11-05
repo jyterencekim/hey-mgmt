@@ -18,7 +18,7 @@ function taskFile(id, { status = 'ready', iteration = '2026-W33', slip = null, e
     'created_at: 2026-08-01',
     'updated_at: 2026-08-01',
     `status: ${status}`,
-    'owner: terence',
+    'owner: charlie',
     'priority: plan',
     `iteration: ${iteration}`,
     `${slipLine}${extra}definition_of_done:`,
@@ -40,7 +40,7 @@ function manifestLine(id, overrides = {}) {
     updated_at: '2026-08-01',
     status: 'ready',
     priority: 'plan',
-    owner: 'terence',
+    owner: 'charlie',
     due_date: null,
     iteration: '2026-W33',
     relations_out: [],
@@ -98,7 +98,7 @@ describe('buildCarryPlan() / applyCarryPlan()', () => {
     assert.equal(fresh.frontmatter.updated_at, '2026-08-17');
     // Everything not owned by carry must survive the rewrite untouched.
     assert.equal(fresh.frontmatter.priority, 'plan');
-    assert.equal(fresh.frontmatter.owner, 'terence');
+    assert.equal(fresh.frontmatter.owner, 'charlie');
     assert.deepEqual(fresh.frontmatter.definition_of_done, ['done']);
     assert.equal(fresh.body, 'Body of task_fresh.');
 

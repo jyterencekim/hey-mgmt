@@ -17,7 +17,7 @@ function task(overrides = {}) {
     title: overrides.title ?? overrides.id ?? 'X',
     status: overrides.status ?? 'ready',
     priority: overrides.priority ?? 'plan',
-    owner: overrides.owner ?? 'terence',
+    owner: overrides.owner ?? 'charlie',
     due_date: overrides.due_date ?? null,
     created_at: overrides.created_at ?? '2026-01-01',
     ...overrides,
@@ -120,10 +120,10 @@ describe('rankFocusTasks', () => {
 
   it('filters by member when provided', () => {
     const tasks = [
-      task({ id: 'mine', owner: 'terence' }),
-      task({ id: 'theirs', owner: 'oliver' }),
+      task({ id: 'mine', owner: 'charlie' }),
+      task({ id: 'theirs', owner: 'bob' }),
     ];
-    const ids = rankFocusTasks({ tasks, today: TODAY, member: 'terence' }).map((r) => r.task.id);
+    const ids = rankFocusTasks({ tasks, today: TODAY, member: 'charlie' }).map((r) => r.task.id);
     assert.deepEqual(ids, ['mine']);
   });
 
@@ -164,7 +164,7 @@ describe('rankFocusTasks', () => {
   it('skips non-task records', () => {
     const tasks = [
       task({ id: 't' }),
-      { id: 'note_x', type: 'note', status: 'active', owner: 'terence' },
+      { id: 'note_x', type: 'note', status: 'active', owner: 'charlie' },
     ];
     const ids = rankFocusTasks({ tasks, today: TODAY }).map((r) => r.task.id);
     assert.deepEqual(ids, ['t']);

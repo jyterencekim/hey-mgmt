@@ -92,4 +92,4 @@ Specifically:
 ## Notes
 <!-- candidate:candidate_01kmpy8552nmab8zms8y1r4qfg -->
 - The Slack DM agent presented Fisher publicly as an **AI agent team member** and described the relocation ADR as already **accepted**.
-- It associated the work with project **Infra**, status **active**, and owners **terence** and **jared**.
+- It associated the work with project **Infra**, status **active**, and owners **charlie** and **alice**.

@@ -159,7 +159,7 @@ function normalizePageProperties(page, config) {
     end_at: endDate,
     attendees: mappedPeople.attendees,
     external_attendees: mappedPeople.external_attendees,
-    owner: resolveOwner(propertyPeopleValues(ownerProperty)[0] ?? propertyText(ownerProperty), config, config.defaults?.default_owner ?? 'jared'),
+    owner: resolveOwner(propertyPeopleValues(ownerProperty)[0] ?? propertyText(ownerProperty), config, config.defaults?.default_owner ?? 'alice'),
     calendar_event_id: propertyText(eventIdProperty),
     source_url: propertyText(sourceUrlProperty) ?? page.url,
   };

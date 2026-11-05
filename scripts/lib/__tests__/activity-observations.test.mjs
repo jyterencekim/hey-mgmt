@@ -28,7 +28,7 @@ const baseObs = {
   signature: 'sig-abc123',
   source: 'slack',
   title: 'Team standup notes',
-  actor: 'jared',
+  actor: 'alice',
   time: '09:00 KST',
   url: 'https://slack.example/msg-1',
   relevance: 'high',
@@ -50,7 +50,7 @@ describe('writeObservation', () => {
     assert.ok(raw.startsWith('# Fisher Observations — 2026-04-08\n'));
     assert.ok(raw.includes('<!-- obs:sig-abc123 tier:observed -->'));
     assert.ok(raw.includes('### [slack] Team standup notes'));
-    assert.ok(raw.includes('**Actor**: jared'));
+    assert.ok(raw.includes('**Actor**: alice'));
     assert.ok(raw.includes('**Relevance**: high'));
   });
 
@@ -96,7 +96,7 @@ describe('readObservations', () => {
     assert.equal(entry.tier, 'observed');
     assert.equal(entry.source, 'slack');
     assert.equal(entry.title, 'Team standup notes');
-    assert.equal(entry.actor, 'jared');
+    assert.equal(entry.actor, 'alice');
     assert.equal(entry.relevance, 'high');
   });
 

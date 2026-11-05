@@ -47,7 +47,7 @@ const DEFAULT_CONFIG = {
   bot: {
     approval_poll_seconds: 60,
     delivery_state_path: '.runtime/external-activity-runtime/state.json',
-    workspace_url: process.env.SLACK_WORKSPACE_URL || 'https://kaiafoundation.slack.com',
+    workspace_url: process.env.SLACK_WORKSPACE_URL || 'https://your-workspace.slack.com',
     dm_help_text: [
       '*External Activity Moderation Adapter*',
       '',
