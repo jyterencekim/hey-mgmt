@@ -1,250 +1,164 @@
 # AGENTS.md
 
-`hey-mgmt` is a markdown-first team and personal operations repository. `./hey` is the reference CLI for the shared contract; the system of record is markdown + frontmatter + git.
+`hey-mgmt` is a markdown-first team and personal operations repository. `./hey` is the reference CLI for the shared contract; the system of record is markdown + frontmatter + git. Agent identity and boundaries live in [`SOUL.md`](SOUL.md); core vs. optional architecture lives in [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Style
 
-Write per the style guides: English [`content/playbooks/playbook_style-guide.md`](content/playbooks/playbook_style-guide.md), Korean [`content/playbooks/playbook_style-guide.ko.md`](content/playbooks/playbook_style-guide.ko.md). Capitalize normative keywords (MUST/SHOULD/MAY) per the style guide; use MUST for non-negotiable requirements.
+Write per the style guides: English `content/playbooks/playbook_style-guide.md`, Korean `content/playbooks/playbook_style-guide.ko.md`. Capitalize normative keywords (MUST/SHOULD/MAY); use MUST for non-negotiable requirements. Conversational responses follow Interaction Tone below.
 
-## Quick Start
+### Interaction Tone
 
-```bash
-./hey validate                                                # check all artifacts
-./hey new --type task --title "My task" --area Core --owner $MEMBER
-./hey task list --status ready                                # Ready tasks
-```
+All **member-facing** interactions MUST be encouraging, factually grounded, and include honest reminders (`content/playbooks/playbook_interaction-tone.md`):
 
-## Types
+- **Encouraging is not flattery:** Cite a concrete verifiable artifact (id, commit hash, timestamped log entry) for every positive framing. With nothing to cite, stay **neutral**; never manufacture positivity.
+- **Recognition leads, reminders follow:** *"Here is what you actually did"* → *"here is what still wants your attention"*. Never invert.
+- **Language & Tier:** Follow `LANGUAGE` from `.env` (artifacts stay in English unless the member writes in another language). Resolve tone tier via `HEY_TONE` in `.env` or `interaction_preference` in `content/vocab/members.yml` (`concise` / `terse` | `balanced` | `coaching` / `warm`, default `balanced`).
+- **Exclusions:** Mechanical output (errors, SQL, file contents, validation/test/build logs); **adversarial surfaces** (critique rounds, architect/code/security reviews — kindness in a critique is specificity, not phrasing); commit messages and committed artifact bodies.
 
-7 artifact types. That's it.
+## Repository Structure & Artifact Model
 
-| Type | Prefix | Use for |
-|------|--------|---------|
-| `task` | `task` | Work to do |
-| `decision` | `decision` | Why we chose X over Y — or proposals awaiting input (`decision_status: proposed → accepted`) |
-| `meeting` | `meeting` | Notes + action items |
-| `playbook` | `playbook` | How to do X (runbook) |
-| `note` | `note` | Everything else (findings, alerts, reports, ideas, iteration logs, change contracts) |
-| `initiative` | `initiative` | A strategic effort coordinating many tasks (`task` → `initiative`) — see [`decision_linear-ontology-adoption`](content/decisions/decision_linear-ontology-adoption.md) |
-| `goal` | `goal` | A team/company-wide outcome initiatives contribute to (`initiative` → `goal`); **human-set only** — see [`decision_adr-goal-as-seventh-type`](content/decisions/decision_adr-goal-as-seventh-type.md) |
+### Source of Truth & Workspaces
 
-## Registries
-
-| File | Validates |
-|------|-----------|
-| `content/vocab/members.yml` | `owner`, `owners`, `attendees`, `watchers` fields |
-| `content/vocab/areas.yml` | `area` fields |
-| `content/vocab/repos.yml` | `repos` in dependency contracts and missions |
-| `content/vocab/tags.yml` | `tags` values |
-| `content/vocab/entities.yml` | `entities` names |
-
-## Workspaces
-
-Each member has a workspace under `workspace/{name}/` for worklogs, notes, inbox, and progress. Workspace artifacts use the same types and frontmatter as root content, link to root artifacts via `[[id]]` wiki-links, and auto-set `owner` to the workspace member.
-
-```bash
-./hey new --workspace alice --type note --title "Daily standup"
-```
-
-| Path | Purpose |
-|------|---------|
-| `workspace/{name}/` | Personal artifacts |
-| `workspace/{name}/inbox/` | Raw intake queue before promotion |
-| `workspace/{name}/.omc/` | Agent context (gitignored) |
-
-## Knowledge Placement
-
-| What you have | Where it goes | Example |
-|---------------|---------------|---------|
-| Project spec, finding, idea | `content/notes/` | `note_auth-session-strategy.md` |
-| Team iteration log | `content/notes/` | `note_iteration-log-2026-w45.md` |
-| Cross-repo change contract | `content/notes/dependencies/` | `note_api-schema-contract.md` |
-| Runbook, how-to | `content/playbooks/` | `playbook_release-checklist.md` |
-| External reference doc | `docs/references/` | `external-api-llms.txt` |
-| Team decision rationale | `content/decisions/` | `decision_auth-provider.md` |
-
-No separate knowledge-base dir — route project knowledge through `content/` for validation, search, and cross-linking.
-
-## Creating Artifacts
-
-Agents: `./hey new --type <type> --title "..." [--area X] [--owner Y] [--field key=value]`. Humans: `./hey task new` (interactive). Templates showing expected frontmatter and body per type: [`docs/TEMPLATES.md`](docs/TEMPLATES.md) — consult before creating artifacts manually; `./hey new` scaffolds the structure automatically.
-
-## Source of Truth
-
-Only `content/` and `workspace/` are canonical. Everything else is derived or optional local runtime:
+Only `content/` and `workspace/` are canonical. Never hand-edit derived or runtime directories:
 
 | Path | Role | Editable? |
-|------|------|-----------|
-| `content/` | Shared artifacts | Yes |
-| `workspace/{name}/` | Personal artifacts | Yes |
+| --- | --- | --- |
+| `content/` | Shared artifacts and vocab registries (`content/vocab/{members,areas,repos,tags,entities}.yml`) | Yes |
+| `workspace/{name}/` | Personal artifacts, `memory/MEMORY.md`, `inbox/` (raw intake queue), `.omc/` (gitignored agent context) | Yes |
 | `workspace/fisher/` | Agent runtime (collectors, bot) | Yes |
-| `index/` | Derived indexes | No (`./hey index build`) |
-| `.hey/` | Local runtime state | No (`./hey db build`) |
-| `.runtime/` | Local connector state | No |
+| `index/` · `.hey/` · `.runtime/` | Derived indexes (`./hey index build`), SQLite DB (`./hey db build`), local connector state | No |
 
-## CLI Reference
+### 7 Artifact Types & Placement
 
-| Command | Purpose |
-|---------|---------|
-| `./hey validate` | Check all artifacts |
-| `./hey new --type T --title "..."` | Create any artifact |
-| `./hey task new` | Interactive task creation |
-| `./hey task list [--status S]` | List tasks |
-| `./hey search "query"` | Search artifacts |
-| `./hey deps check "<intent>"` | Check change-impact contracts before modifying systems |
-| `./hey index build` | Rebuild indexes |
-| `./hey db build` | Build SQLite catalog |
-| `./hey graph <subcommand>` | Knowledge graph operations (`build`, `guidance`, `context`, `export`) |
-| `./hey loop <subcommand>` | Loop control (`brief`, `board`, `horizon`, `digest`) |
-| `./hey stats` | Artifact counts |
+| Type | Prefix | Placement & Use |
+| --- | --- | --- |
+| `task` | `task` | `content/tasks/` — Work to do (`task` → `initiative`) |
+| `decision` | `decision` | `content/decisions/` — Why we chose X over Y, or proposals (`decision_status: proposed → accepted`) |
+| `meeting` | `meeting` | `content/meetings/` — Notes + action items |
+| `playbook` | `playbook` | `content/playbooks/` — How to do X (runbook) |
+| `note` | `note` | `content/notes/` — Specs, findings, alerts, reports, ideas, weekly iteration logs (`tags: [IterationLog]`, `x_iteration: YYYY-WNN`), change contracts (`content/notes/dependencies/`) |
+| `initiative` | `initiative` | `content/initiatives/` — Strategic effort coordinating tasks (`initiative` → `goal`; `decision_linear-ontology-adoption`) |
+| `goal` | `goal` | `content/goals/` — Team/company-wide outcome; **HUMAN-SET ONLY** (`decision_adr-goal-as-seventh-type`) |
 
-## Frontmatter
+External reference docs live in `docs/references/`. Templates per type: `docs/TEMPLATES.md`.
 
-Every artifact has:
+### Frontmatter, Iteration Logs & CLI Reference
 
-```yaml
-id: task_my-task-name      # auto-generated from title
-type: task                 # one of the 7 types
-title: Fix webhook retry
-created_at: 2026-11-05
-updated_at: 2026-11-05
-status: ready              # Ready to claim, not in progress (task lifecycle; see decision_adr-task-status-ready-doing)
-owner: <member>            # resolved from .env MEMBER variable (e.g. alice)
-```
+Every artifact requires `id`, `type`, `title`, `created_at`, `updated_at`, `status`, and `owner` (from `MEMBER` in `.env`, validated against `members.yml`). Optional core fields: `area` (`areas.yml`), `priority` (`do | plan | routine | drop`), `tags` (`tags.yml`), `entities` (`entities.yml`), `relations`, `sources`, `due_date`, `iteration`, `watchers`. Extension fields MUST use `x_*`.
 
-Optional: `area`, `priority` (`do | plan | routine | drop`), `tags`, `entities`, `relations`, `sources`, `due_date`, `iteration`, `watchers`. Extension-only fields MUST use the `x_*` namespace so optional modules do not contaminate the portable core.
-
-### Iteration Logs
-
-Team-level iteration logs are `note` artifacts with `tags: [IterationLog]` and `x_iteration: YYYY-WNN`, tracking team goals, milestones, blockers, decisions, and coordination for the week. `/iteration-open` scaffolds one at week start, `/iteration-add` appends categorized entries, `/iteration-close` generates the retrospective and carry-forward items. The iteration log is **upstream** of member-level ceremonies: `/morning` reads goals from it; `/sync` opens and closes it at iteration boundaries.
-
-## Notifications
-
-When work needs another member's attention:
+Team iteration logs (`note` with `tags: [IterationLog]`, `x_iteration: YYYY-WNN`) sit upstream of ceremonies: `/iteration-open` scaffolds, `/iteration-add` appends, `/iteration-close` generates retrospective/carry-forward, `/morning` reads goals, and `/sync` opens/closes at week boundaries.
 
 ```bash
-./hey inbox send --to <member> --title "..." [--body "..."] [--task <taskId>]
+./hey validate                                                    # check all artifacts and schemas
+./hey new --type <type> --title "..." --area Core --owner $MEMBER # scaffold artifact (tasks default to status: ready)
+./hey new --workspace $MEMBER --type note --title "Daily standup" # scaffold workspace artifact
+./hey task list [--status ready] [--area Core]                    # list tasks
+./hey search "query"                                              # search artifacts
+./hey deps check "<intent>"                                       # check change-impact contracts
+./hey index build && ./hey db build                               # rebuild indexes and SQLite catalog
+./hey graph <build|guidance|context|export>                       # knowledge graph operations
+./hey loop <brief|board|horizon|digest>                           # loop control surfaces
+./hey work <candidates|claim --next|complete --task ID|fail --task ID --reason "..."|status|runs>
 ```
 
-The sender is auto-detected from `$MEMBER` in `.env`; the item lands in `workspace/{to}/inbox/` (`kind: "member-send"`) and surfaces during the recipient's `/morning` and `/check`.
+## Notifications & Domain Routing
+
+`./hey inbox send --to <member> --title "..." [--body "..."] [--task <taskId>]` (sender auto-detected from `MEMBER` in `.env`; lands in `workspace/{to}/inbox/` as `kind: "member-send"`).
 
 **Send automatically** (no explicit user request needed):
+- Member says "send this to X" / "delegate to X" / "notify X" → send immediately.
+- Task created with `--owner != $MEMBER` → notify the new owner.
+- Work falls outside current member's domain (`workspace/$MEMBER/profile.md` & `content/vocab/members.yml`) → flag and send to domain owner.
+- Blocker requires another member's action → send with blocker context.
+- Canonical `meeting` artifact created or imported → after writing final content, MUST run `./hey meeting notify <meeting-id-or-path>` so all internal members in `content/vocab/members.yml` receive an inbox item (automated imports and `content-edit-post.sh` invoke this with ledger deduplication).
 
-| Signal | Action |
-|--------|--------|
-| Member says "send this to X" / "delegate to X" / "notify X" | Send immediately |
-| Task created with `--owner` different from `$MEMBER` | Notify the new owner |
-| Work falls outside current member's domain (check `workspace/$MEMBER/profile.md`) | Send to the domain owner |
-| A blocker requires another member's action | Send with the blocker context |
-| A canonical `meeting` artifact is created or imported | After the final meeting content is written, MUST run `./hey meeting notify <meeting-id-or-path>` so all internal members in `content/vocab/members.yml` receive an inbox item asking them to read it. |
+**Do NOT send** for routine status updates, to a recipient who already owns the task and is aware, or to duplicate the iteration log (does not suppress the all-team notification for new meetings). Recipients triage via `./hey inbox <list|promote|discard>`.
 
-**Do NOT send** for routine status updates, to a recipient who already owns the task and is aware, or to duplicate the iteration log. This exception does not suppress the all-team notification for a newly registered meeting artifact. Recipients handle items via `./hey inbox list`, `./hey inbox promote`, or `./hey inbox discard`.
+## Core Rules & Session Workflows
 
-## Rules
+1. **Portable Core (`ARCH1–3`, `OP1`):** Edit only `content/` and `workspace/`. Keep artifacts working as plain markdown + frontmatter + git with no runtime dependency, and prefix non-core fields with `x_*`.
+2. **Member Identity:** Resolve `MEMBER` and `LANGUAGE` from `.env` (if `.env` is missing, tell the user to run `/setup`). Never hardcode a default owner.
+3. **Validation & Principles (`GP1–7`, `OP2–4`):** Use shared vocabulary from `content/vocab/` (`GP2`, `GP7`), back decision-grade claims with `sources` (`GP1`, `GP6`), run `./hey search` before creating to avoid duplicates (`GP3`), keep one weekly-sized concern per artifact (`GP4`, `OP2`), link via `relations` (`GP5`), route raw unstructured intake through `inbox/` while creating explicit user-requested artifacts via `./hey new` (`OP3`), and finish every artifact change with `./hey validate`. (Consult `.claude/skills/mgmt-principles/SKILL.md`, `playbook_golden-principles`, `playbook_operating-philosophy`, or `ARCHITECTURE.md` when ambiguous; document unresolvable gaps with `<!-- PRINCIPLE GAP: ... -->`.)
+4. **Task Status & Tree Hygiene:** Keep task/initiative statuses current and walk the connected tree whenever a tracked task changes status — see [Task Status Hygiene](#task-status-hygiene).
+5. **Explanatory Integrity:** Close every substantive response (coding, writing, ops, analysis, planning) with a 2–4 sentence plain-language summary (`**👵 옆집 할머니도 알아들을 수 있게 요약**` or `**👵 Plain-Language Summary**`) explaining what happened, why it mattered, and what constraint or trade-off remains for an intelligent non-specialist — translating jargon into real-world cause-and-effect without childish ELI7 metaphors or oversimplification. Skip only for one-line acknowledgments, raw command/SQL dumps without narrative, or trivial yes/no answers (`.claude/skills/explanatory-integrity/SKILL.md`).
 
-1. Agents MUST edit only `content/` and `workspace/`. Never hand-edit `index/` or `.hey/`.
-2. Agents MUST run `./hey validate` before committing.
-3. Use names from `members.yml` for owners and `areas.yml` for areas.
-4. Back decision-grade claims with `sources`.
-5. Agents MUST keep task statuses current — see [Task Status Hygiene](#task-status-hygiene).
-6. Agents MUST resolve the active human member's identity from `.env` (the `MEMBER` variable) for task creation, workspace operations, and owner attribution. Never assume a hardcoded default owner.
-7. Agents MUST follow the Explanatory Integrity rule on every substantive response, in any domain (code, writing, ops, analysis, planning): close the response with a plain-language summary ("👵 옆집 할머니도 알아들을 수 있게 요약" / "👵 Plain-Language Summary") in 2–4 sentences that explains what happened, why it mattered, and what constraint or trade-off remains for an intelligent non-specialist — replacing jargon with real-world cause-and-effect while avoiding childish ELI7 metaphors or oversimplification. Full rules: `.claude/skills/explanatory-integrity/SKILL.md`.
+### Session Start
 
-### Git Worktrees
+1. **Resolve identity & memory:** Read `MEMBER` (and `LANGUAGE`) from `.env`. Load `workspace/$MEMBER/memory/MEMORY.md` when repo, operational, or historical context is needed.
+2. **Inbox & hard-deadline overdue triage (ceremony / task / planning contexts):** Before running any ceremony/planning skill (`/morning`, `/snap`, `/whatnext`, `/standup`, `/check`, `/sync`) or task/work-management execution — **skip for self-contained Q&A, code/doc review, or single-file analysis**:
+   - **Check inbox:** If not already surfaced by `inbox-check.sh`, run `./hey inbox list --workspace $MEMBER`; if open items exist, show count/titles and ask to review, respond, or discard.
+   - **Triage hard-deadline overdues:** `due_date` is reserved for hard external deadlines (`decision_adr-three-layer-task-timeline`); internal scheduling uses `iteration` / `x_planned_date` / `x_target_date`. Query:
+     `./hey db query "SELECT id, title, priority, due_date FROM items WHERE type='task' AND owner='$MEMBER' AND status IN ('ready','doing','blocked') AND due_date < '$TODAY' ORDER BY due_date ASC"`
+     Require one action per item (`defer YYYY-MM-DD` | `done` | `archive` | `drop` `due_date`) and update immediately; if empty, proceed silently.
 
-- Use the primary checkout for `hey-mgmt` work; create a worktree only on user request or when concurrent work requires isolation.
-- When work leads to changes in another repository, agents MUST use a worktree owned by that target repo, created from the latest remote-tracking commit of the intended base branch (fetch first; never base on a stale local branch). Keep that repo's edits, validation, commits, and pushes inside its worktree.
-- Once deployment or delivery is verified, agents MUST run the final closeout step: merge the deployed changes back into the target repository's primary integration/release branch (`develop` or `main`, per repo convention), sync the local primary checkout with the remote base branch (`git fetch origin` and fast-forward/pull so local `main`/`develop` matches `origin/main` or `origin/develop` with zero ahead/behind), and clean up all completed worktrees and merged branches (`git worktree remove`, `git worktree prune`, `git branch -d`).
+### Retrieval Requests
 
-## Dependency Checks
+When a request requires searching prior repo, git, or external context ("find", "look up", "what was", "link me", "previous", "recent", "찾아봐", "뭐였지", "링크 줘", "저번주"), follow `content/playbooks/playbook_retrieval-protocol.md` (RP1–RP5): collect ≥3 candidates, expand search terms, disconfirm the top candidate with ≥2 searches, and include a compressed `Retrieval proof:` (or `Sources checked:`) block. Never fabricate citations from memory when search returns 0 results.
+- **Exact-target exception:** If the user supplies an exact file path or artifact ID to read, summarize, or edit, inspect it directly and **skip** candidate generation and disconfirmation.
 
-Agents MUST run `./hey deps check "<intent>"` before proposing or executing change-intent work, and MUST surface the resulting obligations explicitly in responses. Applies to update/change/deploy/migrate/rename/remove/integrate/refactor (and Korean equivalents).
+### Task Display
 
-qmd semantic recall is the **primary recall channel** for this gate ([`decision_adr-kb-wide-change-contracts`](content/decisions/decision_adr-kb-wide-change-contracts.md)). When `deps check` prints a degraded-recall notice (qmd absent/failed), agents MUST relay that notice alongside the results rather than presenting structured+lexical output as full coverage. Contracts are KB-wide: any content artifact tagged `ChangeImpact` with `x_change_contract` binds obligations, not just notes under `content/notes/dependencies/`.
+On member-facing surfaces (plans, ceremonies, search summaries, inbox listings, Slack blocks, conversational responses), **lead with the task `title`, not the `id` or filename** — e.g. `Fix webhook retry backoff (\`task_fix-webhook-retry-backoff\`, \`do\`, due 2026-11-15)` (`decision_adr-display-task-titles-not-ids`). Excludes mechanical CLI output, frontmatter `relations`, and commit messages.
 
-## Principles Review
+### Conversation Detection (ideas, promotions, tasks)
 
-Every agent that creates or modifies artifacts MUST run a self-review against three principle sets before declaring work complete. Read the sources first:
+In free conversation (suppress during `/morning`, `/night`, `/snap`, `/sync`, `/standup`, `/clean`, `/check`, `/search`, `/whatnext`, `/task`, `/promote`), offer at most once without interrupting:
+- **Idea (`/idea`):** Novel insight, risk, strategy, recurring theme, or decision framework → `workspace/$MEMBER/ideas/`.
+- **Promote (`/promote`):** "Share with the team", "this should be a decision/playbook/task/note", directive policy framing → promote to `content/` (`decision_ideas-and-promote-workflow`).
+- **Task (`/task`):** Only when both explicit commitment ("I'll…", "we need to…") and specific deliverable/scope/deadline are present.
 
-| Principle Set            | Source                                                 | Key Question                                    |
-|--------------------------|--------------------------------------------------------|-------------------------------------------------|
-| Golden Principles (7)    | `content/playbooks/playbook_golden-principles.md`      | Does this output keep the knowledge base clean? |
-| Operating Philosophy (4) | `content/playbooks/playbook_operating-philosophy.md`   | Does this output serve how the team works?      |
-| Architecture Constraints | `ARCHITECTURE.md`                                      | Does this output respect the portable core?     |
+### Goal Authoring
 
-For each artifact created or modified, verify:
+Goals (`content/goals/goal_*.md`) are **HUMAN-SET** (`decision_adr-goal-as-seventh-type`). Agents MUST NOT create, edit, or `/promote` goal artifacts. Agents MAY draft goal text in conversation on explicit request and propose `contributes_to` (initiative → goal) links for human confirmation.
 
-- [ ] **GP1 — No Unattributed Claims**: decision-grade artifacts have `sources`; unevidenced claims become a `note` with hypothesis tag.
-- [ ] **GP2 — Shared Vocabulary**: all `tags`, `entities`, `owner`, `area` values come from `content/vocab/`.
-- [ ] **GP3 — Freshness**: not duplicating or contradicting existing artifacts (`./hey search` first).
-- [ ] **GP4 — One Concern**: one topic per artifact; split if it grew beyond 3 acceptance criteria.
-- [ ] **GP5 — Relations Over Duplication**: link via `relations` instead of copying.
-- [ ] **GP6 — Sources Chain**: tasks link to authorizing decisions and vice versa; the graph is navigable.
-- [ ] **GP7 — Canonical Before Custom**: no invented vocabulary; reuse existing entities/tags.
-- [ ] **OP1 — Shared Ledger**: plain markdown + frontmatter + git; no proprietary format or UI-dependent state.
-- [ ] **OP2 — Fixed Cadence**: work fits a 1-week iteration or was split.
-- [ ] **OP3 — Inbox-First**: raw input went through inbox triage, not straight into `content/`.
-- [ ] **OP4 — Teaching Ourselves**: the artifact records a lesson or decision that improves how the team works.
-- [ ] **ARCH1 — Portable Core**: only `content/` and `workspace/` edited.
-- [ ] **ARCH2 — No Runtime Dependency**: the artifact works as plain markdown, no app/service required.
-- [ ] **ARCH3 — Extension Namespace**: non-standard frontmatter fields use `x_*`.
+### Dependency Checks
 
-Run the checklist after creating/modifying artifacts, and always finish with `./hey validate`. If a principle is violated, fix it before declaring work complete; if it cannot be fixed yet, document the gap in the artifact body (`<!-- PRINCIPLE GAP: GP1 — sources pending, needs team input -->`). Never silently skip a failing check.
+Before executing or proposing an execution plan for **substantive cross-component, contract, schema, manifest, config, or deployment changes** (skip for local doc formatting, typos, or early brainstorming), run `./hey deps check "<intent>"` and surface all resulting obligations (`ChangeImpact` / `x_change_contract`, `decision_adr-kb-wide-change-contracts`). Relay any degraded-recall notice (qmd absent/failed) explicitly.
+
+### Git Worktrees, Commit Hygiene, and Codex Closeout
+
+Full procedure graph & pitfalls: `content/playbooks/playbook_agent-commit-and-shell-hygiene.md`. Agents (including **Codex Closeout**) MUST NOT leave completed execution work as an uncommitted diff, an unmerged deploy branch, a stale local base branch, or an orphaned worktree:
+
+1. **Validate & Commit Scoped Files:** Run `./hey validate` (or the target repo's validation suite). Stage only changed files by name (`git add <files>`; never `git add -A` on a shared checkout) and commit. *(In Claude Code, `.claude/settings.json` hooks auto-pull, auto-commit, push, and run `./hey validate` on `content/` and `workspace/` edits and `./hey` mutations; do not manually wrap those in git commands unless a hook fails or you are editing outside `content/` and `workspace/`. In Codex or non-hook sessions, commit and push explicitly.)*
+2. **Guarded Stash, Rebase & Push:** Before `git pull --rebase origin <branch>`, if unrelated dirty files exist, run `git stash` and pop **only** if it printed `Saved working directory`; then `git push`. On conflict, inspect the diff first — never blindly `--theirs`/`--ours`.
+3. **Worktree Isolation & Post-Deploy Cleanup:** Use the primary checkout for `hey-mgmt` unless isolation is needed; for other repos, create a worktree from freshly fetched `origin/<base>` (use `git -C <path>` rather than chaining `cd <worktree>`). After deployment/verification, merge back to `develop`/`main`, sync the local primary checkout (`0 ahead / 0 behind`), remove completed worktrees/branches (`git worktree remove`, `git worktree prune`, `git branch -d`), confirm via `git worktree list` and `git status -sb`, and report the commit hash and cleanup state (or state any blocker/exception and remaining local state).
 
 ## Work Management
 
 ### Initiative Kickoff, Task Scope, and Weekly Hygiene (always on)
 
-See [`decision_adr-product-initiative-kickoff`](content/decisions/decision_adr-product-initiative-kickoff.md) and [`playbook_product-initiative-kickoff`](content/playbooks/playbook_product-initiative-kickoff.md). These rules apply whenever an agent creates, updates, activates, closes, or reports on initiatives and their tasks:
+Whenever creating, updating, activating, closing, or reporting on initiatives and their tasks, read and enforce `content/playbooks/playbook_product-initiative-kickoff.md` and `content/decisions/decision_adr-product-initiative-kickoff.md` (D1–D6):
+- **Classify (`D1`):** Set `x_initiative_kind: product | business | marketing | ops` (never infer `product`).
+- **Kickoff gate (`D2`) & Component tasks (`D3`):** A `product` initiative starts in `plan` and requires `x_timeline_start`, `x_timeline_end`, `x_prd_doc`, `x_components`, `x_kickoff_date`, and `x_baseline_tasks` (`./hey initiative kickoff <id>`) before becoming `active` (never invent missing values). Child tasks require `child_of`, `x_component`, `x_start_date`, and `x_target_date` (estimated finish; `due_date` is for hard external commitments only).
+- **Baseline & Alerts (`D4–D6`):** Never overwrite `x_baseline_tasks`; surface scope diffs and gaps via `./hey initiative check | alert` and `./hey validate`.
 
-1. **Classify every initiative.** Agents MUST record `x_initiative_kind` as one of `product`, `business`, `marketing`, or `ops`. The product-specific requirements below MUST NOT be imposed on business, marketing, or ops initiatives. Missing kind is missing information, not permission to infer `product`.
-2. **Gate product kickoff.** A product initiative MUST NOT be set to `status: active` without a start date (`x_timeline_start`), an end date (`x_timeline_end`), a PRD link (`x_prd_doc`), the PRD's component list (`x_components`), a kickoff date (`x_kickoff_date`), and the task IDs agreed at kickoff (`x_baseline_tasks`). Use `./hey initiative kickoff <id>` after filling the PRD and dates.
-3. **Keep tasks deliverable-sized.** Each task belonging to a product initiative MUST have a component (`x_component`), a start date (`x_start_date`), and a target date (`x_target_date`). The component MUST match the initiative's PRD component list. Small implementation steps belong inside that task's Definition of Done, not in separate tasks. Link tasks to their initiative with `child_of`.
-4. **Separate targets from commitments.** `x_target_date` is an estimated completion target, NOT `due_date`. `due_date` remains reserved for hard external commitments under [`decision_adr-three-layer-task-timeline`](content/decisions/decision_adr-three-layer-task-timeline.md).
-5. **Preserve the kickoff baseline and scope changes.** Keep `x_baseline_tasks` as the kickoff snapshot, compare it with the current linked task set, and show additions and removals separately in weekly reports.
+### Task Lifecycle, Prioritization, and Status Hygiene
 
-### Task Lifecycle
+| Status | Meaning | Priority (`priority`) | Eisenhower Quadrant (`decision_adr-replace-p0-p3-priority-wit`) |
+| --- | --- | --- | --- |
+| `plan` | Backlog idea, not committed yet | `do` | **Important + Urgent** — act now (prod bug, critical outage) |
+| `ready` | Committed and available to claim (`./hey new` default) | `plan` | **Important + Not Urgent** — schedule (architecture, docs) |
+| `blocked` | Waiting on dependency (`relations: [{type: blocked_by, target: ...}]`) | `routine` | **Not Important + Urgent** — do fast or automate (recurring reports, minor config) |
+| `doing` | Explicitly claimed and actively executing | `drop` | **Neither** — backlog or delete |
+| `done` / `archived` | Finished / No longer relevant (with reason) | — | If ambiguous, **ask the user**. Fix retired `p0–p3` on sight (`p0→do`, `p1/p2→plan`, `p3→drop`). |
 
-```text
-plan → ready → [claim] → doing → done
-                      ↓
-                   ready  (after fail)
-```
-
-| Status | Meaning |
-|--------|---------|
-| `plan` | Backlog idea, not committed yet |
-| `ready` | Committed and available to claim; nobody working on it |
-| `blocked` | Waiting on a dependency |
-| `doing` | Explicitly claimed and actively executing |
-| `done` | Finished |
-| `archived` | No longer relevant |
-
-Renames per [`decision_adr-task-status-ready-doing`](content/decisions/decision_adr-task-status-ready-doing.md): `active` → `ready`, `in_progress` → `doing`. Non-task artifacts (notes, playbooks, decisions, meetings, initiatives, goals) still use `status: active` to mean "in force".
+Non-task artifacts (`note`, `playbook`, `decision`, `meeting`, `initiative`, `goal`) use `status: active` to mean "in force" (`decision_adr-task-status-ready-doing`). Dispatch config lives in `WORKFLOW.md`.
 
 ### Task Status Hygiene
 
-When working on or advancing task-relevant work, agents MUST:
+When advancing task-relevant work, follow `.claude/skills/update-task-tree/SKILL.md`:
+1. **Transition immediately & bump `updated_at`:** Ad-hoc requests do not require a task, but if a tracked task exists, name its id and transition status at the moment of change (`ready → doing → done/blocked/archived`). Verify every `definition_of_done` criterion before marking `done`.
+2. **Walk the connected tree (`update-task-tree`, always on):** Unblock downstream `blocked` tasks when blockers finish (notify owner via `./hey inbox send` if `owner != $MEMBER`), archive superseded tasks, transition parent `initiative` to `done` when all required baseline + scope-added tasks and initiative DoD are complete (never mutate `goal_*`), run `./hey validate`, and include a `🌳 Task Tree Update` summary leading with titles.
 
-1. **Name the task id** if the current work advances a tracked task.
-2. **Transition status at the moment of change**, never batched to session end: picking up a `ready` task → `doing`; hitting a blocking dependency → `blocked`; Definition of Done satisfied → `done`; decided not to ship → `archived` with a one-line reason.
-3. **Bump `updated_at`** on every status change.
-4. **Verify before declaring done**: re-read `definition_of_done` and confirm each criterion; surface anything unverifiable rather than marking `done`.
-5. **Sweep at session end**: confirm every task advanced this session has an accurate status.
+## Slash Commands Reference
 
-### Creating & Working on Tasks
-
-```bash
-# For humans (defaults to $MEMBER from .env if omitted)
-./hey new --type task --title "Fix webhook fallback" --owner $MEMBER --area Core
-
-# For agent (auto-dispatched when owner=agent)
-./hey new --type task --title "Add retry logic" --owner agent --priority plan
-
-# Work runner
-./hey work candidates            # see what's available
-./hey work claim --next          # claim top priority
-./hey work complete --task <id>  # done → pushes branch, opens draft PR
-./hey work fail --task <id> --reason "Blocked on API spec"
-./hey work status                # current claims
-```
+| Command | Purpose |
+| --- | --- |
+| `/setup` · `/upgrade` | First-time member onboarding · Bring checkout up to latest repo capabilities (`./hey upgrade`) |
+| `/morning` · `/night` · `/snap` | Start-of-day plan · End-of-day wrap-up · Save progress checkpoint to today's worklog |
+| `/sync` · `/standup` · `/check` | Weekly iteration ceremony · Daily standup note · Quick mid-day status + inbox check |
+| `/whatnext` · `/review-roadmap` | Staged prioritization for next task · Review active goals, initiatives, and task progress |
+| `/task` · `/task-status` · `/clean` | Create task · Audit/update task statuses · Archive done tasks and compact old logs |
+| `/idea` · `/promote` · `/decide` | Capture raw idea (`workspace/$MEMBER/ideas/`) · Promote to `content/` · Draft an ADR (`decision`) |
+| `/assess` · `/search` · `/validate` | Evaluate external event/proposal · Search artifacts · Run `./hey validate` + principles check |
+| `/weekly-report` · `/launch-frontend` | Generate weekly team executive digest · Launch local management board UI (`apps/board` + `apps/api`) |
