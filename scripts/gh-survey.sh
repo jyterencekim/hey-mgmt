@@ -86,8 +86,8 @@ grep '^\s*remote:' "$REPOS_FILE" | while IFS= read -r line; do
     continue
   fi
 
-  # Extract owner/repo from URL: https://github.com/owner/repo -> owner/repo
-  owner_repo=$(echo "$remote" | sed 's|https://github.com/||' | sed 's|\.git$||')
+  # Extract owner/repo from HTTPS or SSH GitHub URL
+  owner_repo=$(echo "$remote" | sed -E 's|^https://github\.com/||; s|^git@[^:]+:||; s|\.git$||')
 
   if [[ -z "$owner_repo" ]]; then
     continue

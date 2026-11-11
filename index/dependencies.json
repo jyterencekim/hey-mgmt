@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-05T04:23:33.674Z",
+  "generated_at": "2026-11-11T08:02:43.566Z",
   "dependencies": [
     {
       "id": "note_frontmatter-schema-change-contract",
@@ -95,7 +95,12 @@
       "trigger_repo_terms": [
         "hey-mgmt",
         "hey",
-        "mgmt"
+        "mgmt",
+        "your-org/hey-mgmt",
+        "your-org hey-mgmt",
+        "your-org",
+        "your",
+        "org"
       ],
       "trigger_entity_terms": [
         "HeyMgmt",
@@ -109,7 +114,12 @@
       "obligation_repo_terms": [
         "hey-mgmt",
         "hey",
-        "mgmt"
+        "mgmt",
+        "your-org/hey-mgmt",
+        "your-org hey-mgmt",
+        "your-org",
+        "your",
+        "org"
       ],
       "obligation_entity_terms": [
         "HeyMgmt",
@@ -149,6 +159,11 @@
         "hey-mgmt",
         "hey",
         "mgmt",
+        "your-org/hey-mgmt",
+        "your-org hey-mgmt",
+        "your-org",
+        "your",
+        "org",
         "HeyMgmt",
         "TeamOS",
         "Board",

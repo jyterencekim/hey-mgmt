@@ -54,6 +54,7 @@ Weekly iteration logs (`note` with `tags: [IterationLog]`, `x_iteration: YYYY-WN
 ./hey new --workspace $MEMBER --type note --title "Daily standup" # create workspace artifact
 ./hey task list [--status ready] [--area Core]                    # list tasks
 ./hey search "query"                                              # search artifacts
+./hey repos <list|situations|resolve "query">                     # inspect repo registry and situational routing
 ./hey deps check "<intent>"                                       # check change-impact contracts
 ./hey index build && ./hey db build                               # rebuild indexes and SQLite DB
 ./hey graph <build|guidance|context|export>                       # knowledge graph commands
@@ -111,9 +112,10 @@ In free conversation (disable during `/morning`, `/night`, `/snap`, `/sync`, `/s
 
 Goals (`content/goals/goal_*.md`) are **HUMAN-SET** (`decision_adr-goal-as-seventh-type`). Agents MUST NOT create, edit, or `/promote` goal files. Agents MAY draft goal text in chat when asked and suggest `contributes_to` (initiative → goal) links for human approval.
 
-### Dependency Checks
+### Dependency Checks & Situational Repo Routing
 
-Before planning or running **cross-component, contract, schema, manifest, config, or deploy changes** (skip for doc formatting, typos, or early brainstorming), run `./hey deps check "<intent>"` and list all resulting obligations (`ChangeImpact` / `x_change_contract`, `decision_adr-kb-wide-change-contracts`). If `deps check` warns that `qmd` is unavailable (degraded recall), include that warning in your reply.
+- **Cross-Repo Situational Routing:** `content/vocab/repos.yml` defines the team's `orgs`, `repos` (remote, status, role, access boundary, `local_dir`, aliases, entrypoints), and `situations` (which repos and playbooks to consult per scenario). Local clone paths resolve from `workspace/$MEMBER/repos.yml` first, then sibling `../<local_dir|name>`. Before cross-repo research, metric/audit lookups, or multi-repo edits, run `./hey repos resolve "<topic>"` (or `./hey repos situations`) and obey each target's `mode`, `access`, and `guardrails`.
+- **Change-Impact Contracts:** Before planning or running **cross-component, contract, schema, manifest, config, or deploy changes** (skip for doc formatting, typos, or early brainstorming), run `./hey deps check "<intent>"` and list all resulting obligations (`ChangeImpact` / `x_change_contract`, `decision_adr-kb-wide-change-contracts`). If `deps check` warns that `qmd` is unavailable (degraded recall), include that warning in your reply.
 
 ### Git Worktrees, Commit Hygiene, and Codex Closeout
 

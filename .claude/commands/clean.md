@@ -41,9 +41,10 @@ Execute the weekly hygiene checklist. Identify issues and help fix them.
 
    **f) Repo registry drift** (see [`decision_adr-kg-v2-operating-decisions`](../../content/decisions/decision_adr-kg-v2-operating-decisions.md) D6):
    ```bash
-   comm -3 <(gh repo list hey-mgmt-io --limit 200 --json name --jq '.[].name' | sort) <(grep -E '^  - name:' content/vocab/repos.yml | sed 's/.*name: //' | sort)
+   PRIMARY_ORG=$(./hey repos list --json | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));const o=(d.orgs||[]).find(x=>x.relationship==='primary');if(o)console.log(o.id)")
+   comm -3 <(gh repo list "$PRIMARY_ORG" --limit 200 --json name --jq '.[].name' | sort) <(./hey repos list --org "$PRIMARY_ORG" --json | node -e "const d=JSON.parse(require('fs').readFileSync(0,'utf8'));for(const r of d.repos)console.log(r.name)" | sort)
    ```
-   → Left column = org repos missing from `content/vocab/repos.yml` (add a row with `org`, `status`, description); right column = registry rows with no org repo (expected for `kaiachain`/`onrampto`/local entries — flag only `hey-mgmt-io` rows, which may be renamed or deleted). Also flag registry rows whose GitHub repo is archived (`gh repo view hey-mgmt-io/<name> --json isArchived`) but whose `status` is not `archive`.
+   → Left column = primary-org repos missing from `content/vocab/repos.yml` (add a row with `org`, `status`, `role`, `access`, description); right column = primary-org registry rows missing on GitHub (renamed or deleted; `retired` rows are expected). Also flag registry rows whose GitHub repo is archived (`gh repo view "$PRIMARY_ORG/<name>" --json isArchived`) but whose `status` is not `archive` or `retired`.
 
    **Note on `done` tasks.** Do NOT propose flipping `done` tasks to
    `archived` based on age. `done` and `archived` are distinct lifecycle

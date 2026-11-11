@@ -34,19 +34,19 @@ Create `workspace/$MEMBER/profile.md` with:
 - **Domains** — areas you own or contribute to
 - **Repos** — which repos you work in, your role, relevant skills, and MCPs per repo
 
-See [`workspace/charlie/profile.md`](../workspace/charlie/profile.md) as an example.
+See [`workspace/alice/profile.md`](../workspace/alice/profile.md) as an example.
 
 ---
 
 ## 4. Know the sibling repos, then create your repos list
 
-The team-wide registry is [`content/vocab/repos.yml`](../content/vocab/repos.yml): every repo in the `hey-mgmt-io` org plus the `kaiachain` and partner repos we touch, each with its org, status (`active | dormant | archive | reference`), and one-line purpose. Read it once; it is the answer to "which repo does X live in".
+The team-wide registry is [`content/vocab/repos.yml`](../content/vocab/repos.yml): every organization (`orgs`) your team works across, the `repos` inventory (`status`, `role`, `access`, `local_dir`, `aliases`, `entrypoints`), and `situations` (situational mappings specifying which repos, entrypoints, and playbooks to consult for each type of task). Run `./hey repos list`, `./hey repos situations`, or `./hey repos resolve "<topic>"` to inspect it.
 
-Convention: siblings are checked out beside this repo (`../hey-mgmt-auditor`, …). When a checkout name differs from the repo name, the registry says so in `local_dir` (for example `hey-mgmt-core` lives in `../private-hey-mgmt-contract`).
+Convention: siblings are checked out beside this repo (`../core-service`, `../app-frontend`, …). When a checkout name differs from the repo name, set `local_dir` in `content/vocab/repos.yml`.
 
 The unified knowledge graph over all of this is built directly into this repo (`./hey graph`). Run `./hey graph build` to generate the local projection (`.kg/graph.sqlite`); query it with `./hey graph search <term>`, `./hey graph neighborhood <id>`, and `./hey graph guidance --tool "<last tool call>"`. Export sanitized or complete graphs via `./hey graph export`.
 
-Then create `workspace/$MEMBER/repos.yml` (gitignored) listing your local paths for the repos you actually work in. See [`workspace/charlie/repos.yml`](../workspace/charlie/repos.yml) as an example format.
+Then create `workspace/$MEMBER/repos.yml` (gitignored) listing your local paths for the repos you actually work in. Copy [`scripts/repos.example.yml`](../scripts/repos.example.yml) to `workspace/$MEMBER/repos.yml` and adjust paths for your machine.
 
 ---
 

@@ -121,8 +121,8 @@ Set up this repo for a new team member. Run this once after cloning.
     ```
 
 12. Remind the member to complete their workspace setup:
-    - Fill in `workspace/$MEMBER/profile.md` with their domains, repos, skills, and MCPs. Use `workspace/charlie/profile.md` as a reference.
-    - Create `workspace/$MEMBER/repos.yml` listing local paths to their working repos. Use `workspace/charlie/repos.yml` as the format example. This enables the `/night` command to survey activity across all repos.
+    - Fill in `workspace/$MEMBER/profile.md` with their domains, repos, skills, and MCPs. Use `workspace/alice/profile.md` as a reference.
+    - Create `workspace/$MEMBER/repos.yml` listing local paths to their working repos. Copy `scripts/repos.example.yml` as the format template. This enables the `/night` command and `./hey repos` to resolve local clones across repos.
     - Read `docs/ONBOARDING.md` for the full onboarding checklist.
 
 13. Enable local semantic search (optional). Tell the member this step is

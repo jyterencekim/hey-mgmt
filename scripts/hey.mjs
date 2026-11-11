@@ -31,6 +31,7 @@ import { formatScheduledActionPackets, listScheduledActionPackets } from './lib/
 import { listRunAttempts } from './lib/work-runs.mjs';
 import { compactLogs, listMembers, logStats } from './lib/log-compact.mjs';
 import { checkProposalFile, gateProposalFile } from './lib/procedure-gate.mjs';
+import { enrichReposVocab, formatReposList, formatSituationResolution, formatSituationsList, loadReposVocab, resolveSituations } from './lib/repos.mjs';
 import { pollSource, prepareCandidates, finalizeCandidatesFromAgent, getActivityCandidates, approveActivityCandidate, rejectActivityCandidateById } from './lib/activity-runner.mjs';
 
 // Load .env files for member identity and external integration credentials
@@ -635,6 +636,72 @@ deps
         console.log(`- ${item.id} (${item.type})`);
       }
     }
+  });
+
+const reposCmd = program.command('repos').description('Repository registry and situational cross-repo routing');
+
+reposCmd
+  .command('list')
+  .description('List organizations and repositories in content/vocab/repos.yml')
+  .option('--org <org>', 'Filter by organization id')
+  .option('--status <status>', 'Filter by repo status (active|dormant|archive|reference|retired)')
+  .option('--role <role>', 'Filter by repo role')
+  .option('--cloned', 'Only show repos cloned locally')
+  .option('--member <member>', 'Member name for local path overrides', process.env.MEMBER)
+  .option('--json', 'Output JSON')
+  .action((options) => {
+    const vocab = loadReposVocab(repoRoot);
+    const enriched = enrichReposVocab(vocab, { repoRoot, member: options.member });
+    const filteredRepos = enriched.repos.filter((r) => {
+      if (options.org && r.org !== options.org) return false;
+      if (options.status && r.status !== options.status) return false;
+      if (options.role && r.role !== options.role) return false;
+      if (options.cloned && !r.cloned) return false;
+      return true;
+    });
+
+    if (options.json) {
+      console.log(JSON.stringify({ orgs: enriched.orgs, repos: filteredRepos }, null, 2));
+      return;
+    }
+
+    console.log(formatReposList(enriched, options));
+  });
+
+reposCmd
+  .command('situations')
+  .description('List situational repo mappings configured in content/vocab/repos.yml')
+  .option('--member <member>', 'Member name for local path overrides', process.env.MEMBER)
+  .option('--json', 'Output JSON')
+  .action((options) => {
+    const vocab = loadReposVocab(repoRoot);
+    const enriched = enrichReposVocab(vocab, { repoRoot, member: options.member });
+    if (options.json) {
+      console.log(JSON.stringify({ situations: enriched.situations }, null, 2));
+      return;
+    }
+    console.log(formatSituationsList(enriched.situations));
+  });
+
+reposCmd
+  .command('resolve <query...>')
+  .description('Resolve which repositories, entrypoints, and playbooks to consult for a situation or topic')
+  .option('--limit <limit>', 'Maximum situations to return', '5')
+  .option('--member <member>', 'Member name for local path overrides', process.env.MEMBER)
+  .option('--json', 'Output JSON')
+  .action((queryParts, options) => {
+    const query = queryParts.join(' ');
+    const vocab = loadReposVocab(repoRoot);
+    const matches = resolveSituations(vocab, query, {
+      repoRoot,
+      member: options.member,
+      limit: Number(options.limit) || 5,
+    });
+    if (options.json) {
+      console.log(JSON.stringify({ query, matches }, null, 2));
+      return;
+    }
+    console.log(formatSituationResolution(matches, query));
   });
 
 const context = program.command('context').description('Context-pack compilation');

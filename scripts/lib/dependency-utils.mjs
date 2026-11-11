@@ -1,4 +1,5 @@
 import { normalizeText, uniqueStrings } from './text-utils.mjs';
+import { repoSlugFromRemote } from './repos.mjs';
 
 export const DEPENDENCY_TAG = 'ChangeImpact';
 export const DEPENDENCY_NOTES_PREFIX = 'notes/dependencies/';
@@ -12,17 +13,6 @@ function normalizeStringArray(values) {
 
 function splitDelimitedTerms(value) {
   return uniqueStrings(String(value ?? '').split(/[\s/_-]+/g));
-}
-
-function repoSlugFromRemote(remote) {
-  if (typeof remote !== 'string' || !remote.trim()) return null;
-
-  try {
-    const url = new URL(remote);
-    return url.pathname.replace(/^\/+/, '').replace(/\.git$/i, '') || null;
-  } catch {
-    return null;
-  }
 }
 
 function buildEntityAliasLookup(vocabEntities = {}) {
@@ -91,9 +81,15 @@ export function buildRepoRegistry(vocabRepos = {}) {
     const remote = typeof entry.remote === 'string' && entry.remote.trim() ? entry.remote.trim() : null;
     const slug = repoSlugFromRemote(remote);
     const slugParts = slug ? slug.split('/').filter(Boolean) : [];
+    const aliases = Array.isArray(entry.aliases) ? entry.aliases.map((a) => String(a ?? '').trim()).filter(Boolean) : [];
+    const localDir = typeof entry.local_dir === 'string' && entry.local_dir.trim() ? entry.local_dir.trim() : '';
     const searchTerms = uniqueStrings([
       name,
       ...splitDelimitedTerms(name),
+      localDir,
+      ...(localDir ? splitDelimitedTerms(localDir) : []),
+      ...aliases,
+      ...aliases.flatMap((alias) => splitDelimitedTerms(alias)),
       slug ?? '',
       ...(slug ? [slug.replace(/\//g, ' ')] : []),
       ...slugParts,

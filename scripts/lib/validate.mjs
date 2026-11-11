@@ -1,4 +1,5 @@
 import { validateFrontmatterSchema } from './frontmatter-schema.mjs';
+import { validateReposVocab } from './repos.mjs';
 import {
   buildEntityRegistry,
   buildRepoRegistry,
@@ -466,6 +467,9 @@ export function validateArtifacts(artifacts, policy = {}, vocab = {}) {
   }
 
   validateProductInitiatives(artifacts, issues);
+  for (const issue of validateReposVocab(vocab.repos ?? { repos: [] }, idSet)) {
+    issues.push(issue);
+  }
 
   return {
     ok: !issues.some((issue) => issue.level === 'error'),

@@ -5,8 +5,8 @@ title: >-
   Agent session conventions: repo shorthand, planning from the task ledger not
   the run ledger, notify via inbox, member names, hermes crons go to charlie
 created_at: '2026-09-14'
-updated_at: '2026-09-14'
-playbook_version: 0.1.0
+updated_at: '2026-11-11'
+playbook_version: 0.1.1
 owner: team
 status: active
 tags:
@@ -70,8 +70,8 @@ x_procedure_graph:
       rel: LEADS_TO
       dst: resolve_shorthand
       guidance: >-
-        "frontend" means core-usdt-miniapp-frontend and "backend" means
-        core-usdt-miniapp; resolve immediately, do not ask which
+        resolve repo shorthand via content/vocab/repos.yml aliases and `./hey repos resolve`
+        (e.g. "frontend" -> app-frontend, "backend" -> core-service); resolve immediately, do not ask which
     - src: resolve_shorthand
       rel: LEADS_TO
       dst: plan_from_tasks
@@ -91,7 +91,7 @@ x_procedure_graph:
         when the user says they will work on something, claim it with ./hey work
         claim; never ask them to run lifecycle commands
       pitfalls: >-
-        inside the hey-mgmt-auditor repo use curl against auditor.hey-mgmt.io
+        inside the data-auditor repo use curl against auditor.example.com
         routes, not the MCP tools; the MCP is for mgmt-side financial lookups
     - src: do_work
       rel: LEADS_TO

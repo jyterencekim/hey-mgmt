@@ -92,7 +92,7 @@ function summarizeMarkdown(content, fallbackTitle) {
     .map((line) => line.trim())
     .filter((line) => line && !line.startsWith('#') && !/^[-*]\s*$/.test(line));
   const summary = body.slice(0, 8).join(' ').replace(/\s+/g, ' ').trim();
-  return (summary || fallbackTitle || 'Tracked onchain-analysis knowledge file').slice(0, 1200);
+  return (summary || fallbackTitle || 'Tracked repository knowledge file').slice(0, 1200);
 }
 
 function fileContentForKnowledge(content, maxChars = 60_000) {
@@ -469,11 +469,12 @@ export class GitHubCollector {
           content,
         });
 
+        const repoLabel = ownerRepo.split('/').pop() || ownerRepo;
         const event = {
           source: 'github',
           object_type: 'github-file',
           object_id: objectId,
-          object_title: `onchain-analysis ${file.path}: ${title}`,
+          object_title: `${repoLabel} ${file.path}: ${title}`,
           object_url: objectUrl,
           actor: 'github',
           workspace_owner: this.config.approval?.artifact_owner_fallback ?? 'alice',
@@ -505,11 +506,11 @@ export class GitHubCollector {
           workspace_owner: this.config.approval?.artifact_owner_fallback ?? 'alice',
           date: kstDate,
           changed_at: changedAt,
-          topics: ['onchain-analysis', file.path.split('/')[0]].filter(Boolean),
+          topics: [repoLabel, file.path.split('/')[0]].filter(Boolean),
           classification: 'distill',
           status: 'indexed',
           linked_artifact: null,
-          agent_reason: 'Auto-distilled from a tracked onchain-analysis knowledge file for Fisher qmd indexing.',
+          agent_reason: `Auto-distilled from a tracked ${repoLabel} knowledge file for Fisher qmd indexing.`,
           relevance_score: 0.82,
           signature: activitySignature(['github', objectId, kstDate, nativeChangeId]),
           repository: ownerRepo,

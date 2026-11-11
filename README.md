@@ -34,7 +34,7 @@ cp .env.example .env
 
 ### 3. Customize for Your Team or Personal Workspace
 1. **Members**: Edit [`content/vocab/members.yml`](content/vocab/members.yml) to add your team members (or just yourself) and create `workspace/<member>/profile.md`.
-2. **Areas & Repos**: Edit [`content/vocab/areas.yml`](content/vocab/areas.yml) and [`content/vocab/repos.yml`](content/vocab/repos.yml) for your product areas and code repositories.
+2. **Areas & Repos**: Edit [`content/vocab/areas.yml`](content/vocab/areas.yml) and [`content/vocab/repos.yml`](content/vocab/repos.yml) for your product areas, organizations (`orgs`), repositories (`repos`), and situational cross-repo routing (`situations`).
 3. **Tags & Entities**: Edit [`content/vocab/tags.yml`](content/vocab/tags.yml) and [`content/vocab/entities.yml`](content/vocab/entities.yml) for your domain concepts.
 4. **Validate**: Run `./hey validate` and `./hey index build`.
 
@@ -55,8 +55,10 @@ cp .env.example .env
 ./hey task list --status ready
 ./hey task plan task_complete-team-onboarding --date today
 
-# Search & Knowledge Graph
+# Search, Repo Routing & Knowledge Graph
 ./hey search "onboarding"
+./hey repos list
+./hey repos resolve "metrics audit"
 ./hey deps check "change frontmatter schema"
 ./hey graph build
 ./hey graph context task_complete-team-onboarding

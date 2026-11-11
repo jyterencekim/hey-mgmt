@@ -1,10 +1,142 @@
+# Repository & Situational Routing Registry — canonical map of orgs, repos, and when to consult each.
+#
+# Customize this file for your team so humans and AI agents share one source of truth for:
+#   1. `orgs[]`       GitHub/Git organizations or namespaces your team touches
+#                     relationship: primary | ecosystem | partner | upstream | personal | local
+#   2. `repos[]`      Every repository in scope (remote, status, role, access boundary, aliases, entrypoints)
+#                     status: active | dormant | archive | reference | retired
+#                     access: read-write | read-only | pr-only | api-or-mcp
+#                     local_dir: optional sibling checkout folder when it differs from ../<name>
+#   3. `situations[]` Situational routing rules ("in situation X, consult repo(s) Y via mode Z")
+#                     mode: primary | reference | read-only | api-or-mcp | write-with-gate
+#
+# Consumed by:
+#   - `./hey validate`                    validates orgs, repos, situation target repos, and playbook IDs
+#   - `./hey repos list`                  lists orgs, repos, access boundaries, and local clone status
+#   - `./hey repos situations`            lists all situational repo mappings
+#   - `./hey repos resolve "<query>"`     resolves which repos, entrypoints, and playbooks apply to a task
+#   - `./hey deps check "<intent>"`       indexes repo names, remotes, local_dir, and aliases for change contracts
+#   - `scripts/gh-survey.sh` & Fisher `github-collector`
+#
+# Per-member local clone path overrides live in gitignored `workspace/$MEMBER/repos.yml` (see `scripts/repos.example.yml`).
+
+orgs:
+  - id: your-org
+    relationship: primary
+    url: https://github.com/your-org
+    default_access: read-write
+    notes: "Primary team organization (replace `your-org` with your GitHub org)."
+  - id: partner-org
+    relationship: partner
+    url: https://github.com/partner-org
+    default_access: read-only
+    notes: "External partner or upstream reference organization (optional — remove or replace)."
+  - id: local
+    relationship: local
+    url: null
+    default_access: read-write
+    notes: "Workstation-local helper repositories with no remote."
+
 repos:
   - name: hey-mgmt
-    role: management-and-knowledge-base
-    description: Markdown-first team OS, tasks, decisions, initiatives, goals, and playbooks
+    remote: https://github.com/your-org/hey-mgmt
+    org: your-org
+    status: active
+    role: management-os
+    access: read-write
+    aliases: [mgmt]
+    entrypoints: [AGENTS.md, ARCHITECTURE.md, content/vocab/repos.yml]
+    description: Markdown-first team OS — tasks, decisions, initiatives, goals, meetings, playbooks, and notes
   - name: core-service
+    remote: https://github.com/your-org/core-service
+    org: your-org
+    status: active
     role: backend-api
+    access: read-write
+    aliases: [backend, api]
+    entrypoints: [README.md]
     description: Primary backend service and domain API (example — replace with your repos)
   - name: app-frontend
+    remote: https://github.com/your-org/app-frontend
+    org: your-org
+    status: active
     role: frontend-web
+    access: read-write
+    aliases: [frontend, web]
+    entrypoints: [README.md]
     description: Primary user-facing web application (example — replace with your repos)
+  - name: data-auditor
+    remote: https://github.com/your-org/data-auditor
+    org: your-org
+    status: active
+    role: data-and-observability
+    access: api-or-mcp
+    aliases: [auditor, metrics]
+    entrypoints: [docs/GLOSSARY.md]
+    description: Lineage-backed metrics, audit trail, or analytics service (example — replace or remove)
+  - name: domain-research
+    remote: https://github.com/your-org/domain-research
+    org: your-org
+    status: active
+    role: research-corpus
+    access: read-only
+    aliases: [research]
+    entrypoints: [AGENTS.md, insights/]
+    description: Domain research, notebooks, and strategy/architecture investigations (example — replace or remove)
+  - name: partner-sdk
+    remote: https://github.com/partner-org/partner-sdk
+    org: partner-org
+    status: reference
+    role: partner-reference
+    access: read-only
+    description: External partner SDK or protocol reference checkout (example — replace or remove)
+
+situations:
+  - id: product-and-api-delivery
+    title: Product feature, API contract, and UI delivery
+    when: "Building, reviewing, or debugging user-facing features across backend APIs and frontend web UI"
+    keywords: [frontend, backend, api, ui, feature, deploy]
+    targets:
+      - repo: core-service
+        mode: primary
+        how: "Inspect or update backend API routes, schemas, and tests (`../core-service`)"
+      - repo: app-frontend
+        mode: primary
+        how: "Sync frontend client types, state, and UI components (`../app-frontend`)"
+    playbooks:
+      - playbook_delivery-practices
+      - playbook_agent-session-conventions
+      - playbook_agent-commit-and-shell-hygiene
+    guardrails: "Run `./hey deps check` before changing shared schemas or API contracts, and use an isolated git worktree per target repo."
+
+  - id: metrics-and-audit-verification
+    title: Business/financial metrics, lineage, and telemetry verification
+    when: "Looking up canonical metrics, reconciling discrepancies, or verifying production data lineage"
+    keywords: [metrics, audit, auditor, telemetry, discrepancy, numbers, kpi]
+    targets:
+      - repo: data-auditor
+        mode: api-or-mcp
+        how: "Query read-only API/MCP endpoints first; inspect `../data-auditor` for metric definitions and pipelines"
+        entrypoints: [docs/GLOSSARY.md]
+      - repo: core-service
+        mode: reference
+        how: "Cross-check upstream event emission and domain state"
+    playbooks:
+      - playbook_retrieval-protocol
+    guardrails: "Always report metric freshness (`asOf`) and never hardcode live KPI figures into static docs."
+
+  - id: domain-and-architecture-research
+    title: Domain research, benchmarks, and partner integration study
+    when: "Investigating new domain models, quantitative research, or external partner integrations"
+    keywords: [research, benchmark, partner, sdk, investigation, experiment]
+    targets:
+      - repo: domain-research
+        mode: primary
+        how: "Read research notes/notebooks in `../domain-research` or query projected graph nodes (`./hey graph search`)"
+      - repo: partner-sdk
+        mode: read-only
+        how: "Inspect external partner reference implementation without modifying upstream code"
+    playbooks:
+      - playbook_retrieval-protocol
+      - playbook_governing-artifact-maintenance
+    guardrails: "Treat `reference` and `read-only` repos strictly as inspection targets; record conclusions as cited notes or ADRs in `hey-mgmt`."
