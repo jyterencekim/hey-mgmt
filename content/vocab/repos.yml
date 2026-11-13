@@ -90,6 +90,15 @@ repos:
     role: partner-reference
     access: read-only
     description: External partner SDK or protocol reference checkout (example — replace or remove)
+  - name: shared-libs
+    remote: https://github.com/your-org/shared-libs
+    org: your-org
+    status: active
+    role: shared-libraries
+    access: read-write
+    aliases: [libs]
+    entrypoints: [INDEX.md, AGENTS.md]
+    description: Canonical cross-repo shared modules, reusable snippets, and polyglot test vectors (example — replace with your <org>-libs repo)
 
 situations:
   - id: product-and-api-delivery
@@ -140,3 +149,17 @@ situations:
       - playbook_retrieval-protocol
       - playbook_governing-artifact-maintenance
     guardrails: "Treat `reference` and `read-only` repos strictly as inspection targets; record conclusions as cited notes or ADRs in `hey-mgmt`."
+
+  - id: shared-libraries-and-reuse
+    title: Cross-repo shared modules, reusable utilities, and snippet extraction
+    when: "Implementing cross-cutting utilities (network/RPC clients, retries/fallbacks, number/currency/time formatting, codecs, auth helpers) or extracting duplicated logic across repositories"
+    keywords: [library, libs, shared, snippet, util, format, rpc, fallback, retry, codec, timezone, reuse, extract]
+    targets:
+      - repo: shared-libs
+        mode: primary
+        how: "Read `../shared-libs/INDEX.md` first to fuzzily match existing capabilities via LLM before writing local helpers; open only matched `catalog/<domain>/<slug>.md` cards"
+        entrypoints: [INDEX.md, AGENTS.md]
+    playbooks:
+      - playbook_shared-libraries
+      - playbook_agent-commit-and-shell-hygiene
+    guardrails: "Keep `hey-mgmt` free of per-module lists and code snippets — store only the repo pointer here and maintain `INDEX.md`, `catalog/`, and shared `vectors.json` inside `shared-libs`."

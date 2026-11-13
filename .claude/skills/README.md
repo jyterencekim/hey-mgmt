@@ -10,6 +10,7 @@ Skills are modular knowledge and workflow packages under `.claude/skills/`.
 | `explanatory-integrity/` | Mandatory closing plain-language summary (`👵 옆집 할머니도 알아들을 수 있게 요약` / `👵 Plain-Language Summary`) |
 | `update-task-tree/` | Passive always-on task DoD verification and connected task/initiative tree status propagation |
 | `long-run-discipline/` | Discipline for multi-step, long-running engineering and research execution |
+| `shared-libs/` | Passive 3-hop discovery, reuse, and extraction workflow over the `role: shared-libraries` repo (`INDEX.md` -> `catalog/` -> `<lang>/`) |
 
 ## Adding Domain Skills
 
