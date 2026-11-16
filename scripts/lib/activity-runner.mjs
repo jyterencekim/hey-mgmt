@@ -2,10 +2,11 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { loadExternalActivityConfig } from './activity-config.mjs';
 import { appendEventHistory, compactKnowledgeEntries, inspectKnowledgeCompaction, listCandidates, updateKnowledgeEntryStatus } from './activity-state.mjs';
-import { loadActivityEventsFromFile, normalizeActivityEvent } from './activity-events.mjs';
+import { loadActivityEventsFromFile, normalizeActivityEvent, normalizeAgentPushedEvent } from './activity-events.mjs';
 import { ingestWorkspaceLogEvents } from './activity-log.mjs';
 import { applyApprovedCandidate, generateContentUpdateCandidates, rejectContentUpdateCandidate, prepareCandidatesForAgent, finalizeAgentDecisions, finalizeReflectionDecisions } from './activity-candidates.mjs';
 import { demoteObservation, deleteObservation, readObservations } from './activity-observations.mjs';
+import { recordConnectorWatermark } from './desk-connectors.mjs';
 import { loadExternalActivityRuntimeConfig, loadEnvFile, loadHermesSlackToken } from '../../workspace/fisher/external-activity-runtime/lib/config.mjs';
 import { gitPull, gitCommitAndPush } from '../../workspace/fisher/external-activity-runtime/lib/git-sync.mjs';
 
@@ -123,12 +124,82 @@ export async function pollOnlySource({ repoRoot, source }) {
   if (source === 'meeting') {
     const { importAllMeetings } = await import('./meeting-sync/importer.mjs');
     const result = await importAllMeetings({ repoRoot, limit: 20, dryRun: false, gitSync: false });
+    recordConnectorWatermark(repoRoot, 'notion', { mode: 'api-token', event_count: result?.imported ?? 0 });
+    recordConnectorWatermark(repoRoot, 'gmail', { mode: 'api-token', event_count: result?.imported ?? 0 });
     return { source: 'meeting', ...result };
   }
 
   const collector = await createCollector(repoRoot, source, fisherConfig, ingestEvents);
   const result = await collector.pollOnce();
+  recordConnectorWatermark(repoRoot, source, {
+    mode: 'api-token',
+    event_count: Number(result?.ingested ?? result?.event_count ?? result?.events?.length ?? 0),
+  });
   return { source, ...result };
+}
+
+function parsePushedEventsInput(rawInput) {
+  if (Array.isArray(rawInput)) return rawInput;
+  if (rawInput && typeof rawInput === 'object') {
+    return Array.isArray(rawInput.events) ? rawInput.events : [rawInput];
+  }
+  const text = String(rawInput ?? '').trim();
+  if (!text) return [];
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return parsed;
+    if (parsed && typeof parsed === 'object') {
+      return Array.isArray(parsed.events) ? parsed.events : [parsed];
+    }
+  } catch {
+    // Fall back to newline-delimited JSON (JSONL)
+  }
+  const rows = [];
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    rows.push(JSON.parse(trimmed));
+  }
+  return rows;
+}
+
+export async function pushAgentActivityEvents({
+  repoRoot,
+  rawInput,
+  defaultWorkspaceOwner = process.env.MEMBER || 'alice',
+  prepare = false,
+}) {
+  const root = resolve(repoRoot ?? process.cwd());
+  const config = loadExternalActivityConfig(root);
+  const rawEvents = parsePushedEventsInput(rawInput);
+  const normalized = rawEvents.map((item) =>
+    normalizeAgentPushedEvent(item, { defaultWorkspaceOwner }),
+  );
+
+  let logResults = [];
+  if (normalized.length > 0) {
+    appendEventHistory(root, config, normalized);
+    logResults = ingestWorkspaceLogEvents({ repoRoot: root, config, events: normalized });
+  }
+
+  const countsBySource = {};
+  for (const event of normalized) {
+    countsBySource[event.source] = (countsBySource[event.source] ?? 0) + 1;
+  }
+  for (const [source, count] of Object.entries(countsBySource)) {
+    recordConnectorWatermark(root, source, { mode: 'agent-mcp', event_count: count });
+  }
+
+  const prepared = prepare && normalized.length > 0
+    ? prepareCandidatesForAgent({ repoRoot: root, config, events: normalized })
+    : null;
+
+  return {
+    event_count: normalized.length,
+    sources: countsBySource,
+    log_results: logResults,
+    prepared,
+  };
 }
 
 export async function pollSource({ repoRoot, source }) {

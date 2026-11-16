@@ -5,6 +5,7 @@
     "task_complete-team-onboarding"
   ],
   "team": [
+    "decision_adr-agent-agnostic-desk-bootstrap",
     "decision_adr-consolidate-intelligence-graph-into-mgmt",
     "decision_adr-display-task-titles-not-ids",
     "decision_adr-goal-as-seventh-type",
@@ -54,6 +55,7 @@
     "playbook_operating-philosophy-ko",
     "playbook_product-initiative-kickoff",
     "playbook_retrieval-protocol",
+    "playbook_shared-libraries",
     "playbook_style-guide",
     "playbook_style-guide-ko",
     "playbook_task-status-lifecycle"

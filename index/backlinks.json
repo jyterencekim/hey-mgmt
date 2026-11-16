@@ -21,6 +21,7 @@
     "playbook_golden-principles",
     "playbook_governing-artifact-maintenance",
     "playbook_operating-philosophy-ko",
+    "playbook_shared-libraries",
     "playbook_style-guide",
     "playbook_style-guide-ko",
     "playbook_task-status-lifecycle"
@@ -46,6 +47,7 @@
     "playbook_file-placement",
     "playbook_governing-artifact-maintenance",
     "playbook_operating-philosophy",
+    "playbook_shared-libraries",
     "playbook_style-guide",
     "playbook_style-guide-ko"
   ],
@@ -182,5 +184,8 @@
   ],
   "playbook_interaction-tone": [
     "playbook_agent-session-conventions"
+  ],
+  "decision_adr-repo-wide-capability-upgra": [
+    "decision_adr-agent-agnostic-desk-bootstrap"
   ]
 }

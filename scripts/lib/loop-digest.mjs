@@ -6,6 +6,7 @@ import { buildLoopBrief, buildLoopHorizon } from './loop-control.mjs';
 import { parseArtifact, writeArtifact } from './content-io.mjs';
 import { assertKnownMember } from './members.mjs';
 import { applyMarkedSection } from './log-scaffold.mjs';
+import { checkStaleConnectors } from './desk-connectors.mjs';
 
 const OPEN_STATUSES = new Set(['plan', 'ready', 'doing', 'blocked']);
 const ALARM_STATUSES = new Set(['ready', 'doing', 'blocked']);
@@ -140,6 +141,7 @@ export function buildLoopDigest(repoRoot, options = {}) {
       task_id: run.task_id ?? null,
       status: run.status ?? null,
     })),
+    stale_connectors: checkStaleConnectors(root, { maxAgeMinutes: 120 }),
   };
 }
 
@@ -237,6 +239,17 @@ export function formatLoopDigest(digest) {
     lines.push('', 'Each packet above is marked surfaced on --record and stops re-listing.');
   }
   lines.push('');
+
+  if (Array.isArray(digest.stale_connectors) && digest.stale_connectors.length > 0) {
+    lines.push(`## Stale connectors (${digest.stale_connectors.length})`, '');
+    for (const item of digest.stale_connectors) {
+      const age = item.age_minutes !== null && item.age_minutes !== undefined
+        ? `${item.age_minutes}m ago`
+        : 'never polled';
+      lines.push(`- ${item.source} (${item.mode}, ${age}) — catch up before starting`);
+    }
+    lines.push('');
+  }
 
   return lines.join('\n');
 }

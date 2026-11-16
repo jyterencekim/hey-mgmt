@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Git pre-commit hook — enforces artifact schema, vocabulary, and link integrity
+# Activate via: git config core.hooksPath .githooks (or ./hey setup apply / ./hey upgrade)
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+HEY_REPO_ROOT="$REPO_ROOT" node "$REPO_ROOT/scripts/hey.mjs" validate

@@ -1,111 +1,64 @@
 # External Activity Runtime
 
-The external activity system is now **Hermes-centric**.
+`hey-mgmt` bridges external activity from Slack, Google Drive, GitHub, Confluence, Notion, and Gmail into the markdown-first core.
 
 ## Core Contract
 
-Canonical knowledge still lives only in:
+Canonical knowledge lives only in:
 
 - `content/`
 - `workspace/`
 
-The external activity system remains a bridge from Slack, Confluence, Drive, and meeting signals into that markdown-first core. Nothing about the cutover changes the canonical contract:
+External ingestion always respects this contract:
 
-- only `./hey` commands mutate canonical artifacts
-- validation still gates writes
-- runtime state still lives in `.runtime/` and `.hey/`
-- source references still use extension fields such as `x_external_refs`
+- Only `./hey` commands mutate canonical artifacts
+- `./hey validate` gates every write (and runs via `.githooks/pre-commit`)
+- Ephemeral runtime state, watermarks, and lock files live under `.runtime/` and `.hey/`
+- Source references use `x_external_refs`
 
-## Current Ownership
+## Two Supported Execution Topologies
+
+### Mode A — Agent-Managed Cron (Default for Personal & Team Desks)
+
+No OS `launchd`, `crontab`, `pm2`, or dedicated server is required. Each member registers stateless scheduled turns inside **their own AI agent's native scheduler** (Antigravity Automations, Claude Scheduled Tasks, Codex Automations, etc.):
+
+1. Render schedules & prompts: `./hey cron render --job all --member $MEMBER --json`
+2. Each scheduled turn executes:
+   - `./hey cron preflight --job activity-sync --pull --json` (exits early with `"should_run": false` on cooldown/lock)
+   - For `api-token` sources: `FISHER_ACTIVITY_BATCH_NO_GIT_SYNC=1 ./hey activity poll <source>`
+   - For `agent-mcp` sources: host agent reads via its connected MCP/plugin tools and pipes normalized JSON into `./hey activity push-events --stdin`
+   - `./hey activity prepare-candidates` → LLM classification & reflection → `./hey activity finalize-reflections --data '{...}'`
+   - `./hey cron complete --job activity-sync --status ok` → `./hey validate` → scoped git commit & push
+3. When a laptop sleeps past a scheduled window, opening the desk (`desk-daily` `open` mode / `./hey connector status --json` / `./hey loop digest`) flags stale watermarks (`> 120m`) and triggers a one-shot catch-up automatically.
+
+### Mode B — Dedicated Always-On Host (Hermes)
+
+For teams running an always-on host (e.g., an office Mac Mini), Hermes owns Socket Mode Slack conversation plus scheduled `hey activity` turns:
 
 | Responsibility | Owner |
 | --- | --- |
 | Slack DM + allowlisted mentions | Hermes native Slack |
-| Scheduled polling/classification/finalize/notify | Hermes cron |
+| Scheduled polling / classification / finalize / notify | Hermes cron |
 | Moderation buttons and fallback commands | Hermes native Slack |
 | Canonical mutations | `node scripts/hey.mjs activity *` |
-| Legacy full runtime | break-glass only |
 
-## Why This Architecture
+#### Scheduled maintenance (shared host)
 
-The old Fisher-centric model had one custom Node.js runtime owning:
+- Run `node scripts/hey.mjs activity auto-compact-knowledge` daily at 03:15 KST to pull `main` and compact `workspace/fisher/knowledge/*.jsonl` when thresholds in `content/policies/external-activity.yml` are met.
+- Manual compaction remains available via `node scripts/hey.mjs activity compact-knowledge`.
 
-- Socket Mode Slack chat
-- collector scheduling
-- moderation digest/update delivery
-- free-form chat agent behavior
+#### Required Hermes Configuration Example
 
-That created two problems:
-
-1. Slack felt like it was talking to Codex/Hermes, but often talked to a constrained intermediary instead.
-2. Production responsibility was split between a custom runtime and Hermes reasoning.
-
-The Hermes-native cutover fixes that by making the Hermes agent the single execution brain for:
-
-- Slack repo conversation
-- scheduled activity pipeline turns
-- moderation button handling plus fallback commands
-- repo-aware shell/tool execution
-
-The cutover removes pm2 from normal production entirely.
-
-## Data Flow
-
-### Scheduled activity
-
-1. Hermes cron starts an isolated turn on the repo-scoped `hey-mgmt` agent
-2. the turn runs `node scripts/hey.mjs activity poll <source>`
-3. the turn runs `node scripts/hey.mjs activity prepare-candidates`
-4. the agent classifies unmatched events using the repo skill
-5. the turn runs `node scripts/hey.mjs activity finalize-reflections --data '{...}'`
-6. the team sees digest/update notifications with reject, revoke, or delete buttons
-
-### Scheduled maintenance
-
-- Hermes runs `node scripts/hey.mjs activity auto-compact-knowledge` daily at 03:15 KST.
-- The command pulls latest `main`, checks append-only knowledge garbage pressure, and compacts only when the cooldown and thresholds in `content/policies/external-activity.yml` allow it.
-- Manual emergency compaction remains available via `node scripts/hey.mjs activity compact-knowledge`, but normal cron should use the threshold-aware auto command.
-
-### Conversational Slack
-
-1. Slack DM or allowlisted mention enters Hermes native Slack
-2. Slack is routed to the repo-scoped `hey-mgmt` agent
-3. reads/searches/status checks execute immediately
-4. Slack DMs from authenticated TeamOS team members are treated as already-confirmed intent, including ordinary writes
-5. allowlisted-channel writes and untrusted DMs still require a confirmation turn
-6. explicit moderation button clicks, or fallback `reject <id>` / `revoke <sig>` / `delete-observation <sig>` commands, execute directly as already-confirmed intent
-
-## Required Production State
-
-### Hermes
-
-- Slack `groupPolicy` must be `allowlist`
-- Slack allowlist must contain only the team channels:
-  - `C0AC9CBPPJS`
-  - `C0A8A1ELH9A`
-  - `C08RB11D5PE`
-  - `C08K28MAL3C`
-- repo-scoped agent id must be `hey-mgmt`
-- agent workspace must be `/Users/hey-mgmt/workspace/hey-mgmt`
-- Slack channel binding must route to `hey-mgmt`
-
-## Break-Glass Path
-
-The old full runtime is still available behind:
-
-```bash
-SUPEREARN_ENABLE_LEGACY_ACTIVITY_RUNTIME=1 node workspace/fisher/external-activity-runtime/run.mjs
-```
-
-It exists for emergency debugging only. If that env var is absent, `run.mjs` exits immediately with guidance to use Hermes native Slack + cron.
+- Set Slack `groupPolicy` to `allowlist` with your team channel IDs (e.g. `C0123456789`).
+- Set the repo-scoped agent id to `hey-mgmt` and workspace to `/path/to/hey-mgmt`.
+- Bind Slack allowlisted channels and DMs to the `hey-mgmt` agent.
+- Store runtime secrets in `~/.hermes/.env` (or repo-local `.env` for dry-runs via `./hey connector configure`).
 
 ## Verification Commands
 
 ```bash
-hermes status
-hermes agents list
-hermes agents bindings --json
-hermes cron list
+./hey connector status --json
+./hey cron list --json
 ./hey validate
-node --test scripts/lib/__tests__/activity.test.mjs workspace/fisher/external-activity-runtime/lib/*.test.mjs
+node --test scripts/lib/__tests__/activity.test.mjs scripts/lib/__tests__/desk-connectors.test.mjs scripts/lib/__tests__/desk-cron.test.mjs workspace/fisher/external-activity-runtime/lib/*.test.mjs
 ```

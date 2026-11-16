@@ -3047,6 +3047,312 @@ activity
     console.log('To trigger manually, run: hermes cron run <approval-notify-job-id>');
   });
 
+activity
+  .command('push-events')
+  .description('Ingest normalized JSON/JSONL events pushed from an AI agent MCP/plugin bridge')
+  .option('--file <path>', 'Read events JSON/JSONL from file')
+  .option('--stdin', 'Read events JSON/JSONL from stdin')
+  .option('--owner <member>', 'Default workspace owner fallback')
+  .option('--prepare', 'Immediately run prepare-candidates over pushed events (no git push)')
+  .option('--json', 'Output JSON')
+  .action(async (options) => {
+    try {
+      let rawInput = '';
+      if (options.file) {
+        rawInput = readFileSync(resolve(repoRoot, options.file), 'utf8');
+      } else if (options.stdin || !input.isTTY) {
+        rawInput = readFileSync(0, 'utf8');
+      } else {
+        throw new Error('Pass --file <path> or pipe JSON/JSONL via --stdin');
+      }
+      const { pushAgentActivityEvents } = await import('./lib/activity-runner.mjs');
+      const result = await pushAgentActivityEvents({
+        repoRoot,
+        rawInput,
+        defaultWorkspaceOwner: options.owner || process.env.MEMBER || 'alice',
+        prepare: Boolean(options.prepare),
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(`push-events failed: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+// ── Agent-agnostic desk setup, connectors, and agent-managed cron ─────────────
+
+const setupCmd = program.command('setup').description('Inspect and apply deterministic desk onboarding (init/join)');
+
+setupCmd
+  .command('status')
+  .description('Inspect runtime tools, .env identity, starter state, capabilities, and sibling repos')
+  .option('--no-scan', 'Skip scanning parent directory for sibling git repos')
+  .option('--skip-remote', 'Skip git fetch check for tooling-current capability')
+  .option('--json', 'Output raw JSON')
+  .action(async (options) => {
+    const { inspectSetupStatus } = await import('./lib/desk-setup.mjs');
+    const status = inspectSetupStatus(repoRoot, {
+      scanParent: options.scan !== false,
+      skipRemoteCheck: Boolean(options.skipRemote),
+    });
+    if (options.json) {
+      console.log(JSON.stringify(status, null, 2));
+      return;
+    }
+    console.log(`Desk setup status (${status.repo_root})`);
+    console.log(`  needs_bootstrap: ${status.needs_bootstrap} | recommended mode: ${status.mode_recommendation}`);
+    console.log(`  member: ${status.env.member || '(unset)'} | language: ${status.env.language || '(unset)'} | tone: ${status.env.tone || '(unset)'}`);
+    console.log(`  node: ${status.tools.node.version} (${status.tools.node.ok ? 'ok' : 'upgrade needed'}) | pnpm: ${status.tools.pnpm.installed ? status.tools.pnpm.version : 'missing'} | gh: ${status.tools.gh.installed ? (status.tools.gh.authenticated ? 'authed' : 'unauthed') : 'missing'}`);
+    console.log(`  sibling git repos: ${status.sibling_git_repos.map((r) => r.name).join(', ') || '(none)'}`);
+  });
+
+setupCmd
+  .command('apply')
+  .description('Apply non-interactive desk setup (preserving unrelated .env secrets)')
+  .requiredOption('--member <id>', 'Member identifier (lowercase)')
+  .option('--mode <mode>', 'Setup mode: init | join (auto-detected if omitted)')
+  .option('--role <role>', 'Member role label for content/vocab/members.yml')
+  .option('--lang <code>', 'Preferred response language (en, ko, ja, zh, ...)', 'en')
+  .option('--tone <tone>', 'Interaction tone (concise|terse, balanced, coaching|warm)', 'balanced')
+  .option('--areas <csv>', 'Comma-separated domain areas (init mode)')
+  .option('--prune-starters', 'Remove untouched starter fixtures (alice/bob) in init mode')
+  .option('--no-repos-scan', 'Skip auto-generating workspace/<member>/repos.yml')
+  .option('--no-upgrade', 'Skip building index/catalog/kg during apply')
+  .option('--json', 'Output JSON')
+  .action(async (options) => {
+    try {
+      const { applySetup } = await import('./lib/desk-setup.mjs');
+      const result = applySetup(repoRoot, {
+        mode: options.mode,
+        member: options.member,
+        role: options.role,
+        lang: options.lang,
+        tone: options.tone,
+        areas: options.areas,
+        pruneStarters: Boolean(options.pruneStarters),
+        scanSiblings: options.reposScan !== false,
+        runUpgrade: options.upgrade !== false,
+      });
+      if (options.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        console.log(`Setup applied (${result.mode}) for member '${result.member}' (${result.language}/${result.tone})`);
+        console.log(`  workspace: ${result.workspace_dir}`);
+        console.log(`  validation: ${result.validation.errors} error(s), ${result.validation.warnings} warning(s)`);
+      }
+      if (!result.ok) process.exitCode = 1;
+    } catch (error) {
+      console.error(`Setup apply failed: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+const connectorCmd = program.command('connector').description('Inspect, discover, configure, and test external ingestion connectors');
+
+connectorCmd
+  .command('status')
+  .description('Show status, mode, credential readiness, and watermarks for all connectors')
+  .option('--stale-minutes <n>', 'Age threshold in minutes to flag stale enabled connectors', '120')
+  .option('--json', 'Output raw JSON')
+  .action(async (options) => {
+    const { inspectConnectorsStatus } = await import('./lib/desk-connectors.mjs');
+    const status = inspectConnectorsStatus(repoRoot, { maxAgeMinutes: Number(options.staleMinutes) });
+    if (options.json) {
+      console.log(JSON.stringify(status, null, 2));
+      return;
+    }
+    for (const c of status.connectors) {
+      const state = c.enabled ? `on (${c.mode})` : 'off';
+      const cred = c.credentials_ready ? 'creds:ready' : `creds:missing(${c.missing_env_keys.join(',')})`;
+      const stale = c.enabled ? (c.stale ? `stale:${c.stale_reason}` : 'fresh') : '-';
+      console.log(`  ${c.source.padEnd(11)} ${state.padEnd(18)} ${cred.padEnd(36)} ${stale}`);
+    }
+  });
+
+connectorCmd
+  .command('manifest <source>')
+  .description('Print onboarding manifest / setup instructions (e.g. slack)')
+  .option('--bot-name <name>', 'Bot display name for Slack manifest', 'hey-desk')
+  .option('--json', 'Output JSON')
+  .action(async (source, options) => {
+    if (String(source).toLowerCase() !== 'slack') {
+      console.error(`Manifest generation is currently supported for 'slack' (got '${source}').`);
+      process.exitCode = 1;
+      return;
+    }
+    const { renderSlackAppManifest } = await import('./lib/desk-connectors.mjs');
+    const payload = renderSlackAppManifest({ botName: options.botName });
+    console.log(JSON.stringify(payload, null, 2));
+  });
+
+connectorCmd
+  .command('discover <source>')
+  .description('Discover channels, repos, Drive folders, or Notion databases using configured credentials')
+  .option('--org <org>', 'GitHub organization filter')
+  .option('--json', 'Output JSON')
+  .action(async (source, options) => {
+    try {
+      const { discoverConnectorTargets } = await import('./lib/desk-connectors.mjs');
+      const result = await discoverConnectorTargets(repoRoot, source, { org: options.org });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(`Discover failed for ${source}: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+connectorCmd
+  .command('configure <source>')
+  .description('Atomically configure connector policy, runtime config, and .env keys')
+  .option('--mode <mode>', 'Ingestion mode: api-token | agent-mcp', 'api-token')
+  .option('--enable', 'Enable connector (default)')
+  .option('--disable', 'Disable connector')
+  .option('--channels <csv>', 'Comma-separated Slack channel IDs')
+  .option('--repos <csv>', 'Comma-separated GitHub owner/repo targets')
+  .option('--folders <csv>', 'Comma-separated Google Drive folder URLs or IDs')
+  .option('--shared-drives <csv>', 'Comma-separated Google Shared Drive IDs')
+  .option('--spaces <csv>', 'Comma-separated Confluence space keys')
+  .option('--databases <csv>', 'Comma-separated Notion database IDs')
+  .option('--query <query>', 'Gmail search query override')
+  .option('--set-env <kv...>', 'Set .env KEY=VALUE entries without touching unrelated secrets', collect, [])
+  .option('--json', 'Output JSON')
+  .action(async (source, options) => {
+    try {
+      const { configureConnector } = await import('./lib/desk-connectors.mjs');
+      const enabled = options.disable ? false : true;
+      const result = configureConnector(repoRoot, source, {
+        mode: options.mode,
+        enabled,
+        channels: options.channels,
+        repos: options.repos,
+        folders: options.folders,
+        sharedDrives: options.sharedDrives,
+        spaces: options.spaces,
+        databases: options.databases,
+        query: options.query,
+        envUpdates: options.setEnv,
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(`Configure failed for ${source}: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+connectorCmd
+  .command('test <source>')
+  .description('Run a fast read-only smoke test against a configured connector')
+  .option('--json', 'Output JSON')
+  .action(async (source) => {
+    try {
+      const { testConnector } = await import('./lib/desk-connectors.mjs');
+      const result = await testConnector(repoRoot, source);
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(`Connector test failed for ${source}: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+const cronCmd = program.command('cron').description('Agent-managed cron definitions, prompt rendering, and execution guards');
+
+cronCmd
+  .command('list')
+  .description('List standard agent-managed desk cron jobs')
+  .option('--json', 'Output JSON')
+  .action(async (options) => {
+    const { listCronJobs } = await import('./lib/desk-cron.mjs');
+    const jobs = listCronJobs();
+    if (options.json) {
+      console.log(JSON.stringify(jobs, null, 2));
+      return;
+    }
+    for (const j of jobs) {
+      console.log(`  ${j.id.padEnd(22)} ${j.default_cron.padEnd(18)} ${j.title}`);
+    }
+  });
+
+cronCmd
+  .command('render')
+  .description('Render stateless schedule + prompt for your AI agent scheduler (no OS launchd/crontab)')
+  .option('--job <id>', 'Job id (activity-sync | desk-morning-prep | desk-evening-scaffold | all)', 'all')
+  .option('--member <member>', 'Member override')
+  .option('--tz <iana>', 'IANA timezone (e.g. Asia/Seoul)')
+  .option('--schedule <cron>', '5-field cron schedule override (single job)')
+  .option('--json', 'Output JSON')
+  .action(async (options) => {
+    try {
+      const { listCronJobs, renderCronJob } = await import('./lib/desk-cron.mjs');
+      const ids = options.job === 'all' ? listCronJobs().map((j) => j.id) : [options.job];
+      const rendered = ids.map((job) =>
+        renderCronJob(repoRoot, {
+          job,
+          member: options.member,
+          tz: options.tz,
+          schedule: ids.length === 1 ? options.schedule : undefined,
+        }),
+      );
+      const outputPayload = ids.length === 1 ? rendered[0] : rendered;
+      if (options.json) {
+        console.log(JSON.stringify(outputPayload, null, 2));
+        return;
+      }
+      for (const r of rendered) {
+        console.log(`=== ${r.job} (${r.cron_with_tz}) ===`);
+        console.log(`cwd: ${r.cwd}\n`);
+        console.log(r.prompt);
+        console.log('');
+      }
+    } catch (error) {
+      console.error(`Cron render failed: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+cronCmd
+  .command('preflight')
+  .description('Check lock & cooldown before running an agent-managed cron turn')
+  .requiredOption('--job <id>', 'Job id')
+  .option('--cooldown-minutes <n>', 'Cooldown window in minutes')
+  .option('--pull', 'Best-effort git pull --rebase --autostash before checking')
+  .option('--json', 'Output JSON')
+  .action(async (options) => {
+    try {
+      const { preflightCronJob } = await import('./lib/desk-cron.mjs');
+      const result = preflightCronJob(repoRoot, {
+        job: options.job,
+        cooldownMinutes: options.cooldownMinutes !== undefined ? Number(options.cooldownMinutes) : undefined,
+        pull: Boolean(options.pull),
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(`Cron preflight failed: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
+cronCmd
+  .command('complete')
+  .description('Release lock and record completion timestamp for an agent-managed cron turn')
+  .requiredOption('--job <id>', 'Job id')
+  .option('--status <status>', 'Completion status (ok | error | skipped)', 'ok')
+  .option('--summary <text>', 'Short run summary', '')
+  .option('--json', 'Output JSON')
+  .action(async (options) => {
+    try {
+      const { completeCronJob } = await import('./lib/desk-cron.mjs');
+      const result = completeCronJob(repoRoot, {
+        job: options.job,
+        status: options.status,
+        summary: options.summary,
+      });
+      console.log(JSON.stringify(result, null, 2));
+    } catch (error) {
+      console.error(`Cron complete failed: ${error.message}`);
+      process.exitCode = 1;
+    }
+  });
+
 program.parseAsync(process.argv).catch((error) => {
   console.error(error);
   process.exit(1);

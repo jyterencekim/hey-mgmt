@@ -1,5 +1,9 @@
 {
+  "Infra": [
+    "playbook_shared-libraries"
+  ],
   "Team": [
+    "decision_adr-agent-agnostic-desk-bootstrap",
     "decision_adr-display-task-titles-not-ids",
     "decision_adr-kb-wide-change-contracts",
     "decision_adr-loop-control-driver-surface",

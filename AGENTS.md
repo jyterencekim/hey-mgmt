@@ -78,19 +78,21 @@ Weekly iteration logs (`note` with `tags: [IterationLog]`, `x_iteration: YYYY-WN
 ## Core Rules & Session Workflows
 
 1. **Portable Core (`ARCH1–3`, `OP1`):** Edit only `content/` and `workspace/`. Keep artifacts as plain markdown + frontmatter + git with no runtime lock-in, and prefix custom fields with `x_*`.
-2. **Member Identity:** Read `MEMBER` and `LANGUAGE` from `.env` (if `.env` is missing, tell the user to run `/setup`). Never hardcode a default owner.
+2. **Member Identity:** Read `MEMBER` and `LANGUAGE` from `.env` (if `.env` is missing or `MEMBER` is unset/`your-name`, trigger the First-Run Bootstrap Gate using [`.agents/skills/desk-bootstrap/SKILL.md`](.agents/skills/desk-bootstrap/SKILL.md) / [`BOOTSTRAP.md`](BOOTSTRAP.md) and `./hey setup`). Never hardcode a default owner.
 3. **Validation & Principles (`GP1–7`, `OP2–4`):** Use values from `content/vocab/` (`GP2`, `GP7`). Cite `sources` on decisions and claims (`GP1`, `GP6`). Run `./hey search` before creating to prevent duplicates (`GP3`). Keep one 1-week topic per artifact (`GP4`, `OP2`) and link related items via `relations` (`GP5`). Send raw external input to `inbox/`, but create user-requested artifacts directly with `./hey new` (`OP3`). Run `./hey validate` after every artifact change (see `.claude/skills/mgmt-principles/SKILL.md`, `playbook_golden-principles`, `playbook_operating-philosophy`, `ARCHITECTURE.md`; mark open gaps with `<!-- PRINCIPLE GAP: ... -->`).
 4. **Task Status & Tree Hygiene:** Keep task and initiative statuses current, and update connected items whenever a task changes status — see [Task Status Hygiene](#task-status-hygiene).
 5. **Explanatory Integrity:** End every non-trivial response with a 2–4 sentence plain-language summary (`**👵 옆집 할머니도 알아들을 수 있게 요약**` or `**👵 Plain-Language Summary**`). Explain what changed, why it matters, and what limit or trade-off remains for a smart non-specialist. Replace jargon with real cause-and-effect; avoid childish metaphors or oversimplification. Skip only for one-line replies, raw command/SQL output, or simple yes/no answers (`.claude/skills/explanatory-integrity/SKILL.md`).
 
 ### Session Start
 
+0. **First-Run Bootstrap Gate (Automatic across all agents):** Before answering any request in a fresh checkout, check `.env` (or run `./hey setup status --no-scan --skip-remote --json`). If `.env` is missing, `MEMBER` is `your-name`, or `needs_bootstrap` is `true`, immediately load [`.agents/skills/desk-bootstrap/SKILL.md`](.agents/skills/desk-bootstrap/SKILL.md) and [`BOOTSTRAP.md`](BOOTSTRAP.md) and walk the member through setting up their identity, workspace, connectors, and agent-managed cron.
 1. **Identity & memory:** Read `MEMBER` and `LANGUAGE` from `.env`. Read `workspace/$MEMBER/memory/MEMORY.md` when repo or historical context is needed.
-2. **Inbox & overdue deadlines (ceremony / task / planning only):** Run these before ceremony or planning skills (`/morning`, `/snap`, `/whatnext`, `/standup`, `/check`, `/sync`) or task management — **skip for standalone Q&A, code/doc review, or single-file analysis**:
+2. **Inbox & overdue deadlines (ceremony / task / planning only):** Run these before daily desk flows or task management — **skip for standalone Q&A, code/doc review, or single-file analysis**:
    - **Inbox:** If `inbox-check.sh` has not already listed them, run `./hey inbox list --workspace $MEMBER`. If open items exist, show count and titles and ask whether to review, reply, or discard.
    - **Overdue hard deadlines:** `due_date` is for hard external deadlines only (`decision_adr-three-layer-task-timeline`); internal schedules use `iteration` / `x_planned_date` / `x_target_date`. Run:
      `./hey db query "SELECT id, title, priority, due_date FROM items WHERE type='task' AND owner='$MEMBER' AND status IN ('ready','doing','blocked') AND due_date < '$TODAY' ORDER BY due_date ASC"`
      Require one action per overdue task (`defer YYYY-MM-DD` | `done` | `archive` | `drop` `due_date`) and update files right away. If none, continue silently.
+   - **Stale connector catch-up (start of day):** Check `./hey connector status --json`. If any enabled connector has `"stale": true`, run one catch-up pass (`./hey activity poll <source>` for `api-token`, or host-agent MCP fetch + `./hey activity push-events --stdin`) before compiling the daily plan.
 
 ### Retrieval Requests
 
@@ -154,15 +156,18 @@ When advancing task work, follow `.claude/skills/update-task-tree/SKILL.md`:
 1. **Update status right away & bump `updated_at`:** Ad-hoc work does not need a task, but if a task exists, cite its id and update its status immediately (`ready → doing → done/blocked/archived`). Check every `definition_of_done` item before marking `done`.
 2. **Walk the connected tree (`update-task-tree`, always on):** Unblock `blocked` tasks to `ready` once all blockers finish (and run `./hey inbox send` if `owner != $MEMBER`). Archive replaced tasks. Mark a parent `initiative` as `done` when all baseline + scope-added tasks and the initiative's DoD are complete (never edit `goal_*`). Run `./hey validate` and include a `🌳 Task Tree Update` summary leading with titles.
 
-## Slash Commands Reference
+## Command-Free Desk Routing & Agent-Managed Cron
 
-| Command | Purpose |
-| --- | --- |
-| `/setup` · `/upgrade` | First-time member setup · Upgrade checkout to latest capabilities (`./hey upgrade`) |
-| `/morning` · `/night` · `/snap` | Start-of-day plan · End-of-day wrap-up · Save progress checkpoint to today's worklog |
-| `/sync` · `/standup` · `/check` | Weekly iteration ceremony · Daily standup note · Quick mid-day status + inbox check |
-| `/whatnext` · `/review-roadmap` | Pick next priority task · Review active goals, initiatives, and task progress |
-| `/task` · `/task-status` · `/clean` | Create task · Audit/update task statuses · Archive done tasks and compact old logs |
-| `/idea` · `/promote` · `/decide` | Save raw idea (`workspace/$MEMBER/ideas/`) · Promote to `content/` · Draft an ADR (`decision`) |
-| `/assess` · `/search` · `/validate` | Evaluate external event/proposal · Search artifacts · Run `./hey validate` + principles check |
-| `/weekly-report` · `/launch-frontend` | Generate weekly team digest · Launch local board UI (`apps/board` + `apps/api`) |
+Users SHOULD interact in natural language in **any AI agent** (Claude Code, Codex, Antigravity, Cursor, OpenCode) without invoking slash commands. Canonical skill procedures live under [`.agents/skills/`](.agents/skills/README.md) (symlinked to `.claude/skills/`):
+
+| Natural Intent | Canonical Skill & CLI Primitives | Optional Alias |
+| --- | --- | --- |
+| First-time setup, join team, check upgrades | `.agents/skills/desk-bootstrap/SKILL.md` (`BOOTSTRAP.md`) · `./hey setup status\|apply`, `./hey upgrade` | `/setup`, `/upgrade` |
+| Start work day, daily briefing (`logs/YYYY-MM-DD.md` missing `## Plan`) | `.agents/skills/desk-daily/SKILL.md` (Mode A `open`) · `./hey loop digest --record`, `./hey inbox list` | `/morning` |
+| Mid-day status, checkpoint, claim next task, standup | `.agents/skills/desk-daily/SKILL.md` (Mode B `flow`) · `./hey work current\|claim`, `repo-survey.sh` | `/check`, `/snap`, `/whatnext`, `/standup` |
+| End of day wrap-up, reflection, push | `.agents/skills/desk-daily/SKILL.md` (Mode C `close`) · `./hey log scaffold`, `./hey validate` | `/night` |
+| Connect Slack, Drive, Notion, Gmail, Confluence, GitHub | `.agents/skills/desk-connectors/SKILL.md` · `./hey connector manifest\|discover\|configure\|test`, `./hey activity push-events` | — |
+| Schedule recurring ingestion or morning/evening prep | `.agents/skills/desk-connectors/SKILL.md` · `./hey cron list\|render\|preflight\|complete` (**agent-managed cron only — never OS `launchd`/`crontab`**) | — |
+| Weekly iteration rotation, roadmap check, backlog hygiene | `.agents/skills/desk-weekly/SKILL.md` · `./hey iteration prepackage`, `./hey hygiene`, `./hey assess` | `/sync`, `/clean`, `/review-roadmap` |
+| Create task/idea/ADR, promote, search, validate | `./hey new`, `./hey search`, `./hey validate` | `/task`, `/idea`, `/promote`, `/decide`, `/search`, `/validate` |
+| Launch optional local web board | `apps/board` + `apps/api` (`pnpm dev`) | `/launch-frontend` |

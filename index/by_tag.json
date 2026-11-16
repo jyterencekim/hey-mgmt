@@ -1,5 +1,6 @@
 {
   "Automation": [
+    "decision_adr-agent-agnostic-desk-bootstrap",
     "decision_adr-consolidate-intelligence-graph-into-mgmt",
     "decision_adr-kg-v2-operating-decisions",
     "decision_adr-loop-control-driver-surface",
@@ -14,6 +15,7 @@
     "note_frontmatter-schema-change-contract"
   ],
   "DeveloperExperience": [
+    "decision_adr-agent-agnostic-desk-bootstrap",
     "playbook_launch-management-frontend"
   ],
   "Documentation": [
@@ -33,6 +35,7 @@
     "playbook_loop-control-usage-guide",
     "playbook_meeting-note-distillation",
     "playbook_retrieval-protocol",
+    "playbook_shared-libraries",
     "playbook_style-guide",
     "playbook_style-guide-ko",
     "playbook_task-status-lifecycle"
@@ -46,7 +49,8 @@
     "decision_adr-retire-letter-grade-audit",
     "decision_adr-task-watchers-field",
     "decision_adr-track-dev-task-phase-as-ex",
-    "playbook_agent-commit-and-shell-hygiene"
+    "playbook_agent-commit-and-shell-hygiene",
+    "playbook_shared-libraries"
   ],
   "Frontend": [
     "playbook_launch-management-frontend"
@@ -59,18 +63,21 @@
     "decision_adr-kb-wide-change-contracts",
     "decision_adr-qmd-local-retrieval-backend",
     "decision_adr-repo-wide-capability-upgra",
-    "decision_workspace-log-compaction"
+    "decision_workspace-log-compaction",
+    "playbook_shared-libraries"
   ],
   "Integration": [
     "decision_fisher-autonomous-collection",
     "note_external-activity-integration-plan"
   ],
   "Onboarding": [
+    "decision_adr-agent-agnostic-desk-bootstrap",
     "goal_team-os-adoption",
     "initiative_team-workspace-onboarding",
     "task_complete-team-onboarding"
   ],
   "Operations": [
+    "decision_adr-agent-agnostic-desk-bootstrap",
     "decision_adr-consolidate-intelligence-graph-into-mgmt",
     "decision_adr-display-task-titles-not-ids",
     "decision_adr-goal-as-seventh-type",
